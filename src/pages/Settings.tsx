@@ -187,10 +187,10 @@ all your transactions (cannot be undone)</p>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
               Penny Pal is your personal budget tracker designed to help you manage your finances 
-              in Ghanaian Cedi. Track your income, expenses, and get insights into your spending habits.
+              in this economy hmm. Track your income, expenses, and get insights into your spending habits.
             </p>
             <p className="text-sm text-muted-foreground">
-              Version 1.0.0 • Built with ❤️ for financial wellness
+              This was built as a personal project by Big Sam. Hope you love it ❤️ 
             </p>
           </CardContent>
         </Card>
