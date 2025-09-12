@@ -22,6 +22,8 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          light: "hsl(var(--primary-light))",
+          dark: "hsl(var(--primary-dark))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -47,6 +49,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        income: {
+          DEFAULT: "hsl(var(--income))",
+          foreground: "hsl(var(--income-foreground))",
+          light: "hsl(var(--income-light))",
+        },
+        expense: {
+          DEFAULT: "hsl(var(--expense))",
+          foreground: "hsl(var(--expense-foreground))",
+          light: "hsl(var(--expense-light))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -57,6 +69,23 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-success": "var(--gradient-success)", 
+        "gradient-warning": "var(--gradient-warning)",
+        "gradient-danger": "var(--gradient-danger)",
+      },
+      boxShadow: {
+        "sm": "var(--shadow-sm)",
+        "md": "var(--shadow-md)",
+        "lg": "var(--shadow-lg)",
+        "success": "var(--shadow-success)",
+        "primary": "var(--shadow-primary)",
       },
       borderRadius: {
         lg: "var(--radius)",
