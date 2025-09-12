@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 
 const AuthPage = () => {
   const { user, signIn, signUp } = useAuth();
@@ -89,8 +89,12 @@ const AuthPage = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Logo/Header */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-primary">
-            <Wallet className="w-8 h-8 text-primary-foreground" />
+          <div className="mx-auto w-20 h-20 rounded-2xl flex items-center justify-center shadow-primary">
+            <img 
+              src="/logo.png" 
+              alt="Penny Pal Logo" 
+              className="w-20 h-20 object-contain rounded-2xl"
+            />
           </div>
           <h1 className="text-3xl font-poppins font-bold text-foreground">Penny Pal</h1>
           <p className="text-muted-foreground">Your smart budget tracker</p>

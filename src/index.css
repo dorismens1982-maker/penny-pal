@@ -18,11 +18,11 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 11% 15%;
 
-    /* Primary - Green #059669 */
-    --primary: 158 86% 30%;
+    /* Primary - Yellow to match logo */
+    --primary: 45 88% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 158 86% 35%;
-    --primary-dark: 158 86% 25%;
+    --primary-light: 45 88% 55%;
+    --primary-dark: 45 88% 45%;
 
     /* Secondary - Soft gray */
     --secondary: 210 40% 96.1%;
@@ -50,7 +50,7 @@ All colors MUST be HSL.
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 158 86% 30%;
+    --ring: 45 88% 50%;
 
     --radius: 1rem;
 
@@ -65,7 +65,7 @@ All colors MUST be HSL.
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-success: 0 10px 25px -5px rgb(14 165 233 / 0.2);
-    --shadow-primary: 0 10px 25px -5px rgb(5 150 105 / 0.2);
+    --shadow-primary: 0 10px 25px -5px rgb(240 180 15 / 0.2);
 
     --sidebar-background: 0 0% 98%;
 
@@ -94,10 +94,10 @@ All colors MUST be HSL.
     --popover: 210 11% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 158 86% 35%;
+    --primary: 45 88% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 158 86% 40%;
-    --primary-dark: 158 86% 30%;
+    --primary-light: 45 88% 60%;
+    --primary-dark: 45 88% 50%;
 
     --secondary: 210 11% 15%;
     --secondary-foreground: 0 0% 98%;
@@ -121,9 +121,9 @@ All colors MUST be HSL.
 
     --border: 210 11% 20%;
     --input: 210 11% 15%;
-    --ring: 158 86% 35%;
+    --ring: 45 88% 55%;
 
-    --shadow-primary: 0 10px 25px -5px rgb(5 150 105 / 0.3);
+    --shadow-primary: 0 10px 25px -5px rgb(240 180 15 / 0.3);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
