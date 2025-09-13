@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTransactions } from '@/hooks/useTransactions';
-import { LogOut, Download, Trash2, User, Shield, HelpCircle } from 'lucide-react';
+import { LogOut, Download, Trash2, User, Shield, HelpCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 const Settings = () => {
   const {
     user,
@@ -19,6 +20,7 @@ const Settings = () => {
     toast
   } = useToast();
   const [loading, setLoading] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const handleSignOut = async () => {
     setLoading(true);
     try {
@@ -195,6 +197,34 @@ all your transactions (cannot be undone)</p>
           </CardContent>
         </Card>
 
+        {/* Privacy & Policy */}
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center space-x-2">
+              <Shield className="w-5 h-5" />
+              <span>Privacy & Policy</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between py-3">
+              <div>
+                <p className="font-medium text-foreground">Privacy & Data Policy</p>
+                <p className="text-sm text-muted-foreground">
+                  View our privacy policy and data handling practices
+                </p>
+              </div>
+              <Button 
+                onClick={() => setShowPrivacyModal(true)} 
+                variant="outline" 
+                className="flex items-center space-x-2"
+              >
+                <Eye className="w-4 h-4" />
+                <span>View Policy</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Sign Out */}
         <Card className="shadow-md border-destructive/20">
           <CardContent className="pt-6">
@@ -211,6 +241,11 @@ Penny Pal account</p>
             </div>
           </CardContent>
         </Card>
+
+        <PrivacyPolicyModal 
+          open={showPrivacyModal} 
+          onOpenChange={setShowPrivacyModal} 
+        />
       </div>
     </Layout>;
 };

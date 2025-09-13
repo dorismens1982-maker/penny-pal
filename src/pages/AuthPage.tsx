@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, User } from 'lucide-react';
+import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 
 const AuthPage = () => {
   const { user, signIn, signUp } = useAuth();
@@ -19,6 +20,7 @@ const AuthPage = () => {
     password: '',
     confirmPassword: ''
   });
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -156,6 +158,15 @@ const AuthPage = () => {
                     {loading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
+                <div className="mt-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacyModal(true)}
+                    className="privacy-link"
+                  >
+                    Privacy & Data Policy
+                  </button>
+                </div>
               </TabsContent>
 
               <TabsContent value="signup">
@@ -216,10 +227,24 @@ const AuthPage = () => {
                     {loading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
+                <div className="mt-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacyModal(true)}
+                    className="privacy-link"
+                  >
+                    Privacy & Data Policy
+                  </button>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
+
+        <PrivacyPolicyModal 
+          open={showPrivacyModal} 
+          onOpenChange={setShowPrivacyModal} 
+        />
       </div>
     </div>
   );

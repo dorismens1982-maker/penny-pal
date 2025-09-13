@@ -198,4 +198,16 @@ All colors MUST be HSL.
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  /* Privacy Policy Link Styles */
+  .privacy-link {
+    color: #0052CC;
+    text-decoration: underline;
+    font-size: 0.75rem;
+    transition: color 0.2s ease;
+  }
+
+  .privacy-link:hover {
+    color: #003d99;
+  }
 }
