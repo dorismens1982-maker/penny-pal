@@ -4,17 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User } from 'lucide-react';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
+
+type ViewState = 'welcome' | 'signup' | 'signin';
 
 const AuthPage = () => {
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [currentView, setCurrentView] = useState<ViewState>('welcome');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -86,166 +87,225 @@ const AuthPage = () => {
     setLoading(false);
   };
 
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Logo/Header */}
+  const renderWelcomeView = () => (
+    <div className="text-center space-y-8 animate-fade-in">
+      <div className="space-y-4">
+        <div className="mx-auto w-32 h-32 rounded-3xl flex items-center justify-center">
+          <img 
+            src="/logo.png" 
+            alt="Penny Pal Logo" 
+            className="w-32 h-32 object-contain rounded-3xl"
+          />
+        </div>
+        <div className="space-y-3">
+          <h1 className="text-4xl md:text-5xl font-poppins font-bold text-white">
+            Track Your Spending Effortlessly
+          </h1>
+          <p className="text-lg text-white/80 max-w-md mx-auto">
+            Take control of your finances with our smart budget tracker designed for modern life
+          </p>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <Button 
+          onClick={() => setCurrentView('signup')}
+          size="lg"
+          className="w-full max-w-sm bg-white text-primary hover:bg-white/90 transition-all duration-200 h-14 text-lg font-semibold"
+        >
+          Get Started
+          <ChevronRight className="ml-2 h-5 w-5" />
+        </Button>
+        
+        <div className="space-y-2">
+          <p className="text-white/60 text-sm">Already have an account?</p>
+          <button
+            onClick={() => setCurrentView('signin')}
+            className="text-white font-medium underline underline-offset-4 hover:no-underline transition-all"
+          >
+            Sign in here
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSignUpView = () => (
+    <div className="w-full max-w-sm mx-auto animate-fade-in">
+      <div className="mb-8">
+        <button
+          onClick={() => setCurrentView('welcome')}
+          className="flex items-center text-white/80 hover:text-white transition-colors mb-6"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back
+        </button>
         <div className="text-center space-y-2">
-          <div className="mx-auto w-20 h-20 rounded-2xl flex items-center justify-center shadow-primary">
-            <img 
-              src="/logo.png" 
-              alt="Penny Pal Logo" 
-              className="w-20 h-20 object-contain rounded-2xl"
+          <h2 className="text-2xl font-poppins font-bold text-white">Create Account</h2>
+          <p className="text-white/80">Start tracking your expenses today</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSignUp} className="space-y-6">
+        <div className="space-y-4">
+          <div>
+            <Input
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
             />
           </div>
-          <h1 className="text-3xl font-poppins font-bold text-foreground">Penny Pal</h1>
-          <p className="text-muted-foreground">Your smart budget tracker</p>
+          <div>
+            <Input
+              name="password"
+              type="password"
+              placeholder="Create a password"
+              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <Input
+              name="confirmPassword"
+              type="password"
+              placeholder="Confirm your password"
+              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-center">Welcome</CardTitle>
-            <CardDescription className="text-center">
-              Sign in to your account or create a new one
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+        <Button 
+          type="submit" 
+          size="lg"
+          className="w-full bg-white text-primary hover:bg-white/90 transition-all h-12 font-semibold"
+          disabled={loading}
+        >
+          {loading ? "Creating account..." : "Create Account"}
+        </Button>
+      </form>
 
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signin-email"
-                        name="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signin-password"
-                        name="password"
-                        type="password"
-                        placeholder="Enter your password"
-                        className="pl-10"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
-                    disabled={loading}
-                  >
-                    {loading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-                <div className="mt-3 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setShowPrivacyModal(true)}
-                    className="privacy-link"
-                  >
-                    Privacy & Data Policy
-                  </button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-email"
-                        name="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        name="password"
-                        type="password"
-                        placeholder="Create a password"
-                        className="pl-10"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="confirm-password"
-                        name="confirmPassword"
-                        type="password"
-                        placeholder="Confirm your password"
-                        className="pl-10"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
-                    disabled={loading}
-                  >
-                    {loading ? "Creating account..." : "Create Account"}
-                  </Button>
-                </form>
-                <div className="mt-3 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setShowPrivacyModal(true)}
-                    className="privacy-link"
-                  >
-                    Privacy & Data Policy
-                  </button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        <PrivacyPolicyModal 
-          open={showPrivacyModal} 
-          onOpenChange={setShowPrivacyModal} 
-        />
+      <div className="mt-6 text-center space-y-3">
+        <p className="text-white/60 text-sm">Already have an account?</p>
+        <button
+          onClick={() => setCurrentView('signin')}
+          className="text-white font-medium underline underline-offset-4 hover:no-underline transition-all"
+        >
+          Sign in instead
+        </button>
+        
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowPrivacyModal(true)}
+            className="text-white/80 text-sm underline underline-offset-4 hover:text-white transition-colors"
+          >
+            Privacy & Data Policy
+          </button>
+        </div>
       </div>
+    </div>
+  );
+
+  const renderSignInView = () => (
+    <div className="w-full max-w-sm mx-auto animate-fade-in">
+      <div className="mb-8">
+        <button
+          onClick={() => setCurrentView('welcome')}
+          className="flex items-center text-white/80 hover:text-white transition-colors mb-6"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back
+        </button>
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-poppins font-bold text-white">Welcome Back</h2>
+          <p className="text-white/80">Sign in to continue tracking</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSignIn} className="space-y-6">
+        <div className="space-y-4">
+          <div>
+            <Input
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <Input
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        </div>
+
+        <Button 
+          type="submit" 
+          size="lg"
+          className="w-full bg-white text-primary hover:bg-white/90 transition-all h-12 font-semibold"
+          disabled={loading}
+        >
+          {loading ? "Signing in..." : "Sign In"}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center space-y-3">
+        <p className="text-white/60 text-sm">Don't have an account?</p>
+        <button
+          onClick={() => setCurrentView('signup')}
+          className="text-white font-medium underline underline-offset-4 hover:no-underline transition-all"
+        >
+          Create one here
+        </button>
+        
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowPrivacyModal(true)}
+            className="text-white/80 text-sm underline underline-offset-4 hover:text-white transition-colors"
+          >
+            Privacy & Data Policy
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="w-full max-w-lg relative z-10">
+        {currentView === 'welcome' && renderWelcomeView()}
+        {currentView === 'signup' && renderSignUpView()}
+        {currentView === 'signin' && renderSignInView()}
+      </div>
+
+      <PrivacyPolicyModal 
+        open={showPrivacyModal} 
+        onOpenChange={setShowPrivacyModal} 
+      />
     </div>
   );
 };
