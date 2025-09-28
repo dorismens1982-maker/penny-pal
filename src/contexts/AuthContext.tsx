@@ -44,7 +44,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile>(null);
 
   const refreshProfile = async () => {
-    if (!user) {
+    // Always read the current user directly to avoid race with setState
+    const { data: userRes } = await supabase.auth.getUser();
+    const currentUser = userRes.user;
+    if (!currentUser) {
       setProfile(null);
       return;
     }
@@ -53,22 +56,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await sb
         .from('profiles')
         .select('id, user_id, preferred_name, created_at')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .maybeSingle();
 
       if (error) throw error;
       if (data) {
         setProfile(data as Profile);
       } else {
-        const { data: userRes } = await supabase.auth.getUser();
-        const preferred = userRes.user?.user_metadata?.preferred_name ?? null;
-        setProfile({ user_id: user.id, preferred_name: preferred, id: undefined, created_at: null });
+        const preferred = currentUser.user_metadata?.preferred_name ?? null;
+        setProfile({ user_id: currentUser.id, preferred_name: preferred, id: undefined, created_at: null });
       }
     } catch (err) {
       // Fallback to auth metadata when table row not yet available
-      const { data: userRes } = await supabase.auth.getUser();
-      const preferred = userRes.user?.user_metadata?.preferred_name ?? null;
-      setProfile({ user_id: user!.id, preferred_name: preferred, id: undefined, created_at: null });
+      const preferred = currentUser.user_metadata?.preferred_name ?? null;
+      setProfile({ user_id: currentUser.id, preferred_name: preferred, id: undefined, created_at: null });
     }
   };
 
@@ -77,13 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
-        const nextUser = session?.user ?? null;
-        setUser(nextUser);
-        if (nextUser) {
-          await refreshProfile();
-        } else {
-          setProfile(null);
-        }
+        setUser(session?.user ?? null);
+        await refreshProfile();
         setLoading(false);
       }
     );
@@ -91,11 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
-      const nextUser = session?.user ?? null;
-      setUser(nextUser);
-      if (nextUser) {
-        await refreshProfile();
-      }
+      setUser(session?.user ?? null);
+      await refreshProfile();
       setLoading(false);
     });
 
