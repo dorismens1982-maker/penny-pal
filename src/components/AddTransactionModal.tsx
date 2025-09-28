@@ -31,25 +31,11 @@ export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalP
               'Groceries 🛍️', 'Rent 🏠', 'Other Expense']
   };
 
-  const loanIncomeCategories = ['Loan Received 💰', 'Loan Repayment Received 💵'];
+  const loanIncomeCategories = ['Loan Received', 'Loan Repayment Received'];
   const loanExpenseCategories = ['Loan Payment 💳', 'Loan Given 🤝'];
   const categoriesForType = formData.type === 'income'
     ? [...loanIncomeCategories, ...commonCategories.income]
     : [...loanExpenseCategories, ...commonCategories.expense];
-
-  // Emoji-augmented income categories (without altering stored values)
-  const incomeEmojiMap: Record<string, string> = {
-    'Salary': 'Salary 💼',
-    'Freelance': 'Freelance 🧑‍💻',
-    'Business': 'Business 🏢',
-    'Investment': 'Investment 📈',
-    'Gift': 'Gift 🎁',
-    'Bonus': 'Bonus 🎉',
-    'Other Income': 'Other Income ➕',
-  };
-  const categoriesForTypeWithLabel = formData.type === 'income'
-    ? categoriesForType.map((c) => ({ value: c, label: incomeEmojiMap[c] ?? c }))
-    : categoriesForType.map((c) => ({ value: c, label: c }));
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -161,9 +147,9 @@ export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalP
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  {categoriesForTypeWithLabel.map(({ value, label }) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
+                  {categoriesForType.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
