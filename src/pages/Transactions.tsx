@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTransactions } from '@/hooks/useTransactions';
 import { Search, Filter, ArrowUpRight, ArrowDownLeft, Trash2 } from 'lucide-react';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { useSearchParams } from 'react-router-dom';
 
 const Transactions = () => {
   const { transactions, loading, deleteTransaction } = useTransactions();
@@ -14,6 +15,26 @@ const Transactions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('date');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize filter from query param on mount
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'income' || typeParam === 'expense') {
+      setFilterType(typeParam);
+    }
+  }, []);
+
+  // Keep URL in sync when filter changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (filterType === 'income' || filterType === 'expense') {
+      params.set('type', filterType);
+    } else {
+      params.delete('type');
+    }
+    setSearchParams(params, { replace: true });
+  }, [filterType]);
 
   const filteredAndSortedTransactions = useMemo(() => {
     let filtered = transactions.filter(transaction => {
@@ -49,6 +70,13 @@ const Transactions = () => {
     }
   };
 
+  const clearFilter = () => {
+    setFilterType('all');
+    const params = new URLSearchParams(searchParams);
+    params.delete('type');
+    setSearchParams(params, { replace: true });
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -64,7 +92,9 @@ const Transactions = () => {
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-poppins font-bold text-foreground">Transactions</h1>
+          <h1 className="text-2xl font-poppins font-bold text-foreground">
+            {filterType === 'income' ? 'Income Transactions' : filterType === 'expense' ? 'Expense Transactions' : 'Transactions'}
+          </h1>
           <p className="text-muted-foreground">View and manage all your transactions</p>
         </div>
 
@@ -126,6 +156,9 @@ const Transactions = () => {
           <p className="text-sm text-muted-foreground">
             Showing {filteredAndSortedTransactions.length} of {transactions.length} transactions
           </p>
+          {filterType !== 'all' && (
+            <Button variant="outline" onClick={clearFilter}>View All Transactions</Button>
+          )}
         </div>
 
         {/* Transactions List */}

@@ -5,10 +5,14 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { ArrowUpRight, ArrowDownLeft, TrendingUp, Plus } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { transactions, balance, totals, loading } = useTransactions();
+  const { profile, session } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
+  const navigate = useNavigate();
 
   // Get recent transactions (last 5)
   const recentTransactions = transactions.slice(0, 5);
@@ -49,12 +53,25 @@ const Dashboard = () => {
     );
   }
 
+  const greetingForNow = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+  const preferred = profile?.preferred_name || (session?.user?.user_metadata as any)?.preferred_name || '';
+  const goToTransactions = (type: 'income' | 'expense') => {
+    navigate(`/transactions?type=${type}`);
+  };
+
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-poppins font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-2xl font-poppins font-bold text-foreground">
+            {preferred ? `${greetingForNow()}, ${preferred}!` : 'Dashboard'}
+          </h1>
           <p className="text-muted-foreground">Track your finances at a glance</p>
         </div>
 
@@ -79,7 +96,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Total Income */}
-          <Card className="shadow-md">
+          <Card className="shadow-md cursor-pointer hover:bg-muted/30 transition-colors" role="button" tabIndex={0} onClick={() => goToTransactions('income')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') goToTransactions('income'); }}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
             </CardHeader>
@@ -99,7 +116,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Total Expenses */}
-          <Card className="shadow-md">
+          <Card className="shadow-md cursor-pointer hover:bg-muted/30 transition-colors" role="button" tabIndex={0} onClick={() => goToTransactions('expense')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') goToTransactions('expense'); }}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
             </CardHeader>
