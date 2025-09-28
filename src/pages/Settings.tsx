@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,9 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { LogOut, Download, Trash2, User, Shield, HelpCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useProfile } from '@/hooks/useProfile';
 const Settings = () => {
   const {
     user,
@@ -21,6 +24,14 @@ const Settings = () => {
   } = useToast();
   const [loading, setLoading] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const { profile, updateProfile, updating } = useProfile();
+  const [profileForm, setProfileForm] = useState({ preferred_name: '' });
+
+  useEffect(() => {
+    setProfileForm({
+      preferred_name: profile?.preferred_name || '',
+    });
+  }, [profile]);
   const handleSignOut = async () => {
     setLoading(true);
     try {
@@ -81,6 +92,11 @@ const Settings = () => {
       await deleteAllTransactions();
     }
   };
+  const handleSaveProfile = async () => {
+    await updateProfile({
+      preferred_name: profileForm.preferred_name || null,
+    });
+  };
   return <Layout>
       <div className="p-4 space-y-6 max-w-4xl mx-auto">
         {/* Header */}
@@ -88,6 +104,33 @@ const Settings = () => {
           <h1 className="text-2xl font-poppins font-bold text-foreground">Settings</h1>
           <p className="text-muted-foreground">Manage your account and preferences</p>
         </div>
+
+        {/* Profile Information */}
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center space-x-2">
+              <User className="w-5 h-5" />
+              <span>Profile Information</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label className="text-sm text-muted-foreground">Preferred Name</Label>
+                <Input
+                  value={profileForm.preferred_name}
+                  onChange={(e) => setProfileForm((p) => ({ ...p, preferred_name: e.target.value }))}
+                  placeholder="Preferred name"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={handleSaveProfile} disabled={updating}>
+                {updating ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Account Information */}
         <Card className="shadow-md">

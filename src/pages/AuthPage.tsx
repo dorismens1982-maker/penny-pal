@@ -17,6 +17,7 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [currentView, setCurrentView] = useState<ViewState>('welcome');
   const [formData, setFormData] = useState({
+    preferredName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -40,7 +41,7 @@ const AuthPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signIn(formData.email, formData.password);
+    const { error, profile } = await signIn(formData.email, formData.password);
     
     if (error) {
       toast({
@@ -49,10 +50,9 @@ const AuthPage = () => {
         description: error.message,
       });
     } else {
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
+      const name = (profile as any)?.preferred_name || '';
+      const greeting = name ? `Welcome back, ${name}!` : 'Welcome back!';
+      toast({ title: greeting, description: "You've successfully signed in." });
     }
     setLoading(false);
   };
@@ -70,7 +70,7 @@ const AuthPage = () => {
     }
 
     setLoading(true);
-    const { error } = await signUp(formData.email, formData.password);
+    const { error } = await signUp(formData.email, formData.password, formData.preferredName);
     
     if (error) {
       toast({
@@ -148,6 +148,16 @@ const AuthPage = () => {
 
       <form onSubmit={handleSignUp} className="space-y-6">
         <div className="space-y-4">
+          <div>
+            <Input
+              name="preferredName"
+              type="text"
+              placeholder="Preferred name"
+              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
+              value={formData.preferredName}
+              onChange={handleInputChange}
+            />
+          </div>
           <div>
             <Input
               name="email"
