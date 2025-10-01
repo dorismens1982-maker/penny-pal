@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useTransactions } from '@/hooks/useTransactions';
-import { ArrowUpRight, ArrowDownLeft, TrendingUp, Plus } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, TrendingUp, Plus, BookOpen } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useAuth } from '@/contexts/AuthContext';
@@ -68,11 +69,21 @@ const Dashboard = () => {
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-poppins font-bold text-foreground">
-            {preferred ? `${greetingForNow()}, ${preferred}!` : 'Dashboard'}
-          </h1>
-          <p className="text-muted-foreground">Track your finances at a glance</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-poppins font-bold text-foreground">
+              {preferred ? `${greetingForNow()}, ${preferred}!` : 'Dashboard'}
+            </h1>
+            <p className="text-muted-foreground">Track your finances at a glance</p>
+          </div>
+          <Button
+            onClick={() => navigate('/blog')}
+            variant="outline"
+            className="flex items-center gap-2 border-primary/20 hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            <BookOpen className="w-5 h-5" />
+            <span className="font-medium">Financial Tips</span>
+          </Button>
         </div>
 
         {/* Balance Overview */}
