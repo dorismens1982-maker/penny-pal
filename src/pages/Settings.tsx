@@ -231,8 +231,8 @@ all your transactions (cannot be undone)</p>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Penny Pal is your personal budget tracker designed to help you manage your finances 
-              in this economy hmm. Track your income, expenses, and get insights into your spending habits.
+              Kudimate is your personal budget tracker designed to help you manage your finances 
+              in this economy charle. Track your income, expenses, and get insights into your spending habits.
             </p>
             <p className="text-sm text-muted-foreground">
               This was built as a personal project by Big Sam. Hope you love it ❤️ 
