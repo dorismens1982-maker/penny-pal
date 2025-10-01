@@ -36,10 +36,6 @@ const Settings = () => {
     setLoading(true);
     try {
       await signOut();
-      toast({
-        title: 'Signed out successfully',
-        description: 'You have been logged out of your account.'
-      });
     } catch (error: any) {
       toast({
         variant: 'destructive',

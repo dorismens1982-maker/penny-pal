@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, memo } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,87 @@ import { Search, Filter, ArrowUpRight, ArrowDownLeft, Trash2 } from 'lucide-reac
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useSearchParams } from 'react-router-dom';
 
+const MAX_NOTE_LENGTH = 50;
+
+const TransactionItem = memo(({ transaction, onDelete }: { transaction: any; onDelete: (id: string) => void }) => {
+  const [showFullNote, setShowFullNote] = useState(false);
+
+  const formatCurrency = (amount: number) => `₵${amount.toFixed(2)}`;
+
+  const truncateNote = (note: string | null) => {
+    if (!note) return null;
+    if (note.length <= MAX_NOTE_LENGTH) return note;
+    return showFullNote ? note : `${note.substring(0, MAX_NOTE_LENGTH)}...`;
+  };
+
+  return (
+    <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+      <div className="flex items-center space-x-4 flex-1">
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+          transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
+        }`}>
+          {transaction.type === 'income' ? (
+            <ArrowUpRight className="w-6 h-6 text-income" />
+          ) : (
+            <ArrowDownLeft className="w-6 h-6 text-expense" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-foreground text-lg">
+                {transaction.category}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {new Date(transaction.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </p>
+              {transaction.note && (
+                <div className="text-sm text-muted-foreground mt-1">
+                  <p>{truncateNote(transaction.note)}</p>
+                  {transaction.note.length > MAX_NOTE_LENGTH && (
+                    <button
+                      onClick={() => setShowFullNote(!showFullNote)}
+                      className="text-primary hover:underline text-xs mt-1"
+                    >
+                      {showFullNote ? 'Show less' : 'Show more'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <div className="text-right">
+                <p className={`text-xl font-poppins font-bold ${
+                  transaction.type === 'income' ? 'text-income' : 'text-expense'
+                }`}>
+                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                </p>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(transaction.id)}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+TransactionItem.displayName = 'TransactionItem';
+
 const Transactions = () => {
   const { transactions, loading, deleteTransaction } = useTransactions();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -17,7 +98,6 @@ const Transactions = () => {
   const [sortBy, setSortBy] = useState('date');
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize filter from query param on mount
   useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam === 'income' || typeParam === 'expense') {
@@ -25,7 +105,6 @@ const Transactions = () => {
     }
   }, []);
 
-  // Keep URL in sync when filter changes
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     if (filterType === 'income' || filterType === 'expense') {
@@ -38,16 +117,15 @@ const Transactions = () => {
 
   const filteredAndSortedTransactions = useMemo(() => {
     let filtered = transactions.filter(transaction => {
-      const matchesSearch = 
+      const matchesSearch =
         transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (transaction.note && transaction.note.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+
       const matchesFilter = filterType === 'all' || transaction.type === filterType;
-      
+
       return matchesSearch && matchesFilter;
     });
 
-    // Sort transactions
     filtered.sort((a, b) => {
       if (sortBy === 'date') {
         return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -61,8 +139,6 @@ const Transactions = () => {
 
     return filtered;
   }, [transactions, searchTerm, filterType, sortBy]);
-
-  const formatCurrency = (amount: number) => `₵${amount.toFixed(2)}`;
 
   const handleDeleteTransaction = async (id: string) => {
     if (confirm('Are you sure you want to delete this transaction?')) {
@@ -90,7 +166,6 @@ const Transactions = () => {
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
-        {/* Header */}
         <div className="space-y-2">
           <h1 className="text-2xl font-poppins font-bold text-foreground">
             {filterType === 'income' ? 'Income Transactions' : filterType === 'expense' ? 'Expense Transactions' : 'Transactions'}
@@ -98,7 +173,6 @@ const Transactions = () => {
           <p className="text-muted-foreground">View and manage all your transactions</p>
         </div>
 
-        {/* Filters and Search */}
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="text-lg flex items-center space-x-2">
@@ -107,7 +181,6 @@ const Transactions = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -118,7 +191,6 @@ const Transactions = () => {
               />
             </div>
 
-            {/* Filter Controls */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Type</label>
@@ -151,7 +223,6 @@ const Transactions = () => {
           </CardContent>
         </Card>
 
-        {/* Results Summary */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             Showing {filteredAndSortedTransactions.length} of {transactions.length} transactions
@@ -161,19 +232,18 @@ const Transactions = () => {
           )}
         </div>
 
-        {/* Transactions List */}
         <Card className="shadow-md">
           <CardContent className="p-0">
             {filteredAndSortedTransactions.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
-                  {searchTerm || filterType !== 'all' 
-                    ? 'No transactions match your filters' 
+                  {searchTerm || filterType !== 'all'
+                    ? 'No transactions match your filters'
                     : 'No transactions yet'
                   }
                 </p>
                 {!searchTerm && filterType === 'all' && (
-                  <Button 
+                  <Button
                     onClick={() => setShowAddModal(true)}
                     className="bg-gradient-primary hover:opacity-90"
                   >
@@ -184,63 +254,15 @@ const Transactions = () => {
             ) : (
               <div className="divide-y divide-border">
                 {filteredAndSortedTransactions.map((transaction, index) => (
-                  <div 
-                    key={transaction.id} 
-                    className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors animate-fade-in-up"
+                  <div
+                    key={transaction.id}
+                    className="animate-fade-in-up"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
-                      }`}>
-                        {transaction.type === 'income' ? (
-                          <ArrowUpRight className="w-6 h-6 text-income" />
-                        ) : (
-                          <ArrowDownLeft className="w-6 h-6 text-expense" />
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold text-foreground text-lg">
-                              {transaction.category}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(transaction.date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </p>
-                            {transaction.note && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {transaction.note}
-                              </p>
-                            )}
-                          </div>
-                          
-                          <div className="flex items-center space-x-3">
-                            <div className="text-right">
-                              <p className={`text-xl font-poppins font-bold ${
-                                transaction.type === 'income' ? 'text-income' : 'text-expense'
-                              }`}>
-                                {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                              </p>
-                            </div>
-                            
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteTransaction(transaction.id)}
-                              className="text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <TransactionItem
+                      transaction={transaction}
+                      onDelete={handleDeleteTransaction}
+                    />
                   </div>
                 ))}
               </div>
@@ -249,7 +271,7 @@ const Transactions = () => {
         </Card>
       </div>
 
-      <AddTransactionModal 
+      <AddTransactionModal
         open={showAddModal}
         onOpenChange={setShowAddModal}
       />
