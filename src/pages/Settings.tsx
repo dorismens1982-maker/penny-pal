@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTransactions } from '@/hooks/useTransactions';
-import { LogOut, Download, Trash2, User, Shield, HelpCircle, Eye } from 'lucide-react';
+import { LogOut, Download, Trash2, User, Shield, CircleHelp as HelpCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 import { Input } from '@/components/ui/input';
