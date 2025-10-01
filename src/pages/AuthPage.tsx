@@ -93,7 +93,7 @@ const AuthPage = () => {
         <div className="mx-auto w-32 h-32 rounded-3xl flex items-center justify-center">
           <img 
             src="/logo.png" 
-            alt="Penny Pal Logo" 
+            alt="Kudimate Logo" 
             className="w-32 h-32 object-contain rounded-3xl"
           />
         </div>
