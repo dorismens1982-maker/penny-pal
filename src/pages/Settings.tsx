@@ -226,7 +226,7 @@ all your transactions (cannot be undone)</p>
           <CardHeader>
             <CardTitle className="text-lg flex items-center space-x-2">
               <HelpCircle className="w-5 h-5" />
-              <span>About Penny Pal</span>
+              <span>About Kudimate</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -275,7 +275,7 @@ all your transactions (cannot be undone)</p>
               <div>
                 <p className="font-medium text-foreground">Sign Out</p>
                 <p className="text-sm text-muted-foreground">Sign out of your 
-Penny Pal account</p>
+Kudimate account</p>
               </div>
               <Button onClick={handleSignOut} variant="destructive" disabled={loading} className="flex items-center space-x-2">
                 <LogOut className="w-4 h-4" />
