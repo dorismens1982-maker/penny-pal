@@ -25,12 +25,22 @@ export const useProfile = () => {
           preferred_name: input.preferred_name ?? null,
         };
 
+        // Try to persist to profiles table (if present)
         const sb: any = supabase as any;
-        const { error } = await sb
+        const { error: upsertError } = await sb
           .from('profiles')
           .upsert(payload, { onConflict: 'user_id' });
 
-        if (error) throw error;
+        // Always also update auth metadata to ensure persistence across sessions
+        const { error: metaError } = await supabase.auth.updateUser({
+          data: { preferred_name: input.preferred_name ?? null },
+        });
+
+        if (upsertError && !metaError) {
+          // Table may not exist or RLS may block; metadata update still ensures greeting works
+        } else if (upsertError && metaError) {
+          throw upsertError || metaError;
+        }
 
         await refreshProfile();
         toast({ title: 'Profile updated', description: 'Your profile information has been saved.' });

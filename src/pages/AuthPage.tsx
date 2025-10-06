@@ -86,12 +86,21 @@ const AuthPage = () => {
   const renderWelcomeView = () => (
     <div className="text-center space-y-8 animate-fade-in">
       <div className="space-y-4">
-        <div className="mx-auto w-32 h-32 rounded-3xl flex items-center justify-center">
-          <img 
-            src="/logo.png" 
-            alt="Kudimate Logo" 
-            className="w-32 h-32 object-contain rounded-3xl"
-          />
+        <div className="mx-auto mb-6">
+          <div className="relative mx-auto w-48 h-48 mb-4">
+            <img
+              src="https://images.pexels.com/photos/5668858/pexels-photo-5668858.jpeg?auto=compress&cs=tinysrgb&w=400"
+              alt="Person confidently managing finances"
+              className="w-full h-full object-cover rounded-full shadow-2xl ring-4 ring-white/20"
+            />
+            <div className="absolute -bottom-2 -right-2 w-20 h-20 rounded-full flex items-center justify-center bg-white shadow-lg">
+              <img
+                src="/logo.png"
+                alt="Penny Pal Logo"
+                className="w-16 h-16 object-contain"
+              />
+            </div>
+          </div>
         </div>
         <div className="space-y-3">
           <h1 className="text-4xl md:text-5xl font-poppins font-bold text-white">
