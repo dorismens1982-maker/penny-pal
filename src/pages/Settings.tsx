@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTransactions } from '@/hooks/useTransactions';
-import { LogOut, Download, Trash2, User, Shield, HelpCircle, Eye } from 'lucide-react';
+import { LogOut, Download, Trash2, User, Shield, CircleHelp as HelpCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 import { Input } from '@/components/ui/input';
@@ -36,10 +36,6 @@ const Settings = () => {
     setLoading(true);
     try {
       await signOut();
-      toast({
-        title: 'Signed out successfully',
-        description: 'You have been logged out of your account.'
-      });
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -226,13 +222,13 @@ all your transactions (cannot be undone)</p>
           <CardHeader>
             <CardTitle className="text-lg flex items-center space-x-2">
               <HelpCircle className="w-5 h-5" />
-              <span>About Penny Pal</span>
+              <span>About Kudimate</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Penny Pal is your personal budget tracker designed to help you manage your finances 
-              in this economy hmm. Track your income, expenses, and get insights into your spending habits.
+              Kudimate is your personal budget tracker designed to help you manage your finances 
+              in this economy charle. Track your income, expenses, and get insights into your spending habits.
             </p>
             <p className="text-sm text-muted-foreground">
               This was built as a personal project by Big Sam. Hope you love it ❤️ 
@@ -275,7 +271,7 @@ all your transactions (cannot be undone)</p>
               <div>
                 <p className="font-medium text-foreground">Sign Out</p>
                 <p className="text-sm text-muted-foreground">Sign out of your 
-Penny Pal account</p>
+Kudimate account</p>
               </div>
               <Button onClick={handleSignOut} variant="destructive" disabled={loading} className="flex items-center space-x-2">
                 <LogOut className="w-4 h-4" />

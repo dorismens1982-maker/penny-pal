@@ -42,17 +42,13 @@ const AuthPage = () => {
     setLoading(true);
 
     const { error, profile } = await signIn(formData.email, formData.password);
-    
+
     if (error) {
       toast({
         variant: "destructive",
         title: "Sign in failed",
         description: error.message,
       });
-    } else {
-      const name = (profile as any)?.preferred_name || '';
-      const greeting = name ? `Welcome back, ${name}!` : 'Welcome back!';
-      toast({ title: greeting, description: "You've successfully signed in." });
     }
     setLoading(false);
   };

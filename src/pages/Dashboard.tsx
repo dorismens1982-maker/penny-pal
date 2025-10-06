@@ -1,20 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useTransactions } from '@/hooks/useTransactions';
-import { ArrowUpRight, ArrowDownLeft, TrendingUp, Plus } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, TrendingUp, Plus, BookOpen } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { MonthlyComparison } from '@/components/MonthlyComparison';
+import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
+
+const MAX_NOTE_LENGTH = 30;
+
+const RecentTransactionItem = memo(({ transaction }: { transaction: any }) => {
+  const formatCurrency = (amount: number) => `₵${Math.abs(amount).toFixed(2)}`;
+
+  const truncateNote = (note: string | null) => {
+    if (!note) return null;
+    if (note.length <= MAX_NOTE_LENGTH) return note;
+    return `${note.substring(0, MAX_NOTE_LENGTH)}...`;
+  };
+
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
+      <div className="flex items-center space-x-3">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+          transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
+        }`}>
+          {transaction.type === 'income' ? (
+            <ArrowUpRight className="w-5 h-5 text-income" />
+          ) : (
+            <ArrowDownLeft className="w-5 h-5 text-expense" />
+          )}
+        </div>
+        <div>
+          <p className="font-medium text-foreground">{transaction.category}</p>
+          <p className="text-sm text-muted-foreground">
+            {new Date(transaction.date).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className={`font-semibold ${
+          transaction.type === 'income' ? 'text-income' : 'text-expense'
+        }`}>
+          {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+        </p>
+        {transaction.note && (
+          <p className="text-xs text-muted-foreground">{truncateNote(transaction.note)}</p>
+        )}
+      </div>
+    </div>
+  );
+});
+
+RecentTransactionItem.displayName = 'RecentTransactionItem';
 
 const Dashboard = () => {
   const { transactions, balance, totals, loading } = useTransactions();
   const { profile, session } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
+  
+  // Detect new month and show toast
+  useNewMonthDetection();
 
-  // Get recent transactions (last 5)
   const recentTransactions = transactions.slice(0, 5);
 
   // Prepare chart data for the last 7 days
@@ -116,7 +167,7 @@ const Dashboard = () => {
                   <p className="text-2xl font-poppins font-bold text-income">
                     {formatCurrency(totals.income)}
                   </p>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <p className="text-xs text-muted-foreground">All time</p>
                 </div>
               </div>
             </CardContent>
@@ -136,12 +187,15 @@ const Dashboard = () => {
                   <p className="text-2xl font-poppins font-bold text-expense">
                     {formatCurrency(totals.expenses)}
                   </p>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <p className="text-xs text-muted-foreground">All time</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Monthly Comparison */}
+        <MonthlyComparison />
 
         {/* Weekly Summary Chart */}
         <Card className="shadow-md">
@@ -242,35 +296,7 @@ const Dashboard = () => {
             ) : (
               <div className="space-y-3">
                 {recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
-                      }`}>
-                        {transaction.type === 'income' ? (
-                          <ArrowUpRight className={`w-5 h-5 text-income`} />
-                        ) : (
-                          <ArrowDownLeft className={`w-5 h-5 text-expense`} />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{transaction.category}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(transaction.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-semibold ${
-                        transaction.type === 'income' ? 'text-income' : 'text-expense'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                      </p>
-                      {transaction.note && (
-                        <p className="text-xs text-muted-foreground">{transaction.note}</p>
-                      )}
-                    </div>
-                  </div>
+                  <RecentTransactionItem key={transaction.id} transaction={transaction} />
                 ))}
               </div>
             )}

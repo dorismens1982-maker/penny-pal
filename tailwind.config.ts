@@ -59,6 +59,10 @@ export default {
           foreground: "hsl(var(--expense-foreground))",
           light: "hsl(var(--expense-light))",
         },
+        success: {
+          DEFAULT: "hsl(var(--income))",
+          foreground: "hsl(var(--income-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
