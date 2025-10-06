@@ -68,11 +68,18 @@ const Dashboard = () => {
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-poppins font-bold text-foreground">
-            {preferred ? `${greetingForNow()}, ${preferred}!` : 'Dashboard'}
-          </h1>
-          <p className="text-muted-foreground">Track your finances at a glance</p>
+        <div className="flex items-center space-x-4 pb-2">
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-xl shadow-lg ring-4 ring-primary/10">
+              {preferred ? preferred.charAt(0).toUpperCase() : session?.user?.email?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-poppins font-bold text-foreground">
+              {preferred ? `${greetingForNow()}, ${preferred}!` : greetingForNow()}
+            </h1>
+            <p className="text-muted-foreground">Track your finances at a glance</p>
+          </div>
         </div>
 
         {/* Balance Overview */}
@@ -208,11 +215,26 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             {recentTransactions.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">No transactions yet</p>
-                <button 
+              <div className="text-center py-12">
+                <div className="mb-6 flex justify-center">
+                  <div className="relative w-40 h-40">
+                    <img
+                      src="https://images.pexels.com/photos/6289065/pexels-photo-6289065.jpeg?auto=compress&cs=tinysrgb&w=400"
+                      alt="Person starting financial journey"
+                      className="w-full h-full object-cover rounded-full shadow-lg"
+                    />
+                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                      <Plus className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Start Your Financial Journey</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Track your first transaction and take control of your spending
+                </p>
+                <button
                   onClick={() => setShowAddModal(true)}
-                  className="text-primary hover:underline"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all font-medium shadow-md hover:shadow-lg"
                 >
                   Add your first transaction
                 </button>

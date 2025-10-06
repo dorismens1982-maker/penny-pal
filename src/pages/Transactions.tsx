@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTransactions } from '@/hooks/useTransactions';
-import { Search, Filter, ArrowUpRight, ArrowDownLeft, Trash2 } from 'lucide-react';
+import { Search, Filter, ArrowUpRight, ArrowDownLeft, Trash2, Plus } from 'lucide-react';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useSearchParams } from 'react-router-dom';
 
@@ -165,18 +165,37 @@ const Transactions = () => {
         <Card className="shadow-md">
           <CardContent className="p-0">
             {filteredAndSortedTransactions.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">
-                  {searchTerm || filterType !== 'all' 
-                    ? 'No transactions match your filters' 
-                    : 'No transactions yet'
+              <div className="text-center py-16">
+                <div className="mb-8 flex justify-center">
+                  <div className="relative w-48 h-48">
+                    <img
+                      src={searchTerm || filterType !== 'all'
+                        ? "https://images.pexels.com/photos/5699456/pexels-photo-5699456.jpeg?auto=compress&cs=tinysrgb&w=400"
+                        : "https://images.pexels.com/photos/5717546/pexels-photo-5717546.jpeg?auto=compress&cs=tinysrgb&w=400"
+                      }
+                      alt={searchTerm || filterType !== 'all' ? "Person searching" : "Person organizing finances"}
+                      className="w-full h-full object-cover rounded-2xl shadow-xl"
+                    />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  {searchTerm || filterType !== 'all'
+                    ? 'No transactions found'
+                    : 'Ready to track your spending?'
+                  }
+                </h3>
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                  {searchTerm || filterType !== 'all'
+                    ? 'Try adjusting your filters or search terms to find what you\'re looking for'
+                    : 'Start adding your income and expenses to get insights into your financial habits'
                   }
                 </p>
                 {!searchTerm && filterType === 'all' && (
-                  <Button 
+                  <Button
                     onClick={() => setShowAddModal(true)}
-                    className="bg-gradient-primary hover:opacity-90"
+                    className="bg-gradient-primary hover:opacity-90 px-8 py-6 text-lg shadow-lg"
                   >
+                    <Plus className="w-5 h-5 mr-2" />
                     Add your first transaction
                   </Button>
                 )}
