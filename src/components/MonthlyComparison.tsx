@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 export const MonthlyComparison = () => {
-  const { getCurrentMonthSummary, getLastMonthSummary, getMonthName, loading } = useMonthlySummaries(2);
+  const { getCurrentMonthSummary, getLastMonthSummary, getMonthName, loading } = useMonthlySummaries({ limit: 2 });
   const navigate = useNavigate();
 
   if (loading) {

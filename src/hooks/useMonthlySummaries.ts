@@ -16,7 +16,13 @@ export interface MonthlySummary {
   updated_at: string;
 }
 
-export const useMonthlySummaries = (limit?: number) => {
+interface UseMonthlySummariesOptions {
+  limit?: number;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [summaries, setSummaries] = useState<MonthlySummary[]>([]);
@@ -24,7 +30,7 @@ export const useMonthlySummaries = (limit?: number) => {
 
   const fetchSummaries = async () => {
     if (!user) return;
-    
+
     try {
       let query = supabase
         .from('monthly_summaries')
@@ -33,14 +39,41 @@ export const useMonthlySummaries = (limit?: number) => {
         .order('year', { ascending: false })
         .order('month', { ascending: false });
 
-      if (limit) {
-        query = query.limit(limit);
+      if (options?.limit) {
+        query = query.limit(options.limit);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
-      setSummaries(data || []);
+
+      let filteredData = data || [];
+
+      if (options?.startDate || options?.endDate) {
+        filteredData = filteredData.filter((summary) => {
+          const summaryDate = new Date(summary.year, summary.month - 1);
+
+          if (options.startDate && options.endDate) {
+            const start = new Date(options.startDate.getFullYear(), options.startDate.getMonth());
+            const end = new Date(options.endDate.getFullYear(), options.endDate.getMonth());
+            return summaryDate >= start && summaryDate <= end;
+          }
+
+          if (options.startDate) {
+            const start = new Date(options.startDate.getFullYear(), options.startDate.getMonth());
+            return summaryDate >= start;
+          }
+
+          if (options.endDate) {
+            const end = new Date(options.endDate.getFullYear(), options.endDate.getMonth());
+            return summaryDate <= end;
+          }
+
+          return true;
+        });
+      }
+
+      setSummaries(filteredData);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -74,7 +107,7 @@ export const useMonthlySummaries = (limit?: number) => {
 
   useEffect(() => {
     fetchSummaries();
-  }, [user]);
+  }, [user, options?.startDate, options?.endDate, options?.limit]);
 
   // Set up real-time subscription for monthly_summaries
   useEffect(() => {
