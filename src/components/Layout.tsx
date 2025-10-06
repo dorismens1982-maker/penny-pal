@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Receipt, Settings, Plus, BookOpen } from 'lucide-react';
+import { Home, Receipt, Settings, Plus, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface LayoutProps {
@@ -14,7 +14,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/transactions', icon: Receipt, label: 'Transactions' },
-    { path: '/blog', icon: BookOpen, label: 'Blog' },
+    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/settings', icon: Settings, label: 'Settings' },
   ];
 

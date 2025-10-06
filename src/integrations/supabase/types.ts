@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      monthly_summaries: {
+        Row: {
+          balance: number
+          created_at: string
+          expenses: number
+          id: string
+          income: number
+          month: number
+          transaction_count: number
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          expenses?: number
+          id?: string
+          income?: number
+          month: number
+          transaction_count?: number
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          expenses?: number
+          id?: string
+          income?: number
+          month?: number
+          transaction_count?: number
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          preferred_name: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preferred_name?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preferred_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -52,7 +112,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      recalculate_monthly_summary: {
+        Args: { p_month: number; p_user_id: string; p_year: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

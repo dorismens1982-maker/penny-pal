@@ -8,6 +8,8 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { MonthlyComparison } from '@/components/MonthlyComparison';
+import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
 
 const MAX_NOTE_LENGTH = 30;
 
@@ -60,6 +62,9 @@ const Dashboard = () => {
   const { profile, session } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
+  
+  // Detect new month and show toast
+  useNewMonthDetection();
 
   const recentTransactions = transactions.slice(0, 5);
 
@@ -165,7 +170,7 @@ const Dashboard = () => {
                   <p className="text-2xl font-poppins font-bold text-income">
                     {formatCurrency(totals.income)}
                   </p>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <p className="text-xs text-muted-foreground">All time</p>
                 </div>
               </div>
             </CardContent>
@@ -185,12 +190,15 @@ const Dashboard = () => {
                   <p className="text-2xl font-poppins font-bold text-expense">
                     {formatCurrency(totals.expenses)}
                   </p>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <p className="text-xs text-muted-foreground">All time</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Monthly Comparison */}
+        <MonthlyComparison />
 
         {/* Weekly Summary Chart */}
         <Card className="shadow-md">
