@@ -83,6 +83,13 @@ export default function Analytics() {
           <p className="text-muted-foreground">View your financial trends and insights</p>
         </div>
 
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-foreground">Date Range Filter</h2>
+          <p className="text-sm text-muted-foreground">
+            Select a time period to analyze. All analytics below will update based on your selection.
+          </p>
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <DateRangePicker
             value={dateRange}
@@ -110,6 +117,13 @@ export default function Analytics() {
             </CardContent>
           </Card>
         )}
+
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-foreground">Financial Summary</h2>
+          <p className="text-sm text-muted-foreground">
+            Your overall financial performance for the selected period. Arrows indicate trends compared to previous months.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
@@ -169,10 +183,15 @@ export default function Analytics() {
         {!categoryLoading && topCategories.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5" />
-                Top Spending Categories
-              </CardTitle>
+              <div className="space-y-1">
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5" />
+                  Top Spending Categories
+                </CardTitle>
+                <p className="text-sm text-muted-foreground font-normal">
+                  Your highest spending categories ranked by total amount. Percentages show each category's share of total expenses.
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -204,7 +223,12 @@ export default function Analytics() {
         {chartData.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Monthly Trend</CardTitle>
+              <div className="space-y-1">
+                <CardTitle>Monthly Trend</CardTitle>
+                <p className="text-sm text-muted-foreground font-normal">
+                  Visualize your income (green) and expenses (red) over time. The blue line shows your net balance.
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
@@ -264,7 +288,12 @@ export default function Analytics() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Month by Month Breakdown</CardTitle>
+            <div className="space-y-1">
+              <CardTitle>Month by Month Breakdown</CardTitle>
+              <p className="text-sm text-muted-foreground font-normal">
+                Detailed monthly view showing income, expenses, and transaction counts. Badges highlight the current month and top spending category.
+              </p>
+            </div>
           </CardHeader>
           <CardContent>
             {summaries.length === 0 ? (

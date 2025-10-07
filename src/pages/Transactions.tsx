@@ -175,10 +175,15 @@ const Transactions = () => {
 
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <Filter className="w-5 h-5" />
-              <span>Filters</span>
-            </CardTitle>
+            <div className="space-y-1">
+              <CardTitle className="text-lg flex items-center space-x-2">
+                <Filter className="w-5 h-5" />
+                <span>Filters</span>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground font-normal">
+                Search by category or notes, filter by transaction type, and sort your results
+              </p>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative">
@@ -230,6 +235,13 @@ const Transactions = () => {
           {filterType !== 'all' && (
             <Button variant="outline" onClick={clearFilter}>View All Transactions</Button>
           )}
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-foreground">Transaction History</h2>
+          <p className="text-sm text-muted-foreground">
+            View all your transactions with amounts, dates, and notes. Click the trash icon to delete any transaction.
+          </p>
         </div>
 
         <Card className="shadow-md">
