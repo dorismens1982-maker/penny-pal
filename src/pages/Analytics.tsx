@@ -7,7 +7,7 @@ import { useCategoryAnalytics } from '@/hooks/useCategoryAnalytics';
 import { Badge } from '@/components/ui/badge';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Line } from 'recharts';
 import { DateRangePicker, DateRange, DateRangePreset } from '@/components/DateRangePicker';
-import { getOverallTrend, getMonthTrend, getSpendingTrendSummary } from '@/utils/trendCalculations';
+import { getOverallTrend, getMonthTrend } from '@/utils/trendCalculations';
 import { Progress } from '@/components/ui/progress';
 
 export default function Analytics() {
@@ -30,7 +30,6 @@ export default function Analytics() {
   };
 
   const overallTrend = useMemo(() => getOverallTrend(summaries), [summaries]);
-  const spendingTrendSummary = useMemo(() => getSpendingTrendSummary(summaries), [summaries]);
 
   if (loading) {
     return (
@@ -52,13 +51,9 @@ export default function Analytics() {
       balance: Number(summary.balance),
     }));
 
-  const totalIncome = summaries.reduce((sum, s) => sum + Number(s.income), 0);
-  const totalExpenses = summaries.reduce((sum, s) => sum + Number(s.expenses), 0);
-  const totalBalance = totalIncome - totalExpenses;
-  const avgMonthlyIncome = summaries.length > 0 ? totalIncome / summaries.length : 0;
-  const avgMonthlyExpenses = summaries.length > 0 ? totalExpenses / summaries.length : 0;
+  const totalBalance = summaries.reduce((sum, s) => sum + Number(s.income) - Number(s.expenses), 0);
 
-  const TrendIndicator = ({ trend, label }: { trend: any; label: string }) => {
+  const TrendIndicator = ({ trend }: { trend: any }) => {
     if (!trend) return null;
 
     const Icon = trend.direction === 'up' ? ChevronUp : trend.direction === 'down' ? ChevronDown : Minus;
@@ -75,6 +70,7 @@ export default function Analytics() {
   return (
     <Layout>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
+        {/* Page Header */}
         <div className="space-y-2">
           <h1 className="text-2xl font-poppins font-bold text-foreground flex items-center gap-2">
             <Calendar className="h-6 w-6" />
@@ -83,6 +79,7 @@ export default function Analytics() {
           <p className="text-muted-foreground">View your financial trends and insights</p>
         </div>
 
+        {/* Date Range Picker */}
         <div className="space-y-2">
           <h2 className="text-lg font-semibold text-foreground">Date Range Filter</h2>
           <p className="text-sm text-muted-foreground">
@@ -103,83 +100,9 @@ export default function Analytics() {
           )}
         </div>
 
-        {overallTrend && (
-          <Card className={`border-l-4 ${
-            spendingTrendSummary.type === 'positive' ? 'border-l-success' :
-            spendingTrendSummary.type === 'negative' ? 'border-l-destructive' :
-            'border-l-muted'
-          }`}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Spending Trend Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">{spendingTrendSummary.message}</p>
-            </CardContent>
-          </Card>
-        )}
+        {/* ✅ Removed Spending Trend Summary and Financial Summary cards */}
 
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-foreground">Financial Summary</h2>
-          <p className="text-sm text-muted-foreground">
-            Your overall financial performance for the selected period. Arrows indicate trends compared to previous months.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Income
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-success">₵{totalIncome.toFixed(2)}</p>
-                {overallTrend && <TrendIndicator trend={overallTrend.income} label="Income" />}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Avg: ₵{avgMonthlyIncome.toFixed(2)}/month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Expenses
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-destructive">₵{totalExpenses.toFixed(2)}</p>
-                {overallTrend && <TrendIndicator trend={overallTrend.expenses} label="Expenses" />}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Avg: ₵{avgMonthlyExpenses.toFixed(2)}/month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Net Savings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  ₵{totalBalance.toFixed(2)}
-                </p>
-                {overallTrend && <TrendIndicator trend={overallTrend.balance} label="Balance" />}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {selectedPreset === 'all' ? 'All time' : 'Selected period'}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
+        {/* Top Spending Categories */}
         {!categoryLoading && topCategories.length > 0 && (
           <Card>
             <CardHeader>
@@ -220,6 +143,7 @@ export default function Analytics() {
           </Card>
         )}
 
+        {/* Monthly Trend Chart */}
         {chartData.length > 0 && (
           <Card>
             <CardHeader>
@@ -286,6 +210,7 @@ export default function Analytics() {
           </Card>
         )}
 
+        {/* Month by Month Breakdown */}
         <Card>
           <CardHeader>
             <div className="space-y-1">
