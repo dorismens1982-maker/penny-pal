@@ -32,6 +32,8 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
     if (!user) return;
 
     try {
+      setLoading(true);
+
       let query = supabase
         .from('monthly_summaries')
         .select('*')
@@ -44,13 +46,13 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
 
-      let filteredData = data || [];
+      let fetchedData = data || [];
 
+      // Apply date filters if provided
       if (options?.startDate || options?.endDate) {
-        filteredData = filteredData.filter((summary) => {
+        fetchedData = fetchedData.filter((summary) => {
           const summaryDate = new Date(summary.year, summary.month - 1);
 
           if (options.startDate && options.endDate) {
@@ -73,7 +75,35 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
         });
       }
 
-      setSummaries(filteredData);
+      // 🧩 NEW FEATURE: Always show the last 3 months (even with no data)
+      const now = new Date();
+      const last3Months = Array.from({ length: 3 }, (_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        return { month: d.getMonth() + 1, year: d.getFullYear() };
+      }).reverse(); // show oldest first
+
+      // Merge fetched summaries with zero-value placeholders
+      const mergedSummaries = last3Months.map((m) => {
+        const existing = fetchedData.find(
+          (s) => s.month === m.month && s.year === m.year
+        );
+        return (
+          existing || {
+            id: `${m.year}-${m.month}`,
+            user_id: user.id,
+            month: m.month,
+            year: m.year,
+            income: 0,
+            expenses: 0,
+            balance: 0,
+            transaction_count: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        );
+      });
+
+      setSummaries(mergedSummaries);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -89,16 +119,14 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    
-    return summaries.find(s => s.month === currentMonth && s.year === currentYear);
+    return summaries.find((s) => s.month === currentMonth && s.year === currentYear);
   };
 
   const getLastMonthSummary = () => {
     const now = new Date();
     const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth();
     const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-    
-    return summaries.find(s => s.month === lastMonth && s.year === lastMonthYear);
+    return summaries.find((s) => s.month === lastMonth && s.year === lastMonthYear);
   };
 
   const getMonthName = (month: number) => {
@@ -109,7 +137,7 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
     fetchSummaries();
   }, [user, options?.startDate, options?.endDate, options?.limit]);
 
-  // Set up real-time subscription for monthly_summaries
+  // Real-time subscription
   useEffect(() => {
     if (!user) return;
 
