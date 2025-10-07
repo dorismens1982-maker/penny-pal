@@ -5,7 +5,6 @@ import { TrendingUp, TrendingDown, Calendar, Minus, ChevronUp, ChevronDown, Shop
 import { useMonthlySummaries } from '@/hooks/useMonthlySummaries';
 import { useCategoryAnalytics } from '@/hooks/useCategoryAnalytics';
 import { Badge } from '@/components/ui/badge';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Line } from 'recharts';
 import { DateRangePicker, DateRange, DateRangePreset } from '@/components/DateRangePicker';
 import { getOverallTrend, getMonthTrend } from '@/utils/trendCalculations';
 import { Progress } from '@/components/ui/progress';
@@ -41,26 +40,12 @@ export default function Analytics() {
     );
   }
 
-  const chartData = summaries
-    .slice()
-    .reverse()
-    .map(summary => ({
-      month: `${getMonthName(summary.month).slice(0, 3)} ${summary.year}`,
-      income: Number(summary.income),
-      expenses: Number(summary.expenses),
-      balance: Number(summary.balance),
-    }));
-
   const totalBalance = summaries.reduce((sum, s) => sum + Number(s.income) - Number(s.expenses), 0);
-  const totalIncome = summaries.reduce((sum, s) => sum + Number(s.income), 0);
-  const totalExpenses = summaries.reduce((sum, s) => sum + Number(s.expenses), 0);
 
   const TrendIndicator = ({ trend }: { trend: any }) => {
     if (!trend) return null;
-
     const Icon = trend.direction === 'up' ? ChevronUp : trend.direction === 'down' ? ChevronDown : Minus;
     const colorClass = trend.isPositive ? 'text-success' : 'text-destructive';
-
     return (
       <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
         <Icon className="h-3 w-3" />
@@ -102,9 +87,7 @@ export default function Analytics() {
           )}
         </div>
 
-        {/* ✅ Removed Spending Trend Summary and Financial Summary cards */}
-
-        {/* Top Spending Categories */}
+        {/* ✅ Top Spending Categories */}
         {!categoryLoading && topCategories.length > 0 && (
           <Card>
             <CardHeader>
@@ -145,67 +128,7 @@ export default function Analytics() {
           </Card>
         )}
 
-        {/* 🎨 Redesigned Financial Pulse (Monthly Trend) */}
-        {chartData.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Financial Pulse: Your Income vs Expense Journey
-              </CardTitle>
-              <p className="text-sm text-muted-foreground font-normal">
-                Visualize your monthly performance — see how income, expenses, and savings evolved over time.
-              </p>
-            </CardHeader>
-
-            <CardContent>
-              
-
-              {/* Chart */}
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--success))" stopOpacity={0.4}/>
-                      <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.4}/>
-                      <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Area type="monotone" dataKey="income" stroke="hsl(var(--success))" strokeWidth={2.5} fill="url(#colorIncome)" dot={false}/>
-                  <Area type="monotone" dataKey="expenses" stroke="hsl(var(--destructive))" strokeWidth={2.5} fill="url(#colorExpenses)" dot={false}/>
-                  <Line type="monotone" dataKey="balance" stroke="hsl(var(--primary))" strokeWidth={2} dot={false}/>
-                </AreaChart>
-              </ResponsiveContainer>
-
-              {/* Insight footer */}
-              <div className="mt-4 text-center text-sm">
-                {totalBalance >= 0 ? (
-                  <p className="text-success flex items-center justify-center gap-1">
-                    <TrendingUp className="h-4 w-4" /> Great job! You saved ₵{totalBalance.toFixed(2)} overall.
-                  </p>
-                ) : (
-                  <p className="text-destructive flex items-center justify-center gap-1">
-                    <TrendingDown className="h-4 w-4" /> Careful — your spending exceeded income by ₵{Math.abs(totalBalance).toFixed(2)}.
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Month by Month Breakdown */}
+        {/* ✅ Month by Month Breakdown */}
         <Card>
           <CardHeader>
             <div className="space-y-1">
@@ -222,7 +145,7 @@ export default function Analytics() {
               </p>
             ) : (
               <div className="space-y-3">
-                {summaries.map((summary, index) => {
+                {summaries.map((summary) => {
                   const monthName = getMonthName(summary.month);
                   const isPositive = summary.balance >= 0;
                   const now = new Date();
