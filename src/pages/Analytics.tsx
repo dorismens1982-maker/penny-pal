@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, TrendingUp, TrendingDown, Calendar, Minus, ChevronUp, ChevronDown, ShoppingBag } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Layout } from '@/components/Layout';
+import { TrendingUp, TrendingDown, Calendar, Minus, ChevronUp, ChevronDown, ShoppingBag } from 'lucide-react';
 import { useMonthlySummaries } from '@/hooks/useMonthlySummaries';
 import { useCategoryAnalytics } from '@/hooks/useCategoryAnalytics';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +11,6 @@ import { getOverallTrend, getMonthTrend, getSpendingTrendSummary } from '@/utils
 import { Progress } from '@/components/ui/progress';
 
 export default function Analytics() {
-  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
   const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('all');
 
@@ -36,19 +34,11 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Button>
-          <div className="animate-pulse space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-muted rounded-lg"></div>
-            ))}
-          </div>
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
@@ -83,17 +73,14 @@ export default function Analytics() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 pb-24">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Button>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+    <Layout>
+      <div className="p-4 space-y-6 max-w-7xl mx-auto">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-poppins font-bold text-foreground flex items-center gap-2">
             <Calendar className="h-6 w-6" />
             Monthly Analytics
           </h1>
+          <p className="text-muted-foreground">View your financial trends and insights</p>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -365,6 +352,6 @@ export default function Analytics() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </Layout>
   );
 }
