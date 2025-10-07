@@ -159,23 +159,7 @@ export default function Analytics() {
             </CardHeader>
 
             <CardContent>
-              {/* Summary bar */}
-              <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-                <div className="bg-success/10 rounded-lg p-2">
-                  <p className="text-xs text-muted-foreground">Total Income</p>
-                  <p className="text-lg font-bold text-success">₵{totalIncome.toFixed(2)}</p>
-                </div>
-                <div className="bg-destructive/10 rounded-lg p-2">
-                  <p className="text-xs text-muted-foreground">Total Expenses</p>
-                  <p className="text-lg font-bold text-destructive">₵{totalExpenses.toFixed(2)}</p>
-                </div>
-                <div className={`rounded-lg p-2 ${totalBalance >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                  <p className="text-xs text-muted-foreground">Net Balance</p>
-                  <p className={`text-lg font-bold ${totalBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    ₵{totalBalance.toFixed(2)}
-                  </p>
-                </div>
-              </div>
+              
 
               {/* Chart */}
               <ResponsiveContainer width="100%" height={300}>
