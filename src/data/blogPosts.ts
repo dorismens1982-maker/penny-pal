@@ -205,24 +205,136 @@ Remember: The best time to build an emergency fund is before you need it.
     `,
   },
   {
-    id: '4',
-    slug: 'smart-investments-ghana',
-    title: 'Smart Investment Options for Beginners in Ghana',
-    excerpt:
-      'Explore safe and profitable investment opportunities available to Ghanaians looking to grow their wealth.',
-    category: 'Investment Guide',
-    date: '2025-09-15',
-    readTime: 8,
-    image:
-      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=1200&fit=crop', // 📈 Investment, finance graph, Ghana wealth theme
-    content: `
-# Smart Investment Options for Beginners in Ghana
+    Ready to make your money work for you? Here's a practical guide to investment options available in Ghana, tailored for beginners.
 
-Ready to make your money work for you? Here's a practical guide to investment options available in Ghana, tailored for beginners.
+## Before You Start
 
-...
-    `,
-  },
+### Build Your Foundation First
+Before investing:
+1. Clear high-interest debt  
+2. Build a 3–6 month emergency fund  
+3. Understand your risk tolerance  
+4. Set clear financial goals
+
+### Understand Risk vs. Return
+Higher returns usually mean higher risk. As a beginner, balance is key — don’t chase get-rich-quick schemes.
+
+## Low-Risk Investment Options
+
+### 1. Treasury Bills (T-Bills)
+**What they are:** Short-term government securities.  
+**Benefits:**
+- Very safe (government-backed)  
+- Predictable returns (commonly used as conservative instruments)  
+- Accessible via banks and licensed brokers  
+- Liquid (typical tenors: 91, 182, 364 days)
+
+**How to invest:** Through commercial banks, investment firms, or licensed digital platforms that aggregate access to government securities.  
+**Best for:** Conservative investors who want capital preservation and predictable returns.
+
+### 2. Fixed Deposits
+**What they are:** You lock money with a bank for a fixed period at a fixed interest rate.  
+**Benefits:**
+- Safe (protected by deposit insurance up to applicable limits)  
+- Guaranteed returns for the term chosen  
+- Flexible tenor options
+
+**Drawbacks:** Penalties for early withdrawal.  
+**Best for:** Funds you can set aside without needing immediate access.
+
+### 3. Government Bonds
+**What they are:** Longer-term government debt (e.g., 2–20 years).  
+**Benefits:**
+- Generally lower risk than equities  
+- Regular coupon payments (for some bonds)  
+- Tradable on secondary markets
+
+**Drawbacks:** Sensitive to interest rate changes and inflation.  
+**Best for:** Long-term savers seeking predictable income.
+
+## Moderate-Risk Options
+
+### 4. Mutual Funds & Unit Trusts
+**What they are:** Pooled funds managed by professionals that invest across assets (equities, bonds, money market).  
+**Benefits:**
+- Professional management and diversification  
+- Lower entry point than direct stock investments  
+- Variety: equity funds, balanced funds, fixed-income funds
+
+**Drawbacks:** Management fees and no guaranteed returns.  
+**Best for:** Investors who want diversification without selecting individual stocks.
+
+### 5. Pension Funds (Top-Up & Voluntary Contributions)
+Adding to a pension or making voluntary contributions can compound tax-efficiently over time and is a low-effort way to grow long-term savings.
+
+## Higher-Risk Options
+
+### 6. Stock Market (Ghana Stock Exchange)
+**What it is:** Buying shares in publicly listed companies.  
+**Benefits:**
+- Potential for capital growth and dividends  
+- Direct ownership in companies
+
+**Risks:** Price volatility and potential losses; requires research and patience.  
+**Best for:** Investors willing to learn, accept short-term swings, and invest for the long term.
+
+### 7. Real Estate
+**What it is:** Property purchases for rental income or capital appreciation.  
+**Benefits:**
+- Tangible asset that can provide passive income  
+- Often a hedge against inflation
+
+**Challenges:** High upfront capital, illiquidity, management and maintenance costs.  
+**Best for:** Investors with medium to long-term horizons and sufficient capital.
+
+## Digital & Micro-Investment Platforms
+A growing number of apps and platforms in Ghana make it easier to invest smaller amounts:
+- Micro-investing services that pool funds to buy government securities  
+- Robo-advisors or automated savings apps  
+- Platforms that fractionalize real estate or other assets
+
+These can be a sensible way to start if you prefer low minimums and guided products.
+
+## Building a Simple Investment Strategy
+
+### Step 1: Define Your Goals
+- Short-term (1–3 years): emergency buffer, holiday, small purchases  
+- Medium-term (3–10 years): house deposit, education  
+- Long-term (10+ years): retirement, major wealth building
+
+### Step 2: Allocate by Timeline & Risk
+- Short-term: low-risk instruments (T-bills, high-yield savings)  
+- Medium-term: balanced funds, bonds  
+- Long-term: equities, property, higher-growth instruments
+
+### Step 3: Start Small and Learn
+Begin with conservative options, educate yourself, and gradually increase exposure as you grow more comfortable.
+
+### Step 4: Diversify
+Spread your capital across assets and sectors — diversification lowers risk.
+
+### Step 5: Review Regularly
+Check performance quarterly or semi-annually and rebalance as needed.
+
+## Common Mistakes to Avoid
+1. **Investing money you can’t afford to lose** — keep an emergency fund separate.  
+2. **Following trends blindly** — do your own research.  
+3. **Ignoring fees** — fees can erode returns over time.  
+4. **Panic selling** — markets fluctuate; avoid emotional decisions.  
+5. **Lack of diversification** — concentrate risk can be costly.
+
+## Tax & Regulatory Notes
+Tax rules and incentives can affect net returns (e.g., withholding on dividends, tax exemptions). Consult a tax professional for personalised advice and check that any platform or fund is properly licensed by Ghanaian regulators.
+
+## Getting Help
+- **Licensed financial advisors** for tailored strategies  
+- **Reputable investment firms** and fund managers for managed products  
+- **Official sources** (Bank of Ghana, SEC Ghana) for market and regulatory updates
+
+## Conclusion
+Investing doesn’t need to be complicated. Start by securing your foundations — an emergency fund and clarity on goals — then pick a mix of low- to moderate-risk options that match your timeline. As your knowledge and capital grow, diversify into higher-return assets. The most important investment is consistent, disciplined action and ongoing learning.
+  `,
+},
 ];
 
 export const getBlogPost = (slug: string): BlogPost | undefined => {
