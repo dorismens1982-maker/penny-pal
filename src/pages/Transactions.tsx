@@ -1,166 +1,180 @@
 import React, { useState, useMemo, useEffect, memo } from 'react';
 import { Layout } from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTransactions } from '@/hooks/useTransactions';
-import { Search, Filter, ArrowUpRight, ArrowDownLeft, Trash2 } from 'lucide-react';
+import { Search, ArrowUpRight, ArrowDownLeft, Trash2, Plus } from 'lucide-react';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/PageHeader';
 import { usePageHeader } from '@/hooks/usePageHeader';
+import { Badge } from '@/components/ui/badge';
 
 const MAX_NOTE_LENGTH = 50;
 
-const TransactionItem = memo(({ transaction, onDelete }: { transaction: any; onDelete: (id: string) => void }) => {
-  const [showFullNote, setShowFullNote] = useState(false);
+// --- Helpers ---
+const fmtAmt = (n: number) => `₵${n.toFixed(2)}`;
+const dayKey = (iso: string) => {
+  // Normalize date key to local yyyy-mm-dd for grouping
+  const d = new Date(iso);
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${da}`;
+};
+const dayLabel = (iso: string) => {
+  const d = new Date(iso);
+  const today = new Date(); const yest = new Date(); yest.setDate(today.getDate() - 1);
+  const same = (a: Date, b: Date) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  if (same(d, today)) return 'Today';
+  if (same(d, yest)) return 'Yesterday';
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+};
 
-  const formatCurrency = (amount: number) => `₵${amount.toFixed(2)}`;
-
-  const truncateNote = (note: string | null) => {
-    if (!note) return null;
-    if (note.length <= MAX_NOTE_LENGTH) return note;
-    return showFullNote ? note : `${note.substring(0, MAX_NOTE_LENGTH)}...`;
-  };
-
+// --- Row ---
+const TransactionRow = memo(({ t, onDelete }: { t: any; onDelete: (id: string) => void }) => {
+  const [expand, setExpand] = useState(false);
+  const longNote = t.note && t.note.length > MAX_NOTE_LENGTH;
+  const note = !t.note ? null : expand ? t.note : t.note.slice(0, MAX_NOTE_LENGTH) + (longNote ? '…' : '');
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-      <div className="flex items-center space-x-4 flex-1">
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-          transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
-        }`}>
-          {transaction.type === 'income' ? (
-            <ArrowUpRight className="w-6 h-6 text-income" />
-          ) : (
-            <ArrowDownLeft className="w-6 h-6 text-expense" />
-          )}
+    <div className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/40 transition-colors">
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full grid place-items-center ${t.type==='income'?'bg-income/10':'bg-expense/10'}`} aria-hidden>
+          {t.type==='income' ? <ArrowUpRight className="w-5 h-5 text-income" /> : <ArrowDownLeft className="w-5 h-5 text-expense" />}
         </div>
-
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-foreground text-lg">
-                {transaction.category}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {new Date(transaction.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </p>
-              {transaction.note && (
-                <div className="text-sm text-muted-foreground mt-1">
-                  <p>{truncateNote(transaction.note)}</p>
-                  {transaction.note.length > MAX_NOTE_LENGTH && (
-                    <button
-                      onClick={() => setShowFullNote(!showFullNote)}
-                      className="text-primary hover:underline text-xs mt-1"
-                    >
-                      {showFullNote ? 'Show less' : 'Show more'}
-                    </button>
-                  )}
-                </div>
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-semibold truncate">{t.category}</p>
+            <p className={`font-poppins font-bold shrink-0 ${t.type==='income'?'text-income':'text-expense'}`}>
+              {t.type==='income' ? '+' : '-'}{fmtAmt(t.amount)}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {new Date(t.date).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })}
+          </p>
+          {note && (
+            <div className="text-sm text-muted-foreground mt-1">
+              <span className="line-clamp-2">{note}</span>
+              {longNote && (
+                <button onClick={() => setExpand(v=>!v)} className="text-primary hover:underline text-xs ml-1">
+                  {expand ? 'Show less' : 'Show more'}
+                </button>
               )}
             </div>
-
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <p className={`text-xl font-poppins font-bold ${
-                  transaction.type === 'income' ? 'text-income' : 'text-expense'
-                }`}>
-                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                </p>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(transaction.id)}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => onDelete(t.id)}
+        className="ml-2 text-muted-foreground hover:text-destructive"
+        aria-label="Delete transaction"
+      >
+        <Trash2 className="w-4 h-4" />
+      </Button>
     </div>
   );
 });
+TransactionRow.displayName = 'TransactionRow';
 
-TransactionItem.displayName = 'TransactionItem';
+// --- Toolbar segmented control (All / Income / Expense) ---
+function TypeSegment({
+  value, onChange, counts
+}:{
+  value: 'all'|'income'|'expense';
+  onChange: (v:'all'|'income'|'expense')=>void;
+  counts: { all:number; income:number; expense:number };
+}) {
+  const base = "px-3 py-1.5 rounded-full text-sm";
+  return (
+    <div className="inline-flex bg-muted rounded-full p-1">
+      {(['all','income','expense'] as const).map(k => (
+        <button
+          key={k}
+          onClick={() => onChange(k)}
+          className={`${base} ${value===k ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+        >
+          {k[0].toUpperCase()+k.slice(1)} <Badge variant="outline" className="ml-1">{counts[k]}</Badge>
+        </button>
+      ))}
+    </div>
+  );
+}
 
-const Transactions = () => {
+const PAGE_SIZE = 25;
+
+export default function Transactions() {
   const { transactions, loading, deleteTransaction } = useTransactions();
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [sortBy, setSortBy] = useState('date');
+  const [type, setType] = useState<'all'|'income'|'expense'>('all');
+  const [sortBy, setSortBy] = useState<'date'|'amount'|'category'>('date');
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const { header } = usePageHeader('transactions');
 
+  // URL ↔ filter sync
   useEffect(() => {
-    const typeParam = searchParams.get('type');
-    if (typeParam === 'income' || typeParam === 'expense') {
-      setFilterType(typeParam);
-    }
+    const q = searchParams.get('type');
+    if (q === 'income' || q === 'expense') setType(q);
   }, []);
-
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (filterType === 'income' || filterType === 'expense') {
-      params.set('type', filterType);
-    } else {
-      params.delete('type');
-    }
-    setSearchParams(params, { replace: true });
-  }, [filterType]);
+    const p = new URLSearchParams(searchParams);
+    if (type === 'all') p.delete('type'); else p.set('type', type);
+    setSearchParams(p, { replace: true });
+  }, [type]);
 
-  const filteredAndSortedTransactions = useMemo(() => {
-    let filtered = transactions.filter(transaction => {
-      const matchesSearch =
-        transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (transaction.note && transaction.note.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Counts for chips
+  const counts = useMemo(() => {
+    let income=0, expense=0;
+    for (const t of transactions) t.type==='income'?income++:expense++;
+    return { all: transactions.length, income, expense };
+  }, [transactions]);
 
-      const matchesFilter = filterType === 'all' || transaction.type === filterType;
-
-      return matchesSearch && matchesFilter;
+  // Filter + sort
+  const filtered = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    let arr = transactions.filter(t => {
+      const matchesType = type==='all' || t.type===type;
+      if (!matchesType) return false;
+      if (!q) return true;
+      const inCat = t.category.toLowerCase().includes(q);
+      const inNote = t.note ? t.note.toLowerCase().includes(q) : false;
+      return inCat || inNote;
     });
-
-    filtered.sort((a, b) => {
-      if (sortBy === 'date') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      } else if (sortBy === 'amount') {
-        return b.amount - a.amount;
-      } else if (sortBy === 'category') {
-        return a.category.localeCompare(b.category);
-      }
-      return 0;
+    arr.sort((a,b) => {
+      if (sortBy==='date') return new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (sortBy==='amount') return b.amount - a.amount;
+      return a.category.localeCompare(b.category);
     });
+    return arr;
+  }, [transactions, searchTerm, type, sortBy]);
 
-    return filtered;
-  }, [transactions, searchTerm, filterType, sortBy]);
-
-  const handleDeleteTransaction = async (id: string) => {
-    if (confirm('Are you sure you want to delete this transaction?')) {
-      await deleteTransaction(id);
+  // Group by day
+  const groups = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const t of filtered) {
+      const k = dayKey(t.date);
+      if (!map.has(k)) map.set(k, []);
+      map.get(k)!.push(t);
     }
-  };
+    // newest day first
+    return Array.from(map.entries()).sort(([a],[b]) => (a > b ? -1 : 1));
+  }, [filtered]);
 
-  const clearFilter = () => {
-    setFilterType('all');
-    const params = new URLSearchParams(searchParams);
-    params.delete('type');
-    setSearchParams(params, { replace: true });
+  const handleDelete = async (id: string) => {
+    if (confirm('Delete this transaction?')) await deleteTransaction(id);
   };
 
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="max-w-7xl mx-auto p-4 space-y-3 animate-pulse">
+          <div className="h-12 rounded-xl bg-muted" />
+          <div className="h-20 rounded-xl bg-muted" />
+          <div className="h-64 rounded-xl bg-muted" />
         </div>
       </Layout>
     );
@@ -181,130 +195,99 @@ const Transactions = () => {
           textColor={header.text_color}
         />
       )}
-      <div className="p-4 space-y-6 max-w-7xl mx-auto">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-poppins font-bold text-foreground">
-            {filterType === 'income' ? 'Income Transactions' : filterType === 'expense' ? 'Expense Transactions' : 'Transactions'}
-          </h1>
-          <p className="text-muted-foreground">View and manage all your transactions</p>
-        </div>
 
-        <Card className="shadow-md">
-          <CardHeader>
-            <div className="space-y-1">
-              <CardTitle className="text-lg flex items-center space-x-2">
-                <Filter className="w-5 h-5" />
-                <span>Filters</span>
-              </CardTitle>
-              <p className="text-sm text-muted-foreground font-normal">
-                Search by category or notes, filter by transaction type, and sort your results
-              </p>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+      {/* Sticky Toolbar */}
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <TypeSegment value={type} onChange={setType} counts={counts} />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search transactions..."
+                placeholder="Search category or notes"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
+            <Select value={sortBy} onValueChange={(v:any)=>setSortBy(v)}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">Date (newest)</SelectItem>
+                <SelectItem value="amount">Amount (high→low)</SelectItem>
+                <SelectItem value="category">Category (A→Z)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Type</label>
-                <Select value={filterType} onValueChange={setFilterType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Transactions</SelectItem>
-                    <SelectItem value="income">Income Only</SelectItem>
-                    <SelectItem value="expense">Expenses Only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Sort By</label>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date">Date (Newest First)</SelectItem>
-                    <SelectItem value="amount">Amount (Highest First)</SelectItem>
-                    <SelectItem value="category">Category (A-Z)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+      {/* Content */}
+      <div className="p-4 space-y-4 max-w-7xl mx-auto">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {filteredAndSortedTransactions.length} of {transactions.length} transactions
+            Showing {filtered.length} of {transactions.length} transactions
           </p>
-          {filterType !== 'all' && (
-            <Button variant="outline" onClick={clearFilter}>View All Transactions</Button>
+          {type!=='all' && (
+            <Button variant="outline" onClick={() => setType('all')}>Clear filter</Button>
           )}
         </div>
 
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-foreground">Transaction History</h2>
-          <p className="text-sm text-muted-foreground">
-            View all your transactions with amounts, dates, and notes. Click the trash icon to delete any transaction.
-          </p>
-        </div>
-
-        <Card className="shadow-md">
+        {/* Grouped list */}
+        <Card className="shadow-sm">
           <CardContent className="p-0">
-            {filteredAndSortedTransactions.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">
-                  {searchTerm || filterType !== 'all'
-                    ? 'No transactions match your filters'
-                    : 'No transactions yet'
-                  }
+                <p className="text-muted-foreground mb-3">
+                  {searchTerm || type!=='all' ? 'No transactions match your filters' : 'No transactions yet'}
                 </p>
-                {!searchTerm && filterType === 'all' && (
-                  <Button
-                    onClick={() => setShowAddModal(true)}
-                    className="bg-gradient-primary hover:opacity-90"
-                  >
-                    Add your first transaction
+                {!searchTerm && type==='all' && (
+                  <Button onClick={() => setShowAddModal(true)} className="gap-2">
+                    <Plus className="w-4 h-4" /> Add your first transaction
                   </Button>
                 )}
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {filteredAndSortedTransactions.map((transaction, index) => (
-                  <div
-                    key={transaction.id}
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <TransactionItem
-                      transaction={transaction}
-                      onDelete={handleDeleteTransaction}
-                    />
-                  </div>
+                {groups.slice(0).map(([k, items]) => (
+                  <section key={k} className="py-1">
+                    <header className="px-4 py-2 sticky top-[56px] sm:top-[54px] bg-background/95 backdrop-blur z-10 border-b">
+                      <h3 className="text-xs font-medium text-muted-foreground">{dayLabel(k)}</h3>
+                    </header>
+                    <div className="divide-y divide-border">
+                      {items.slice(0, visible).map((t: any, idx: number) => (
+                        <TransactionRow key={t.id} t={t} onDelete={handleDelete} />
+                      ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Load more */}
+        {filtered.length > visible && (
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={() => setVisible(v => v + PAGE_SIZE)}>
+              Load {Math.min(PAGE_SIZE, filtered.length - visible)} more
+            </Button>
+          </div>
+        )}
       </div>
 
-      <AddTransactionModal
-        open={showAddModal}
-        onOpenChange={setShowAddModal}
-      />
+      {/* Mobile FAB */}
+      <div className="fixed right-4 bottom-20 sm:hidden">
+        <Button onClick={() => setShowAddModal(true)} className="rounded-full h-12 w-12 p-0 shadow-lg">
+          <Plus className="w-5 h-5" />
+        </Button>
+      </div>
+
+      <AddTransactionModal open={showAddModal} onOpenChange={setShowAddModal} />
     </Layout>
   );
-};
-
-export default Transactions;
+}
