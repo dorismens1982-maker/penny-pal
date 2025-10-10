@@ -10,6 +10,8 @@ import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useProfile } from '@/hooks/useProfile';
+import { PageHeader } from '@/components/PageHeader';
+import { usePageHeader } from '@/hooks/usePageHeader';
 const Settings = () => {
   const {
     user,
@@ -26,6 +28,7 @@ const Settings = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const { profile, updateProfile, updating } = useProfile();
   const [profileForm, setProfileForm] = useState({ preferred_name: '' });
+  const { header } = usePageHeader('settings');
 
   useEffect(() => {
     setProfileForm({
@@ -94,6 +97,19 @@ const Settings = () => {
     });
   };
   return <Layout>
+      {header && (
+        <PageHeader
+          title={header.title}
+          subtitle={header.subtitle}
+          imageUrl={header.image_url}
+          mobileImageUrl={header.mobile_image_url}
+          altText={header.alt_text}
+          heightMobile={header.height_mobile}
+          heightDesktop={header.height_desktop}
+          overlayOpacity={header.overlay_opacity}
+          textColor={header.text_color}
+        />
+      )}
       <div className="p-4 space-y-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="space-y-2">

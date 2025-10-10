@@ -10,6 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { MonthlyComparison } from '@/components/MonthlyComparison';
 import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
+import { PageHeader } from '@/components/PageHeader';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 const MAX_NOTE_LENGTH = 30;
 
@@ -114,6 +116,7 @@ const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [range, setRange] = useState<'7d' | '30d'>('7d');
   const navigate = useNavigate();
+  const { header } = usePageHeader('dashboard');
 
   useNewMonthDetection();
 
@@ -210,6 +213,19 @@ const Dashboard = () => {
 
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
+      {header && (
+        <PageHeader
+          title={header.title}
+          subtitle={header.subtitle}
+          imageUrl={header.image_url}
+          mobileImageUrl={header.mobile_image_url}
+          altText={header.alt_text}
+          heightMobile={header.height_mobile}
+          heightDesktop={header.height_desktop}
+          overlayOpacity={header.overlay_opacity}
+          textColor={header.text_color}
+        />
+      )}
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* HERO: Greeting + Balance + Actions */}
         <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">

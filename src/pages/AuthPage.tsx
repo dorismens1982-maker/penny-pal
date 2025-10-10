@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 type ViewState = 'welcome' | 'signup' | 'signin';
 
@@ -23,6 +24,7 @@ const AuthPage = () => {
     confirmPassword: ''
   });
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const { header } = usePageHeader('auth');
 
   useEffect(() => {
     if (user) {
@@ -297,6 +299,19 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4 relative overflow-hidden">
+      {header && (
+        <>
+          <img
+            src={header.image_url}
+            alt={header.alt_text}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"
+            style={{ opacity: header.overlay_opacity + 0.3 }}
+          />
+        </>
+      )}
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
       <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />

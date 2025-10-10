@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/button';
 import { blogPosts, BlogPost } from '@/data/blogPosts';
 import { BookOpen, Clock, Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader } from '@/components/PageHeader';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 const Blog = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const { header } = usePageHeader('blog');
 
   const categories = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking'];
 
@@ -30,18 +33,19 @@ const Blog = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-        {/* Header */}
-        <div className="bg-gradient-primary text-primary-foreground py-12 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center space-x-2 mb-4">
-              <BookOpen className="w-8 h-8" />
-              <h1 className="text-3xl font-poppins font-bold">Financial Tips & Insights</h1>
-            </div>
-            <p className="text-primary-foreground/90 text-lg">
-              Learn how to save, invest, and manage your money better
-            </p>
-          </div>
-        </div>
+        {header && (
+          <PageHeader
+            title={header.title}
+            subtitle={header.subtitle}
+            imageUrl={header.image_url}
+            mobileImageUrl={header.mobile_image_url}
+            altText={header.alt_text}
+            heightMobile={header.height_mobile}
+            heightDesktop={header.height_desktop}
+            overlayOpacity={header.overlay_opacity}
+            textColor={header.text_color}
+          />
+        )}
 
         {/* Category Filter */}
         <div className="sticky top-0 z-10 bg-background border-b border-border py-4 px-4">

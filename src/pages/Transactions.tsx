@@ -8,6 +8,8 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { Search, Filter, ArrowUpRight, ArrowDownLeft, Trash2 } from 'lucide-react';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useSearchParams } from 'react-router-dom';
+import { PageHeader } from '@/components/PageHeader';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 const MAX_NOTE_LENGTH = 50;
 
@@ -97,6 +99,7 @@ const Transactions = () => {
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('date');
   const [searchParams, setSearchParams] = useSearchParams();
+  const { header } = usePageHeader('transactions');
 
   useEffect(() => {
     const typeParam = searchParams.get('type');
@@ -165,6 +168,19 @@ const Transactions = () => {
 
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
+      {header && (
+        <PageHeader
+          title={header.title}
+          subtitle={header.subtitle}
+          imageUrl={header.image_url}
+          mobileImageUrl={header.mobile_image_url}
+          altText={header.alt_text}
+          heightMobile={header.height_mobile}
+          heightDesktop={header.height_desktop}
+          overlayOpacity={header.overlay_opacity}
+          textColor={header.text_color}
+        />
+      )}
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         <div className="space-y-2">
           <h1 className="text-2xl font-poppins font-bold text-foreground">

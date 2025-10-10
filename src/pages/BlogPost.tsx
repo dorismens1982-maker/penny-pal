@@ -6,12 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { getBlogPost } from '@/data/blogPosts';
 import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PageHeader } from '@/components/PageHeader';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const post = slug ? getBlogPost(slug) : undefined;
+  const { header } = usePageHeader('blog-post');
 
   if (!post) {
     return (
@@ -116,52 +119,40 @@ const BlogPost = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-        {/* Header */}
-        <div className="bg-gradient-primary text-primary-foreground py-8 px-4">
-          <div className="max-w-3xl mx-auto">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/blog')}
-              className="mb-6 text-primary-foreground hover:bg-primary-foreground/10"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Blog
-            </Button>
-
-            <Badge className={getCategoryColor(post.category) + " mb-4"}>
-              {post.category}
-            </Badge>
-
-            <h1 className="text-3xl md:text-4xl font-poppins font-bold mb-4">
-              {post.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-4 text-sm text-primary-foreground/90">
-              <div className="flex items-center space-x-1">
-                <Calendar className="w-4 h-4" />
-                <span>{new Date(post.date).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="w-4 h-4" />
-                <span>{post.readTime} min read</span>
-              </div>
+        {header && (
+          <PageHeader
+            title={post.title}
+            subtitle={`${post.category} • ${post.readTime} min read`}
+            imageUrl={header.image_url}
+            mobileImageUrl={header.mobile_image_url}
+            altText={header.alt_text}
+            heightMobile={header.height_mobile}
+            heightDesktop={header.height_desktop}
+            overlayOpacity={header.overlay_opacity}
+            textColor={header.text_color}
+          >
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
               <Button
-                variant="ghost"
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/blog')}
+                className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Blog
+              </Button>
+              <Button
+                variant="secondary"
                 size="sm"
                 onClick={handleShare}
-                className="text-primary-foreground hover:bg-primary-foreground/10 ml-auto"
+                className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
               >
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
             </div>
-          </div>
-        </div>
+          </PageHeader>
+        )}
 
         {/* Content */}
         <article className="max-w-3xl mx-auto px-4 py-8">

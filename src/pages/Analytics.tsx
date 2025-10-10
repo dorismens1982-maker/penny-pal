@@ -22,12 +22,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { PageHeader } from '@/components/PageHeader';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 const format = new Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS', maximumFractionDigits: 2 });
 
 export default function Analytics() {
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
   const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('all');
+  const { header } = usePageHeader('analytics');
 
   const { summaries, loading, getMonthName } = useMonthlySummaries({
     startDate: dateRange.from,
@@ -99,6 +102,19 @@ export default function Analytics() {
 
   return (
     <Layout>
+      {header && (
+        <PageHeader
+          title={header.title}
+          subtitle={header.subtitle}
+          imageUrl={header.image_url}
+          mobileImageUrl={header.mobile_image_url}
+          altText={header.alt_text}
+          heightMobile={header.height_mobile}
+          heightDesktop={header.height_desktop}
+          overlayOpacity={header.overlay_opacity}
+          textColor={header.text_color}
+        />
+      )}
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* Sticky Filter Bar */}
         <div className="sticky top-0 z-20 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border -mx-4 px-4 py-2">
