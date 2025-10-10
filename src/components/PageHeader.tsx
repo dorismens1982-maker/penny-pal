@@ -26,15 +26,14 @@ export const PageHeader = ({
   children,
 }: PageHeaderProps) => {
   const textColorClass = textColor === 'light' ? 'text-white' : 'text-gray-900';
-  const imageSrc = mobileImageUrl || imageUrl;
 
   return (
     <div
-      className="relative w-full overflow-hidden md:h-auto"
+      className="relative w-full overflow-hidden md:h-[var(--header-height-desktop)]"
       style={{
+        '--header-height-desktop': heightDesktop,
         height: heightMobile,
-        ['--desktop-height' as string]: heightDesktop,
-      }}
+      } as React.CSSProperties}
     >
       <picture>
         {mobileImageUrl && (
@@ -68,16 +67,6 @@ export const PageHeader = ({
         )}
         {children && <div className="mt-4">{children}</div>}
       </div>
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @media (min-width: 768px) {
-            .relative[style*="--desktop-height"] {
-              height: ${heightDesktop} !important;
-            }
-          }
-        `
-      }} />
     </div>
   );
 };
