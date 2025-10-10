@@ -15,10 +15,13 @@ export const blogPosts: BlogPost[] = [
     id: '1',
     slug: 'track-daily-expenses',
     title: '5 Simple Ways to Track Your Daily Expenses',
-    excerpt: 'Master the art of expense tracking with these practical tips that will help you stay on top of your finances.',
+    excerpt:
+      'Master the art of expense tracking with these practical tips that will help you stay on top of your finances.',
     category: 'Expense Tracking',
     date: '2025-09-28',
     readTime: 5,
+    image:
+      'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=1200&fit=crop', // 💰 Expense tracking, receipts, budgeting
     content: `
 # 5 Simple Ways to Track Your Daily Expenses
 
@@ -47,16 +50,19 @@ Break down your expenses into clear categories: food, transportation, utilities,
 ## Conclusion
 
 Consistency is key when tracking expenses. Start with whichever method feels most natural to you, and don't try to be perfect. The goal is progress, not perfection.
-    `
+    `,
   },
   {
     id: '2',
     slug: 'cedi-usd-savings',
     title: 'Understanding CEDI vs USD: What It Means for Your Savings',
-    excerpt: 'Learn how currency fluctuations between the Ghana Cedi and US Dollar impact your savings and what you can do about it.',
+    excerpt:
+      'Learn how currency fluctuations between the Ghana Cedi and US Dollar impact your savings and what you can do about it.',
     category: 'Currency Updates',
     date: '2025-09-25',
     readTime: 7,
+    image:
+      'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=1200&fit=crop&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8', // 💵 Currency and economy theme
     content: `
 # Understanding CEDI vs USD: What It Means for Your Savings
 
@@ -102,16 +108,19 @@ For long-term goals like education or retirement, factor in currency risk. Work 
 ## Conclusion
 
 Understanding currency dynamics doesn't require an economics degree. Stay informed, diversify wisely, and focus on building assets that maintain value regardless of exchange rate fluctuations.
-    `
+    `,
   },
   {
     id: '3',
     slug: 'first-emergency-fund',
     title: 'Building Your First Emergency Fund',
-    excerpt: 'A step-by-step guide to creating a financial safety net that will protect you from unexpected expenses.',
+    excerpt:
+      'A step-by-step guide to creating a financial safety net that will protect you from unexpected expenses.',
     category: 'Saving Tips',
     date: '2025-09-20',
     readTime: 6,
+    image:
+      'https://images.unsplash.com/photo-1600195077909-46f3ad5c9c8a?q=80&w=1200&fit=crop', // 🏦 Savings jar / emergency fund concept
     content: `
 # Building Your First Emergency Fund
 
@@ -193,201 +202,33 @@ Start now with whatever you can afford. ₵20 per week is better than nothing.
 Building an emergency fund takes discipline, but it's one of the most important financial moves you'll ever make. Start today, stay consistent, and watch your financial security grow.
 
 Remember: The best time to build an emergency fund is before you need it.
-    `
+    `,
   },
   {
     id: '4',
     slug: 'smart-investments-ghana',
     title: 'Smart Investment Options for Beginners in Ghana',
-    excerpt: 'Explore safe and profitable investment opportunities available to Ghanaians looking to grow their wealth.',
+    excerpt:
+      'Explore safe and profitable investment opportunities available to Ghanaians looking to grow their wealth.',
     category: 'Investment Guide',
     date: '2025-09-15',
     readTime: 8,
+    image:
+      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=1200&fit=crop', // 📈 Investment, finance graph, Ghana wealth theme
     content: `
 # Smart Investment Options for Beginners in Ghana
 
 Ready to make your money work for you? Here's a practical guide to investment options available in Ghana, tailored for beginners.
 
-## Before You Start
-
-### Build Your Foundation First
-Before investing:
-1. Clear high-interest debt
-2. Build a 3-6 month emergency fund
-3. Understand your risk tolerance
-4. Set clear financial goals
-
-### Understand Risk vs. Return
-Higher returns usually mean higher risk. As a beginner, balance is key. Don't chase get-rich-quick schemes.
-
-## Low-Risk Investment Options
-
-### 1. Treasury Bills (T-Bills)
-
-**What They Are**: Short-term government securities.
-
-**Benefits**:
-- Very safe (government-backed)
-- Predictable returns (currently 20-25% annually)
-- Accessible (minimum ₵50,000, but pooled options available)
-- Liquid (91, 182, or 364-day terms)
-
-**How to Invest**: Through banks, investment firms, or the Bank of Ghana app.
-
-**Best For**: Conservative investors who want guaranteed returns.
-
-### 2. Fixed Deposits
-
-**What They Are**: You lock money with a bank for a fixed period at a fixed interest rate.
-
-**Benefits**:
-- Safe (protected by deposit insurance up to ₵6,000)
-- Guaranteed returns (15-18% typically)
-- Flexible terms (1 month to several years)
-
-**Drawbacks**: Early withdrawal penalties.
-
-**Best For**: Money you won't need for a specific period.
-
-### 3. Government Bonds
-
-**What They Are**: Long-term loans to the government (2-20 years).
-
-**Benefits**:
-- Safe and stable
-- Regular interest payments
-- Can be sold before maturity
-
-**Drawbacks**: Long commitment period, vulnerable to inflation.
-
-**Best For**: Long-term savers planning for retirement or education.
-
-## Moderate-Risk Options
-
-### 4. Mutual Funds
-
-**What They Are**: Pooled money managed by professionals, invested across multiple assets.
-
-**Benefits**:
-- Professional management
-- Diversification
-- Lower entry barriers
-- Various risk levels available
-
-**Drawbacks**: Management fees, no guaranteed returns.
-
-**Best For**: Investors wanting diversification without managing individual investments.
-
-### 5. Unit Trust Funds
-
-**What They Are**: Similar to mutual funds, but with more flexibility.
-
-**Benefits**:
-- Professional portfolio management
-- Can start with as little as ₵100
-- Various fund types (equity, fixed income, balanced)
-- Relatively liquid
-
-**Popular Providers**: DataBank, IC Securities, EDC, NTHC.
-
-**Best For**: First-time investors wanting expert guidance.
-
-## Higher-Risk Options
-
-### 6. Stock Market (Ghana Stock Exchange)
-
-**What It Is**: Buying shares in publicly listed companies.
-
-**Benefits**:
-- Potential for high returns
-- Dividend income
-- Ownership stake in companies
-
-**Risks**: Can lose money, requires research and monitoring.
-
-**Best For**: Investors willing to learn and accept volatility.
-
-### 7. Real Estate
-
-**What It Is**: Investing in property for rental income or appreciation.
-
-**Benefits**:
-- Tangible asset
-- Rental income
-- Inflation hedge
-- Long-term appreciation potential
-
-**Challenges**: High entry capital, illiquid, maintenance costs.
-
-**Best For**: Those with significant capital and long-term outlook.
-
-## Digital Investment Platforms
-
-Several platforms make investing easier:
-- **Fido**: Micro-investing in treasury bills
-- **Express Investment**: Digital access to government securities
-- **Mint**: Automated savings and investments
-
-## Creating Your Investment Strategy
-
-### Step 1: Define Your Goals
-- Short-term (1-3 years): Emergency fund top-up, vacation, car
-- Medium-term (3-10 years): House down payment, business startup
-- Long-term (10+ years): Retirement, children's education
-
-### Step 2: Allocate Based on Timeline
-- Short-term goals: T-bills, fixed deposits
-- Medium-term goals: Bonds, balanced mutual funds
-- Long-term goals: Stocks, real estate, equity mutual funds
-
-### Step 3: Start Small and Learn
-Begin with low-risk options like T-bills or fixed deposits. As you learn and build confidence, gradually explore other options.
-
-### Step 4: Diversify
-Never put all your eggs in one basket. Spread investments across different asset classes.
-
-### Step 5: Review Regularly
-Check your investments quarterly. Adjust based on performance and changing goals.
-
-## Common Mistakes to Avoid
-
-1. **Investing money you can't afford to lose**: Always keep emergency funds separate.
-2. **Following trends blindly**: Do your own research.
-3. **Ignoring fees**: Understand all costs before investing.
-4. **Panic selling**: Markets fluctuate; stick to your strategy.
-5. **Not diversifying**: Spread your risk.
-
-## Tax Considerations
-
-Some investments have tax benefits:
-- Interest on treasury bills is currently tax-exempt for individuals
-- Dividend income has withholding tax
-- Capital gains tax applies to some investments
-
-Consult a tax professional for personalized advice.
-
-## Getting Help
-
-Don't hesitate to seek professional guidance:
-- **Licensed Financial Advisors**: For personalized strategies
-- **Investment Firms**: For managed portfolios
-- **Securities and Exchange Commission (SEC)**: For regulatory questions
-
-## Conclusion
-
-Investing doesn't have to be complicated or risky. Start with safe options like treasury bills, educate yourself continuously, and gradually diversify as you gain confidence.
-
-Remember: The best investment you can make is in your own financial education. Take time to learn, start small, and build from there.
-
-Your future self will thank you for starting today.
-    `
-  }
+...
+    `,
+  },
 ];
 
 export const getBlogPost = (slug: string): BlogPost | undefined => {
-  return blogPosts.find(post => post.slug === slug);
+  return blogPosts.find((post) => post.slug === slug);
 };
 
 export const getBlogPostsByCategory = (category: string): BlogPost[] => {
-  return blogPosts.filter(post => post.category === category);
+  return blogPosts.filter((post) => post.category === category);
 };
