@@ -120,7 +120,7 @@ Understanding currency dynamics doesn't require an economics degree. Stay inform
     date: '2025-09-20',
     readTime: 6,
     image:
-      'https://images.unsplash.com/photo-1600195077909-46f3ad5c9c8a?q=80&w=1200&fit=crop', // 🏦 Savings jar / emergency fund concept
+      'https://images.unsplash.com/photo-1633158829556-6ea20ad39b4f?q=80&w=1200&fit=crop', // 🏦 Savings jar / emergency fund concept
     content: `
 # Building Your First Emergency Fund
 
