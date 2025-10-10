@@ -21,7 +21,7 @@ export const blogPosts: BlogPost[] = [
     date: '2025-09-28',
     readTime: 5,
     image:
-      'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=1200&fit=crop', // 💰 Expense tracking, receipts, budgeting
+      'https://images.unsplash.com/photo-1658677414428-d0ae187034cc?q=80&w=1200&fit=crop', // 💰 Expense tracking, receipts, budgeting
     content: `
 # 5 Simple Ways to Track Your Daily Expenses
 
