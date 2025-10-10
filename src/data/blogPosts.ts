@@ -205,7 +205,20 @@ Remember: The best time to build an emergency fund is before you need it.
     `,
   },
   {
-    Ready to make your money work for you? Here's a practical guide to investment options available in Ghana, tailored for beginners.
+    id: '4',
+    slug: 'smart-investments-ghana',
+    title: 'Smart Investment Options for Beginners in Ghana',
+    excerpt:
+      'Explore safe and profitable investment opportunities available to Ghanaians looking to grow their wealth.',
+    category: 'Investment Guide',
+    date: '2025-09-15',
+    readTime: 8,
+    image:
+      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=1200&fit=crop', // 📈 Investment, finance graph, Ghana wealth theme
+    content: `
+# Smart Investment Options for Beginners in Ghana
+
+Ready to make your money work for you? Here's a practical guide to investment options available in Ghana, tailored for beginners.
 
 ## Before You Start
 
@@ -334,7 +347,7 @@ Tax rules and incentives can affect net returns (e.g., withholding on dividends,
 ## Conclusion
 Investing doesn’t need to be complicated. Start by securing your foundations — an emergency fund and clarity on goals — then pick a mix of low- to moderate-risk options that match your timeline. As your knowledge and capital grow, diversify into higher-return assets. The most important investment is consistent, disciplined action and ongoing learning.
   `,
-},
+  },
 ];
 
 export const getBlogPost = (slug: string): BlogPost | undefined => {
