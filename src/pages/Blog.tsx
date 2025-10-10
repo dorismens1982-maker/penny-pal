@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { blogPosts, BlogPost } from '@/data/blogPosts';
-import { BookOpen, Clock, Calendar, ArrowRight } from 'lucide-react';
+import { Clock, Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/PageHeader';
 import { usePageHeader } from '@/hooks/usePageHeader';
@@ -16,9 +16,10 @@ const Blog = () => {
 
   const categories = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking'];
 
-  const filteredPosts = selectedCategory === 'All' 
-    ? blogPosts 
-    : blogPosts.filter(post => post.category === selectedCategory);
+  const filteredPosts =
+    selectedCategory === 'All'
+      ? blogPosts
+      : blogPosts.filter((post) => post.category === selectedCategory);
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -70,11 +71,22 @@ const Blog = () => {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="space-y-6">
             {filteredPosts.map((post: BlogPost) => (
-              <Card 
+              <Card
                 key={post.id}
                 className="shadow-md hover:shadow-lg transition-shadow cursor-pointer group"
                 onClick={() => navigate(`/blog/${post.slug}`)}
               >
+                {/* ✅ Added Thumbnail Image */}
+                {post.image && (
+                  <div className="w-full h-56 overflow-hidden rounded-t-lg">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                )}
+
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     {/* Category Badge */}
@@ -96,11 +108,13 @@ const Blog = () => {
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(post.date).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}</span>
+                        <span>
+                          {new Date(post.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Clock className="w-4 h-4" />
