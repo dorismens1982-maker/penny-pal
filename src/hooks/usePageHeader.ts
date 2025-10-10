@@ -36,7 +36,7 @@ export const usePageHeader = (pageIdentifier: string) => {
 
         if (fetchError) throw fetchError;
 
-        setHeader(data);
+        setHeader(data as PageHeaderConfig | null);
       } catch (err: any) {
         console.error('Error fetching page header:', err);
         setError(err.message);

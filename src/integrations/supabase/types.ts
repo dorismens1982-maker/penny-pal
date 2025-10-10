@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_categories: {
+        Row: {
+          budget_id: string
+          category: string
+          created_at: string
+          id: string
+          limit: number
+          updated_at: string
+        }
+        Insert: {
+          budget_id: string
+          category: string
+          created_at?: string
+          id?: string
+          limit?: number
+          updated_at?: string
+        }
+        Update: {
+          budget_id?: string
+          category?: string
+          created_at?: string
+          id?: string
+          limit?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_categories_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budgets: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          month: number | null
+          name: string | null
+          period_type: string
+          start_date: string | null
+          total_limit: number
+          updated_at: string
+          user_id: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          month?: number | null
+          name?: string | null
+          period_type: string
+          start_date?: string | null
+          total_limit?: number
+          updated_at?: string
+          user_id: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          month?: number | null
+          name?: string | null
+          period_type?: string
+          start_date?: string | null
+          total_limit?: number
+          updated_at?: string
+          user_id?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
       monthly_summaries: {
         Row: {
           balance: number
@@ -53,6 +130,57 @@ export type Database = {
         }
         Relationships: []
       }
+      page_headers: {
+        Row: {
+          alt_text: string
+          created_at: string
+          height_desktop: string
+          height_mobile: string
+          id: string
+          image_url: string
+          is_active: boolean
+          mobile_image_url: string | null
+          overlay_opacity: number
+          page_identifier: string
+          subtitle: string | null
+          text_color: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          alt_text: string
+          created_at?: string
+          height_desktop?: string
+          height_mobile?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          mobile_image_url?: string | null
+          overlay_opacity?: number
+          page_identifier: string
+          subtitle?: string | null
+          text_color?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string
+          height_desktop?: string
+          height_mobile?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          mobile_image_url?: string | null
+          overlay_opacity?: number
+          page_identifier?: string
+          subtitle?: string | null
+          text_color?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -70,6 +198,39 @@ export type Database = {
           created_at?: string
           id?: string
           preferred_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      susu_goals: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          saved: number
+          target: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+          saved?: number
+          target: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          saved?: number
+          target?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

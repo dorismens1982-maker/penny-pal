@@ -30,9 +30,10 @@ export const PageHeader = ({
 
   return (
     <div
-      className="relative w-full overflow-hidden"
+      className="relative w-full overflow-hidden md:h-auto"
       style={{
         height: heightMobile,
+        ['--desktop-height' as string]: heightDesktop,
       }}
     >
       <picture>
@@ -68,13 +69,15 @@ export const PageHeader = ({
         {children && <div className="mt-4">{children}</div>}
       </div>
 
-      <style jsx>{`
-        @media (min-width: 768px) {
-          div[style*="height"] {
-            height: ${heightDesktop} !important;
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media (min-width: 768px) {
+            .relative[style*="--desktop-height"] {
+              height: ${heightDesktop} !important;
+            }
           }
-        }
-      `}</style>
+        `
+      }} />
     </div>
   );
 };
