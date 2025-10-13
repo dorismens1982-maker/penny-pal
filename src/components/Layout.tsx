@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Home,
-  Receipt,
-  Settings,
+  BookOpen,
   Plus,
-  BarChart3,
-  Menu as MenuIcon,
-  X as XIcon,
+  Wallet,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -18,16 +14,11 @@ interface LayoutProps {
 
 export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { path: '/dashboard', icon: Home, label: 'Dashboard' },
-    { path: '/transactions', icon: Receipt, label: 'Transactions' },
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/learn', icon: BookOpen, label: 'Learn' },
+    { path: '/manage', icon: Wallet, label: 'Manage' },
   ];
-
-  const toggleMenu = () => setMenuOpen((s) => !s);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -58,7 +49,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold">Kudimate</span>
               <span className="text-xs text-muted-foreground -mt-0.5">
-                Plan. Track. Grow.
+                Learn. Act. Grow.
               </span>
             </div>
           </div>
@@ -84,27 +75,16 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
             })}
           </nav>
 
-          {/* Desktop Controls */}
-          <div className="flex items-center gap-2">
-            {onAddTransaction && (
-              <Button
-                onClick={onAddTransaction}
-                className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-150"
-              >
-                <Plus className="w-4 h-4 text-primary-foreground" />
-                <span className="text-sm">Add</span>
-              </Button>
-            )}
-
+          {/* Desktop Add Button */}
+          {onAddTransaction && (
             <Button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-md"
-              size="icon"
-              aria-label="Open menu"
+              onClick={onAddTransaction}
+              className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-150"
             >
-              {menuOpen ? <XIcon className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
+              <Plus className="w-4 h-4 text-primary-foreground" />
+              <span className="text-sm font-medium">Add Transaction</span>
             </Button>
-          </div>
+          )}
         </div>
       </header>
 

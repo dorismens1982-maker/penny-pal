@@ -6,12 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
-import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transactions";
-import Settings from "./pages/Settings";
-import Analytics from "./pages/Analytics";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
+import Learn from "./pages/Learn";
+import LearnPost from "./pages/LearnPost";
+import Manage from "./pages/Manage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,55 +26,31 @@ const App = () => (
               path="/"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Manage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard"
+              path="/learn"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Learn />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/transactions"
+              path="/learn/:slug"
               element={
                 <ProtectedRoute>
-                  <Transactions />
+                  <LearnPost />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/settings"
+              path="/manage"
               element={
                 <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/blog"
-              element={
-                <ProtectedRoute>
-                  <Blog />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/blog/:slug"
-              element={
-                <ProtectedRoute>
-                  <BlogPost />
+                  <Manage />
                 </ProtectedRoute>
               }
             />

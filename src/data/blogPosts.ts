@@ -4,10 +4,16 @@ export interface BlogPost {
   title: string;
   excerpt: string;
   content: string;
-  category: 'Saving Tips' | 'Investment Guide' | 'Currency Updates' | 'Expense Tracking';
+  category: 'Saving Tips' | 'Investment Guide' | 'Currency Updates' | 'Expense Tracking' | 'Stories';
   date: string;
   readTime: number;
   image?: string;
+  featured?: boolean;
+  sponsor?: {
+    name: string;
+    logo?: string;
+    message?: string;
+  };
 }
 
 export const blogPosts: BlogPost[] = [
@@ -20,6 +26,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Expense Tracking',
     date: '2025-09-28',
     readTime: 5,
+    featured: true,
     image:
       'https://images.unsplash.com/photo-1658677414428-d0ae187034cc?q=80&w=1200&fit=crop', // 💰 Expense tracking, receipts, budgeting
     content: `
@@ -119,6 +126,11 @@ Understanding currency dynamics doesn't require an economics degree. Stay inform
     category: 'Saving Tips',
     date: '2025-09-20',
     readTime: 6,
+    featured: true,
+    sponsor: {
+      name: 'Access Bank',
+      message: 'Building financial security starts with smart savings choices.',
+    },
     image:
       'https://images.unsplash.com/photo-1633158829556-6ea20ad39b4f?q=80&w=1200&fit=crop', // 🏦 Savings jar / emergency fund concept
     content: `
@@ -213,6 +225,7 @@ Remember: The best time to build an emergency fund is before you need it.
     category: 'Investment Guide',
     date: '2025-09-15',
     readTime: 8,
+    featured: true,
     image:
       'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=1200&fit=crop', // 📈 Investment, finance graph, Ghana wealth theme
     content: `
