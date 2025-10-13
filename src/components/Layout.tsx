@@ -110,40 +110,66 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
 
       {/* ===================== MOBILE BOTTOM NAV ===================== */}
       <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50">
-        <div className="flex items-center justify-around px-2 py-2">
-          {navItems.map(({ path, icon: Icon, label }) => {
-            const isActive = location.pathname === path;
-            return (
-              <Link
-                key={path}
-                to={path}
-                className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
+        <div className="relative flex items-center justify-between px-4 py-2">
+          {/* Left two items */}
+          <div className="flex items-center gap-2 flex-1 justify-evenly">
+            {navItems.slice(0, 2).map(({ path, icon: Icon, label }) => {
+              const isActive = location.pathname === path;
+              return (
+                <Link
+                  key={path}
+                  to={path}
+                  className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? 'text-primary bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 mb-1" />
+                  <span className="text-xs font-medium">{label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Center Add Button */}
+          {onAddTransaction && (
+            <div className="absolute inset-x-0 -top-5 flex justify-center">
+              <Button
+                onClick={onAddTransaction}
+                className="w-14 h-14 rounded-full bg-gradient-primary shadow-lg border-4 border-card hover:scale-105 transition-transform duration-200"
+                size="icon"
               >
-                <Icon className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">{label}</span>
-              </Link>
-            );
-          })}
+                <Plus className="w-6 h-6 text-primary-foreground" />
+              </Button>
+            </div>
+          )}
+
+          {/* Right two items */}
+          <div className="flex items-center gap-2 flex-1 justify-evenly">
+            {navItems.slice(2).map(({ path, icon: Icon, label }) => {
+              const isActive = location.pathname === path;
+              return (
+                <Link
+                  key={path}
+                  to={path}
+                  className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? 'text-primary bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 mb-1" />
+                  <span className="text-xs font-medium">{label}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </nav>
 
       {/* ===================== MAIN CONTENT ===================== */}
-      <main className="pt-16 md:pt-20 pb-20 flex-1">{children}</main>
-
-      {/* ===================== FLOATING ADD BUTTON ===================== */}
-      {onAddTransaction && (
-        <Button
-          onClick={onAddTransaction}
-          className="fixed bottom-20 md:bottom-8 right-4 w-14 h-14 rounded-full bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-200 hover:scale-105 z-40"
-          size="icon"
-        >
-          <Plus className="w-6 h-6 text-primary-foreground" />
-        </Button>
-      )}
+      <main className="pt-16 md:pt-20 pb-24 flex-1">{children}</main>
     </div>
   );
 };
