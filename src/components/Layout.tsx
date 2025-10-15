@@ -1,129 +1,265 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import {
-  BookOpen,
-  Plus,
-  Wallet,
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Layout } from '@/components/Layout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { blogPosts, BlogPost } from '@/data/blogPosts';
+import { Clock, Calendar, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface LayoutProps {
-  children: React.ReactNode;
-  onAddTransaction?: () => void;
-}
+const Learn = () => {
+  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [scrolled, setScrolled] = useState(false);
 
-export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
-  const location = useLocation();
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const navItems = [
-    { path: '/learn', icon: BookOpen, label: 'Learn' },
-    { path: '/manage', icon: Wallet, label: 'Manage' },
-  ];
+  const categories = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking', 'Stories'];
+
+  const filteredPosts =
+    selectedCategory === 'All'
+      ? blogPosts
+      : blogPosts.filter((post) => post.category === selectedCategory);
+
+  const featuredPosts = blogPosts.filter((post) => post.featured);
+  const sponsoredPosts = blogPosts.filter((post) => post.sponsor);
+
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      'Saving Tips': 'bg-income/10 text-income hover:bg-income/20',
+      'Investment Guide': 'bg-primary/10 text-primary hover:bg-primary/20',
+      'Currency Updates': 'bg-accent/10 text-accent-foreground hover:bg-accent/20',
+      'Expense Tracking': 'bg-secondary/10 text-secondary-foreground hover:bg-secondary/20',
+      'Stories': 'bg-muted text-muted-foreground hover:bg-muted/80',
+    };
+    return colors[category] || 'bg-muted text-muted-foreground hover:bg-muted/80';
+  };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* ===================== DESKTOP HEADER ===================== */}
-      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-b border-border">
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
-          {/* Logo / Brand */}
-          <div className="flex items-center gap-3">
-            <div
-              className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm"
-              aria-hidden
-            >
-              <span className="sr-only">Kudimate</span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-white"
-              >
-                <path d="M4 12h16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <path d="M4 7h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <path d="M4 17h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
+    <Layout>
+      <div className="min-h-screen bg-background">
 
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">Kudimate</span>
-              <span className="text-xs text-muted-foreground -mt-0.5">
-                Learn. Act. Grow.
-              </span>
-            </div>
-          </div>
-
-          {/* Desktop Nav Links */}
-          <nav className="flex items-center gap-2">
-            {navItems.map(({ path, icon: Icon, label }) => {
-              const isActive = location.pathname === path;
-              return (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-primary bg-primary/10'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Add Button */}
-          {onAddTransaction && (
-            <Button
-              onClick={onAddTransaction}
-              className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-150"
-            >
-              <Plus className="w-4 h-4 text-primary-foreground" />
-              <span className="text-sm font-medium">Add Transaction</span>
-            </Button>
-          )}
-        </div>
-      </header>
-
-      {/* ===================== MOBILE BOTTOM NAV ===================== */}
-      <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50">
-        <div className="flex items-center justify-around px-2 py-2">
-          {navItems.map(({ path, icon: Icon, label }) => {
-            const isActive = location.pathname === path;
-            return (
-              <Link
-                key={path}
-                to={path}
-                className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+        {/* Sticky Category Header */}
+        <div
+          className={`sticky top-16 md:top-20 z-30 backdrop-blur-lg border-b border-border transition-all duration-300 ${
+            scrolled ? 'bg-background/95 shadow-md' : 'bg-background/80'
+          }`}
+        >
+          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-2 py-4 px-2">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className={`transition-all duration-300 ${
+                  selectedCategory === category
+                    ? 'bg-primary text-primary-foreground shadow-sm scale-[1.03]'
+                    : 'hover:scale-105'
                 }`}
               >
-                <Icon className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">{label}</span>
-              </Link>
-            );
-          })}
+                {category}
+              </Button>
+            ))}
+          </div>
         </div>
-      </nav>
 
-      {/* ===================== MAIN CONTENT ===================== */}
-      <main className="pt-16 md:pt-20 pb-20 flex-1">{children}</main>
+        {/* Hero Banner */}
+        <div className="relative bg-gradient-to-br from-primary/10 via-background to-income/10 py-12 md:py-16 px-4 border-b border-border">
+          <div className="max-w-4xl mx-auto text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur rounded-full border border-border mb-4">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">Financial Education Hub</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-poppins font-bold text-foreground">
+              Your Daily Dose of Money Lessons
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              Financial wisdom for young Africans building wealth. Learn, act, and grow your money with practical tips and insights.
+            </p>
+          </div>
+        </div>
 
-      {/* ===================== FLOATING ADD BUTTON ===================== */}
-      {onAddTransaction && (
-        <Button
-          onClick={onAddTransaction}
-          className="fixed bottom-20 md:bottom-8 right-4 w-14 h-14 rounded-full bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-200 hover:scale-105 z-40"
-          size="icon"
-        >
-          <Plus className="w-6 h-6 text-primary-foreground" />
-        </Button>
-      )}
-    </div>
+        {/* Featured Stories Carousel */}
+        {featuredPosts.length > 0 && (
+          <div className="bg-muted/30 py-8 px-4 border-b border-border">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-2xl font-poppins font-bold text-foreground mb-6 flex items-center gap-2">
+                <TrendingUp className="w-6 h-6 text-primary" />
+                Featured Stories
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {featuredPosts.map((post: BlogPost) => (
+                  <Card
+                    key={post.id}
+                    className="shadow-lg hover:shadow-xl transition-all cursor-pointer group overflow-hidden"
+                    onClick={() => navigate(`/learn/${post.slug}`)}
+                  >
+                    {post.image && (
+                      <div className="w-full h-48 overflow-hidden">
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+                    <CardContent className="p-4">
+                      <Badge className={getCategoryColor(post.category)} variant="outline">
+                        {post.category}
+                      </Badge>
+                      <h3 className="text-lg font-poppins font-bold text-foreground mt-2 group-hover:text-primary transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3">
+                        <Clock className="w-3 h-3" />
+                        <span>{post.readTime} min</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Blog Posts Grid */}
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="space-y-6">
+            {filteredPosts.map((post: BlogPost, index) => (
+              <React.Fragment key={post.id}>
+                <Card
+                  className="shadow-md hover:shadow-lg transition-shadow cursor-pointer group"
+                  onClick={() => navigate(`/learn/${post.slug}`)}
+                >
+                  {post.image && (
+                    <div className="w-full h-56 overflow-hidden rounded-t-lg">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {/* Category Badge */}
+                      <div className="flex items-center gap-2">
+                        <Badge className={getCategoryColor(post.category)}>
+                          {post.category}
+                        </Badge>
+                        {post.sponsor && (
+                          <Badge variant="outline" className="text-xs">
+                            Sponsored by {post.sponsor.name}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <h2 className="text-2xl font-poppins font-bold text-foreground group-hover:text-primary transition-colors">
+                        {post.title}
+                      </h2>
+
+                      {/* Excerpt */}
+                      <p className="text-muted-foreground leading-relaxed">
+                        {post.excerpt}
+                      </p>
+
+                      {/* Meta Info */}
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            {new Date(post.date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{post.readTime} min read</span>
+                        </div>
+                      </div>
+
+                      {/* Read More Link */}
+                      <div className="flex items-center space-x-2 text-primary font-medium group-hover:gap-3 transition-all">
+                        <span>Read article</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Sponsored Content Block (after 2nd article) */}
+                {index === 1 && sponsoredPosts.length > 0 && (
+                  <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-income/5">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1 space-y-3">
+                          <Badge variant="outline" className="bg-background">
+                            Sponsored Content
+                          </Badge>
+                          <h3 className="text-xl font-poppins font-bold text-foreground">
+                            {sponsoredPosts[0].title}
+                          </h3>
+                          <p className="text-muted-foreground">
+                            {sponsoredPosts[0].excerpt}
+                          </p>
+                          {sponsoredPosts[0].sponsor && (
+                            <p className="text-sm text-muted-foreground italic">
+                              {sponsoredPosts[0].sponsor.message}
+                            </p>
+                          )}
+                          <Button
+                            onClick={() => navigate(`/learn/${sponsoredPosts[0].slug}`)}
+                            className="gap-2"
+                          >
+                            Learn More
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </React.Fragment>
+            ))}
+
+            {filteredPosts.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">
+                  No articles found in this category yet.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Community Corner */}
+        <div className="bg-gradient-to-br from-muted/50 to-primary/5 py-12 px-4 border-t border-border mt-12">
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <h2 className="text-2xl md:text-3xl font-poppins font-bold text-foreground">
+              Money Quote of the Day
+            </h2>
+            <blockquote className="text-xl md:text-2xl text-muted-foreground italic max-w-2xl mx-auto">
+              "The habit of saving is itself an education; it fosters every virtue, teaches self-denial, cultivates the sense of order, trains to forethought, and so broadens the mind."
+            </blockquote>
+            <p className="text-sm text-muted-foreground">— T.T. Munger</p>
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
 };
+
+export default Learn;
