@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,13 @@ import { useNavigate } from 'react-router-dom';
 const Learn = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const categories = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking', 'Stories'];
 
@@ -35,6 +42,32 @@ const Learn = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
+
+        {/* Sticky Category Header */}
+        <div
+          className={`sticky top-0 z-30 backdrop-blur-lg border-b border-border transition-all duration-300 ${
+            scrolled ? 'bg-background/95 shadow-md' : 'bg-background/80'
+          }`}
+        >
+          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-2 py-4 px-2">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className={`transition-all duration-300 ${
+                  selectedCategory === category
+                    ? 'bg-primary text-primary-foreground shadow-sm scale-[1.03]'
+                    : 'hover:scale-105'
+                }`}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         {/* Hero Banner */}
         <div className="relative bg-gradient-to-br from-primary/10 via-background to-income/10 py-12 md:py-16 px-4 border-b border-border">
           <div className="max-w-4xl mx-auto text-center space-y-4">
@@ -96,25 +129,6 @@ const Learn = () => {
             </div>
           </div>
         )}
-
-        {/* Category Filter */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border py-4 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="transition-all"
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Blog Posts Grid */}
         <div className="max-w-4xl mx-auto px-4 py-8">
