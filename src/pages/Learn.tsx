@@ -43,7 +43,7 @@ const Learn = () => {
               <span className="text-sm font-medium">Financial Education Hub</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-poppins font-bold text-foreground">
-              Your Daily Dose of Money Lessons 💡
+              Your Daily Dose of Money Lessons
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Financial wisdom for young Africans building wealth. Learn, act, and grow your money with practical tips and insights.
