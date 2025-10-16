@@ -22,8 +22,6 @@ import {
   Shield,
   Eye,
   Search,
-  Calendar,
-  Minus,
   ChevronUp,
   ChevronDown,
   ShoppingBag,
@@ -32,21 +30,19 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'rec
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 import { useMonthlySummaries } from '@/hooks/useMonthlySummaries';
 import { useCategoryAnalytics } from '@/hooks/useCategoryAnalytics';
 import { DateRangePicker, DateRange, DateRangePreset } from '@/components/DateRangePicker';
-import { getOverallTrend, getMonthTrend } from '@/utils/trendCalculations';
+import { getOverallTrend } from '@/utils/trendCalculations';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 
 const formatCurrency = (amount: number) => `₵${Math.abs(amount).toFixed(2)}`;
 const format = new Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS', maximumFractionDigits: 2 });
 
-// Transaction Row Component
+// Transaction Row
 const TransactionRow = memo(({ t, onDelete }: { t: any; onDelete: (id: string) => void }) => {
   const [expand, setExpand] = useState(false);
   const MAX_NOTE_LENGTH = 50;
@@ -63,12 +59,11 @@ const TransactionRow = memo(({ t, onDelete }: { t: any; onDelete: (id: string) =
           <div className="flex items-center justify-between gap-2">
             <p className="font-semibold truncate">{t.category}</p>
             <p className={`font-poppins font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
-              {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+              {t.type === 'income' ? '+' : '-'}
+              {formatCurrency(t.amount)}
             </p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {new Date(t.date).toLocaleDateString()}
-          </p>
+          <p className="text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()}</p>
           {note && (
             <div className="text-sm text-muted-foreground mt-1">
               <span>{note}</span>
@@ -81,12 +76,7 @@ const TransactionRow = memo(({ t, onDelete }: { t: any; onDelete: (id: string) =
           )}
         </div>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => onDelete(t.id)}
-        className="ml-2 text-muted-foreground hover:text-destructive"
-      >
+      <Button variant="ghost" size="icon" onClick={() => onDelete(t.id)} className="ml-2 text-muted-foreground hover:text-destructive">
         <Trash2 className="w-4 h-4" />
       </Button>
     </div>
@@ -96,34 +86,24 @@ TransactionRow.displayName = 'TransactionRow';
 
 const Manage = () => {
   const { transactions, balance, totals, loading, deleteTransaction, deleteAllTransactions } = useTransactions();
-  const { user, signOut, profile: authProfile } = useAuth();
+  const { user, signOut } = useAuth();
   const { profile, updateProfile, updating } = useProfile();
   const { toast } = useToast();
+
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'category'>('date');
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [profileForm, setProfileForm] = useState({ preferred_name: profile?.preferred_name || '' });
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
   const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('all');
 
-  const { summaries, getMonthName } = useMonthlySummaries({
-    startDate: dateRange.from,
-    endDate: dateRange.to,
-  });
+  const { summaries } = useMonthlySummaries({ startDate: dateRange.from, endDate: dateRange.to });
+  const { topCategories } = useCategoryAnalytics({ startDate: dateRange.from, endDate: dateRange.to });
 
-  const { topCategories, getTopCategoryForMonth } = useCategoryAnalytics({
-    startDate: dateRange.from,
-    endDate: dateRange.to,
-  });
-
-  // Update profile form when profile changes
-  React.useEffect(() => {
-    setProfileForm({ preferred_name: profile?.preferred_name || '' });
-  }, [profile]);
+  React.useEffect(() => setProfileForm({ preferred_name: profile?.preferred_name || '' }), [profile]);
 
   const preferred = profile?.preferred_name || (user?.user_metadata as any)?.preferred_name || '';
-
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -131,17 +111,15 @@ const Manage = () => {
     return 'Good evening';
   }, []);
 
-  // Chart data for cashflow
+  // Chart Data
   const chartData = useMemo(() => {
     const days = 7;
     const keys: string[] = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      keys.push(`${y}-${m}-${day}`);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      keys.push(key);
     }
 
     const map = new Map<string, { income: number; expenses: number }>();
@@ -157,90 +135,18 @@ const Manage = () => {
     return keys.map((k) => {
       const d = new Date(k);
       const { income, expenses } = map.get(k)!;
-      return {
-        key: k,
-        label: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        income,
-        expenses,
-      };
+      return { key: k, label: d.toLocaleDateString('en-US', { weekday: 'short' }), income, expenses };
     });
   }, [transactions]);
 
-  const recentTransactions = useMemo(() => transactions.slice(0, 5), [transactions]);
-
-  const filteredTransactions = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    let arr = transactions.filter((t) => {
-      if (!q) return true;
-      return t.category.toLowerCase().includes(q) || (t.note && t.note.toLowerCase().includes(q));
-    });
-    arr.sort((a, b) => {
-      if (sortBy === 'date') return new Date(b.date).getTime() - new Date(a.date).getTime();
-      if (sortBy === 'amount') return b.amount - a.amount;
-      return a.category.localeCompare(b.category);
-    });
-    return arr;
-  }, [transactions, searchTerm, sortBy]);
-
-  const handleDeleteTransaction = async (id: string) => {
-    if (confirm('Delete this transaction?')) await deleteTransaction(id);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error signing out', description: error.message });
-    }
-  };
-
-  const handleExportCSV = () => {
-    if (transactions.length === 0) {
-      toast({ title: 'No data to export', description: 'Add some transactions first.' });
-      return;
-    }
-    const headers = ['Date', 'Type', 'Category', 'Amount (₵)', 'Note'];
-    const csvContent = [
-      headers.join(','),
-      ...transactions.map((t) =>
-        [t.date, t.type, `"${t.category}"`, t.amount.toFixed(2), `"${t.note || ''}"`].join(',')
-      ),
-    ].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `kudimate-transactions-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast({ title: 'Export successful!', description: 'Your transactions have been downloaded.' });
-  };
-
-  const handleDeleteAllData = async () => {
-    if (transactions.length === 0) {
-      toast({ title: 'No data to delete' });
-      return;
-    }
-    if (confirm('Delete ALL transaction data? This cannot be undone.')) {
-      await deleteAllTransactions();
-    }
-  };
-
-  const handleSaveProfile = async () => {
-    await updateProfile({ preferred_name: profileForm.preferred_name || null });
-  };
-
   const overallTrend = useMemo(() => getOverallTrend(summaries), [summaries]);
   const kpis = useMemo(() => {
-    let income = 0;
-    let expenses = 0;
+    let income = 0, expenses = 0;
     for (const s of summaries) {
       income += Number(s.income);
       expenses += Number(s.expenses);
     }
-    return { income, expenses, net: income - expenses, monthsCount: summaries.length };
+    return { income, expenses, net: income - expenses };
   }, [summaries]);
 
   if (loading) {
@@ -261,26 +167,27 @@ const Manage = () => {
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
-        {/* Tabs for Manage Sections (moved to top & made sticky/fixed) */}
+
+        {/* 🔹 Sticky Tabs Header (top of page) */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList
             className="sticky md:fixed top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm grid grid-cols-4"
           >
-            <TabsTrigger value="overview">
-              <Wallet className="w-4 h-4 mr-2" />
-              Overview
+            <TabsTrigger value="overview" className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+              <Wallet className="w-5 h-5" />
+              <span className="hidden md:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="transactions">
-              <Receipt className="w-4 h-4 mr-2" />
-              Transactions
+            <TabsTrigger value="transactions" className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+              <Receipt className="w-5 h-5" />
+              <span className="hidden md:inline">Transactions</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Analytics
+            <TabsTrigger value="analytics" className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+              <BarChart3 className="w-5 h-5" />
+              <span className="hidden md:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="settings">
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Settings
+            <TabsTrigger value="settings" className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+              <SettingsIcon className="w-5 h-5" />
+              <span className="hidden md:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
 
