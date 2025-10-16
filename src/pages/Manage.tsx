@@ -268,7 +268,7 @@ const Manage = () => {
           </TabsList>
 
           {/* Spacer for fixed Tabs height */}
-          <div className="h-[70px] md:h-[100px]" />
+          <div className="hidden md:block md:h-[100px]" />
 
           {/* Greeting Section */}
           <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
