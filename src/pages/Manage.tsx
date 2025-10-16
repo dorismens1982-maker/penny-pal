@@ -250,24 +250,24 @@ const Manage = () => {
              -mx-4 md:mx-0 grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
           >
             <TabsTrigger value="overview" className="flex flex-col items-center gap-1">
-  <Wallet className="w-6 h-6" />
-  <span className="text-[11px] font-medium text-muted-foreground">Overview</span>
-</TabsTrigger>
+              <Wallet className="w-6 h-6" />
+              <span className="text-[11px] font-medium text-muted-foreground">Overview</span>
+            </TabsTrigger>
 
-<TabsTrigger value="transactions" className="flex flex-col items-center gap-1">
-  <Receipt className="w-6 h-6" />
-  <span className="text-[11px] font-medium text-muted-foreground">Transactions</span>
-</TabsTrigger>
+            <TabsTrigger value="transactions" className="flex flex-col items-center gap-1">
+              <Receipt className="w-6 h-6" />
+              <span className="text-[11px] font-medium text-muted-foreground">Transactions</span>
+            </TabsTrigger>
 
-<TabsTrigger value="analytics" className="flex flex-col items-center gap-1">
-  <BarChart3 className="w-6 h-6" />
-  <span className="text-[11px] font-medium text-muted-foreground">Analytics</span>
-</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex flex-col items-center gap-1">
+              <BarChart3 className="w-6 h-6" />
+              <span className="text-[11px] font-medium text-muted-foreground">Analytics</span>
+            </TabsTrigger>
 
-<TabsTrigger value="settings" className="flex flex-col items-center gap-1">
-  <SettingsIcon className="w-6 h-6" />
-  <span className="text-[11px] font-medium text-muted-foreground">Settings</span>
-</TabsTrigger>
+            <TabsTrigger value="settings" className="flex flex-col items-center gap-1">
+              <SettingsIcon className="w-6 h-6" />
+              <span className="text-[11px] font-medium text-muted-foreground">Settings</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* spacer only for md+ fixed header */}
@@ -275,7 +275,7 @@ const Manage = () => {
 
           {/* ✅ Overview Tab ONLY */}
           <TabsContent value="overview" className="space-y-6">
-            {/* MOVED HERE: Greeting Section now appears only on Overview */}
+            {/* Greeting Section WITHOUT 'Current Balance' */}
             <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
               <CardContent className="p-5">
                 <h1 className="text-2xl font-poppins font-bold text-foreground">
@@ -284,15 +284,6 @@ const Manage = () => {
                 <p className="text-sm text-muted-foreground mt-1">
                   Track, plan, and achieve your money goals
                 </p>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className={`w-2 h-8 rounded-full ${balance >= 0 ? 'bg-income' : 'bg-expense'}`} />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Current Balance</p>
-                    <p className={`text-3xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-                      {formatCurrency(balance)}
-                    </p>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
