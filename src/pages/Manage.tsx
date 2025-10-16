@@ -249,23 +249,38 @@ const Manage = () => {
             className="sticky md:fixed top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
                        grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
           >
-            <TabsTrigger value="overview" className="flex flex-col items-center md:flex-row md:gap-2">
-              <Wallet className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex flex-col items-center md:flex-row md:gap-2">
-              <Receipt className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Transactions</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex flex-col items-center md:flex-row md:gap-2">
-              <BarChart3 className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex flex-col items-center md:flex-row md:gap-2">
-              <SettingsIcon className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Settings</span>
-            </TabsTrigger>
-          </TabsList>
+            <TabsTrigger
+  value="overview"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <Wallet className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Overview</span>
+</TabsTrigger>
+
+<TabsTrigger
+  value="transactions"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <Receipt className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Transactions</span>
+</TabsTrigger>
+
+<TabsTrigger
+  value="analytics"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <BarChart3 className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Analytics</span>
+</TabsTrigger>
+
+<TabsTrigger
+  value="settings"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <SettingsIcon className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Settings</span>
+</TabsTrigger>
+
 
           {/* Spacer for fixed Tabs height */}
           <div className="h-[70px] md:h-[100px]" />
