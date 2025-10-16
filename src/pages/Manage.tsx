@@ -117,7 +117,7 @@ const Manage = () => {
   }, []);
 
   const chartData = useMemo(() => {
-    const days = 7;
+       const days = 7;
     const keys: string[] = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
@@ -242,12 +242,14 @@ const Manage = () => {
 
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
-      <div className="p-4 space-y-6 max-w-7xl mx-auto">
+      {/* CHANGED: remove top padding so tabs start at the top */}
+      <div className="px-4 pb-4 space-y-6 max-w-7xl mx-auto">
         {/* 🔹 Sticky Tabs Header */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList
+            /* CHANGED: hug the top on mobile, cancel horizontal padding on mobile for full-bleed bar */
             className="sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
-             grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
+             -mx-4 md:mx-0 grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
           >
             <TabsTrigger value="overview" className="flex flex-col items-center md:flex-row md:gap-2">
               <Wallet className="w-6 h-6 md:w-4 md:h-4" />
@@ -267,7 +269,7 @@ const Manage = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Spacer for fixed Tabs height */}
+          {/* Spacer for fixed Tabs height (only on md+) */}
           <div className="hidden md:block md:h-[100px]" />
 
           {/* Greeting Section */}
