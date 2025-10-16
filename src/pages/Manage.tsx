@@ -440,7 +440,7 @@ const Manage = () => {
 
           {/* ✅ Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="sticky top-[110px] z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4 py-3 mb-4">
+            <div className="bg-background border-b border-border px-4 py-3 mb-4">
               <DateRangePicker
                 value={dateRange}
                 onChange={(range, preset) => {
