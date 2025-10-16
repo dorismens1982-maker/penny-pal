@@ -93,6 +93,10 @@ const Manage = () => {
   const { user, signOut } = useAuth();
   const { profile, updateProfile, updating } = useProfile();
   const { toast } = useToast();
+
+  // Track current tab (so greeting shows only on Overview; settings opens from the greeting gear)
+  const [tab, setTab] = useState<'overview' | 'transactions' | 'analytics' | 'settings'>('overview');
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'category'>('date');
@@ -242,12 +246,40 @@ const Manage = () => {
 
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
-      {/* tabs wrapper */}
+      {/* Page wrapper */}
       <div className="px-4 pb-4 space-y-6 max-w-7xl mx-auto">
-        <Tabs defaultValue="overview" className="w-full">
+        {/* Greeting FIRST (only on Overview) with a Settings gear on the right */}
+        {tab === 'overview' && (
+          <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-poppins font-bold text-foreground">
+                    {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
+                  </h1>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Track, plan, and achieve your money goals
+                  </p>
+                </div>
+                <Button
+                  aria-label="Open Settings"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setTab('settings')}
+                  className="shrink-0"
+                >
+                  <SettingsIcon className="w-5 h-5" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tabs BELOW greeting; sticky/fixed tab bar. Settings removed from tab bar */}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <TabsList
             className="sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
-             -mx-4 md:mx-0 grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
+             -mx-4 md:mx-0 grid grid-cols-3 py-3 md:py-0 md:h-auto h-[64px]"
           >
             <TabsTrigger value="overview" className="flex flex-col items-center gap-1">
               <Wallet className="w-6 h-6" />
@@ -263,30 +295,13 @@ const Manage = () => {
               <BarChart3 className="w-6 h-6" />
               <span className="text-[11px] font-medium text-muted-foreground">Analytics</span>
             </TabsTrigger>
-
-            <TabsTrigger value="settings" className="flex flex-col items-center gap-1">
-              <SettingsIcon className="w-6 h-6" />
-              <span className="text-[11px] font-medium text-muted-foreground">Settings</span>
-            </TabsTrigger>
           </TabsList>
 
           {/* spacer only for md+ fixed header */}
           <div className="hidden md:block md:h-[100px]" />
 
-          {/* ✅ Overview Tab ONLY */}
+          {/* OVERVIEW */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Greeting Section WITHOUT 'Current Balance' */}
-            <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
-              <CardContent className="p-5">
-                <h1 className="text-2xl font-poppins font-bold text-foreground">
-                  {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Track, plan, and achieve your money goals
-                </p>
-              </CardContent>
-            </Card>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="shadow-sm">
                 <CardContent className="p-4 flex items-center gap-3">
@@ -387,7 +402,7 @@ const Manage = () => {
             </Card>
           </TabsContent>
 
-          {/* ✅ Transactions Tab */}
+          {/* TRANSACTIONS */}
           <TabsContent value="transactions" className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
@@ -432,7 +447,7 @@ const Manage = () => {
             </Card>
           </TabsContent>
 
-          {/* ✅ Analytics Tab */}
+          {/* ANALYTICS */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="bg-background border-b border-border px-4 py-3 mb-4">
               <DateRangePicker
@@ -498,7 +513,7 @@ const Manage = () => {
             )}
           </TabsContent>
 
-          {/* ✅ Settings Tab */}
+          {/* SETTINGS (opened via the gear in the greeting) */}
           <TabsContent value="settings" className="space-y-6">
             {/* Profile */}
             <Card className="shadow-md">
