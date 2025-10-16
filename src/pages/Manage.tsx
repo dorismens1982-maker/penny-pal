@@ -249,22 +249,25 @@ const Manage = () => {
             className="sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
              -mx-4 md:mx-0 grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
           >
-            <TabsTrigger value="overview" className="flex flex-col items-center md:flex-row md:gap-2">
-              <Wallet className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex flex-col items-center md:flex-row md:gap-2">
-              <Receipt className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Transactions</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex flex-col items-center md:flex-row md:gap-2">
-              <BarChart3 className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex flex-col items-center md:flex-row md:gap-2">
-              <SettingsIcon className="w-6 h-6 md:w-4 md:h-4" />
-              <span className="hidden md:inline">Settings</span>
-            </TabsTrigger>
+            <TabsTrigger value="overview" className="flex flex-col items-center gap-1">
+  <Wallet className="w-6 h-6" />
+  <span className="text-[11px] font-medium text-muted-foreground">Overview</span>
+</TabsTrigger>
+
+<TabsTrigger value="transactions" className="flex flex-col items-center gap-1">
+  <Receipt className="w-6 h-6" />
+  <span className="text-[11px] font-medium text-muted-foreground">Transactions</span>
+</TabsTrigger>
+
+<TabsTrigger value="analytics" className="flex flex-col items-center gap-1">
+  <BarChart3 className="w-6 h-6" />
+  <span className="text-[11px] font-medium text-muted-foreground">Analytics</span>
+</TabsTrigger>
+
+<TabsTrigger value="settings" className="flex flex-col items-center gap-1">
+  <SettingsIcon className="w-6 h-6" />
+  <span className="text-[11px] font-medium text-muted-foreground">Settings</span>
+</TabsTrigger>
           </TabsList>
 
           {/* spacer only for md+ fixed header */}
