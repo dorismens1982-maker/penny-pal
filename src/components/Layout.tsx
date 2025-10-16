@@ -112,7 +112,8 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
       </nav>
 
       {/* ===================== MAIN CONTENT ===================== */}
-      <main className="pt-16 md:pt-20 pb-20 flex-1">{children}</main>
+      {/* CHANGED: remove mobile top padding; keep only md+ padding to sit under fixed header */}
+      <main className="pt-0 md:pt-[60px] pb-20 flex-1">{children}</main>
 
       {/* ===================== FLOATING ADD BUTTON ===================== */}
       {onAddTransaction && (
