@@ -281,7 +281,6 @@ const Manage = () => {
   <span className="hidden md:inline">Settings</span>
 </TabsTrigger>
 
-
           {/* Spacer for fixed Tabs height */}
           <div className="h-[70px] md:h-[100px]" />
 
