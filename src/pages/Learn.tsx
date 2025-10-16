@@ -42,10 +42,9 @@ const Learn = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-
         {/* Sticky / Fixed Category Header */}
         <div
-          className={`sticky md:fixed top-[60px] left-0 w-full z-[60] backdrop-blur-lg border-b border-border transition-all duration-300 ${
+          className={`sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] backdrop-blur-lg border-b border-border transition-all duration-300 ${
             scrolled ? 'bg-background/95 shadow-md' : 'bg-background/80'
           }`}
         >
@@ -68,8 +67,11 @@ const Learn = () => {
           </div>
         </div>
 
-        {/* Hero Banner */}
-        <div className="relative bg-gradient-to-br from-primary/10 via-background to-income/10 py-12 md:py-16 px-4 border-b border-border md:mt-[72px]">
+        {/* Spacer for fixed category bar only on md+ */}
+        <div className="hidden md:block md:h-[64px]" />
+
+        {/* Hero Banner (removed manual md:mt) */}
+        <div className="relative bg-gradient-to-br from-primary/10 via-background to-income/10 py-12 md:py-16 px-4 border-b border-border">
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur rounded-full border border-border mb-4">
               <Sparkles className="w-4 h-4 text-primary" />
