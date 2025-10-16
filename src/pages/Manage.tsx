@@ -117,7 +117,7 @@ const Manage = () => {
   }, []);
 
   const chartData = useMemo(() => {
-       const days = 7;
+    const days = 7;
     const keys: string[] = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
@@ -242,12 +242,10 @@ const Manage = () => {
 
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
-      {/* CHANGED: remove top padding so tabs start at the top */}
+      {/* tabs wrapper */}
       <div className="px-4 pb-4 space-y-6 max-w-7xl mx-auto">
-        {/* 🔹 Sticky Tabs Header */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList
-            /* CHANGED: hug the top on mobile, cancel horizontal padding on mobile for full-bleed bar */
             className="sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
              -mx-4 md:mx-0 grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
           >
@@ -269,32 +267,32 @@ const Manage = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Spacer for fixed Tabs height (only on md+) */}
+          {/* spacer only for md+ fixed header */}
           <div className="hidden md:block md:h-[100px]" />
 
-          {/* Greeting Section */}
-          <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
-            <CardContent className="p-5">
-              <h1 className="text-2xl font-poppins font-bold text-foreground">
-                {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Track, plan, and achieve your money goals
-              </p>
-              <div className="mt-4 flex items-center gap-3">
-                <div className={`w-2 h-8 rounded-full ${balance >= 0 ? 'bg-income' : 'bg-expense'}`} />
-                <div>
-                  <p className="text-xs text-muted-foreground">Current Balance</p>
-                  <p className={`text-3xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-                    {formatCurrency(balance)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* ✅ Overview Tab */}
+          {/* ✅ Overview Tab ONLY */}
           <TabsContent value="overview" className="space-y-6">
+            {/* MOVED HERE: Greeting Section now appears only on Overview */}
+            <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+              <CardContent className="p-5">
+                <h1 className="text-2xl font-poppins font-bold text-foreground">
+                  {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Track, plan, and achieve your money goals
+                </p>
+                <div className="mt-4 flex items-center gap-3">
+                  <div className={`w-2 h-8 rounded-full ${balance >= 0 ? 'bg-income' : 'bg-expense'}`} />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Current Balance</p>
+                    <p className={`text-3xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
+                      {formatCurrency(balance)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="shadow-sm">
                 <CardContent className="p-4 flex items-center gap-3">
