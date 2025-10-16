@@ -94,7 +94,7 @@ const Manage = () => {
   const { profile, updateProfile, updating } = useProfile();
   const { toast } = useToast();
 
-  // Track current tab (so greeting shows only on Overview; settings opens from the greeting gear)
+  // Track current tab (greeting shows only on Overview; settings opens from the greeting gear)
   const [tab, setTab] = useState<'overview' | 'transactions' | 'analytics' | 'settings'>('overview');
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -248,9 +248,9 @@ const Manage = () => {
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       {/* Page wrapper */}
       <div className="px-4 pb-4 space-y-6 max-w-7xl mx-auto">
-        {/* Greeting FIRST (only on Overview) with a Settings gear on the right */}
+        {/* Greeting FIRST (only on Overview) with a Settings gear on the right) */}
         {tab === 'overview' && (
-          <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+          <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
             <CardContent className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -275,10 +275,10 @@ const Manage = () => {
           </Card>
         )}
 
-        {/* Tabs BELOW greeting; sticky/fixed tab bar. Settings removed from tab bar */}
+        {/* Tabs BELOW greeting; sticky tab bar (not fixed) */}
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <TabsList
-            className="sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
+            className="sticky top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
              -mx-4 md:mx-0 grid grid-cols-3 py-3 md:py-0 md:h-auto h-[64px]"
           >
             <TabsTrigger value="overview" className="flex flex-col items-center gap-1">
@@ -296,9 +296,6 @@ const Manage = () => {
               <span className="text-[11px] font-medium text-muted-foreground">Analytics</span>
             </TabsTrigger>
           </TabsList>
-
-          {/* spacer only for md+ fixed header */}
-          <div className="hidden md:block md:h-[100px]" />
 
           {/* OVERVIEW */}
           <TabsContent value="overview" className="space-y-6">
