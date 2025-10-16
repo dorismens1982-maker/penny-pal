@@ -261,28 +261,11 @@ const Manage = () => {
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
-        {/* Hero Greeting */}
-        <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
-          <CardContent className="p-5">
-            <h1 className="text-2xl font-poppins font-bold text-foreground">
-              {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">Track, plan, and achieve your money goals</p>
-            <div className="mt-4 flex items-center gap-3">
-              <div className={`w-2 h-8 rounded-full ${balance >= 0 ? 'bg-income' : 'bg-expense'}`} />
-              <div>
-                <p className="text-xs text-muted-foreground">Current Balance</p>
-                <p className={`text-3xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-                  {formatCurrency(balance)}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tabs for Manage Sections */}
+        {/* Tabs for Manage Sections (moved to top & made sticky/fixed) */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList
+            className="sticky md:fixed top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm grid grid-cols-4"
+          >
             <TabsTrigger value="overview">
               <Wallet className="w-4 h-4 mr-2" />
               Overview
@@ -300,6 +283,28 @@ const Manage = () => {
               Settings
             </TabsTrigger>
           </TabsList>
+
+          {/* Spacer for fixed Tabs height */}
+          <div className="h-[70px] md:h-[100px]" />
+
+          {/* Hero Greeting */}
+          <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+            <CardContent className="p-5">
+              <h1 className="text-2xl font-poppins font-bold text-foreground">
+                {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">Track, plan, and achieve your money goals</p>
+              <div className="mt-4 flex items-center gap-3">
+                <div className={`w-2 h-8 rounded-full ${balance >= 0 ? 'bg-income' : 'bg-expense'}`} />
+                <div>
+                  <p className="text-xs text-muted-foreground">Current Balance</p>
+                  <p className={`text-3xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
+                    {formatCurrency(balance)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
@@ -453,7 +458,8 @@ const Manage = () => {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4 py-3 mb-4">
+            {/* DateRangePicker adjusted so it sits under the fixed tabs */}
+            <div className="sticky top-[110px] z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4 py-3 mb-4">
               <DateRangePicker
                 value={dateRange}
                 onChange={(range, preset) => {
