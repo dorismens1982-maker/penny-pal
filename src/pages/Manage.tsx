@@ -246,8 +246,8 @@ const Manage = () => {
         {/* 🔹 Sticky Tabs Header */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList
-            className="sticky md:fixed top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
-                       grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
+            className="sticky md:fixed top-0 md:top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
+             grid grid-cols-4 py-3 md:py-0 md:h-auto h-[64px]"
           >
             <TabsTrigger value="overview" className="flex flex-col items-center md:flex-row md:gap-2">
               <Wallet className="w-6 h-6 md:w-4 md:h-4" />
