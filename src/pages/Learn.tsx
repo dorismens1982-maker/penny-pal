@@ -45,7 +45,7 @@ const Learn = () => {
 
         {/* Sticky / Fixed Category Header */}
         <div
-          className={`sticky md:fixed top-0 left-0 w-full z-30 backdrop-blur-lg border-b border-border transition-all duration-300 ${
+          className={`sticky md:fixed top-[80px] left-0 w-full z-[60] backdrop-blur-lg border-b border-border transition-all duration-300 ${
             scrolled ? 'bg-background/95 shadow-md' : 'bg-background/80'
           }`}
         >
