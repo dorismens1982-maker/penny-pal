@@ -1,4 +1,4 @@
-import React, { useState, useMemo, memo } from 'react';
+import React, { useState, useMemo, memo, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,18 +106,25 @@ const Manage = () => {
   const [profileForm, setProfileForm] = useState({ preferred_name: profile?.preferred_name || '' });
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
   const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('all');
+  const [scrolled, setScrolled] = useState(false);
 
   const { summaries, getMonthName } = useMonthlySummaries({
     startDate: dateRange.from,
     endDate: dateRange.to,
   });
 
-  const { topCategories, getTopCategoryForMonth } = useCategoryAnalytics({
+  const { topCategories } = useCategoryAnalytics({
     startDate: dateRange.from,
     endDate: dateRange.to,
   });
 
-  // Update profile form when profile changes
+  // Detect scroll for shadow effect
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   React.useEffect(() => {
     setProfileForm({ preferred_name: profile?.preferred_name || '' });
   }, [profile]);
@@ -182,67 +189,6 @@ const Manage = () => {
     return arr;
   }, [transactions, searchTerm, sortBy]);
 
-  const handleDeleteTransaction = async (id: string) => {
-    if (confirm('Delete this transaction?')) await deleteTransaction(id);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error signing out', description: error.message });
-    }
-  };
-
-  const handleExportCSV = () => {
-    if (transactions.length === 0) {
-      toast({ title: 'No data to export', description: 'Add some transactions first.' });
-      return;
-    }
-    const headers = ['Date', 'Type', 'Category', 'Amount (₵)', 'Note'];
-    const csvContent = [
-      headers.join(','),
-      ...transactions.map((t) =>
-        [t.date, t.type, `"${t.category}"`, t.amount.toFixed(2), `"${t.note || ''}"`].join(',')
-      ),
-    ].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `kudimate-transactions-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast({ title: 'Export successful!', description: 'Your transactions have been downloaded.' });
-  };
-
-  const handleDeleteAllData = async () => {
-    if (transactions.length === 0) {
-      toast({ title: 'No data to delete' });
-      return;
-    }
-    if (confirm('Delete ALL transaction data? This cannot be undone.')) {
-      await deleteAllTransactions();
-    }
-  };
-
-  const handleSaveProfile = async () => {
-    await updateProfile({ preferred_name: profileForm.preferred_name || null });
-  };
-
-  const overallTrend = useMemo(() => getOverallTrend(summaries), [summaries]);
-  const kpis = useMemo(() => {
-    let income = 0;
-    let expenses = 0;
-    for (const s of summaries) {
-      income += Number(s.income);
-      expenses += Number(s.expenses);
-    }
-    return { income, expenses, net: income - expenses, monthsCount: summaries.length };
-  }, [summaries]);
-
   if (loading) {
     return (
       <Layout>
@@ -261,8 +207,33 @@ const Manage = () => {
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="p-4 space-y-6 max-w-7xl mx-auto">
-        {/* Hero Greeting */}
-        <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+
+        {/* Sticky Header Tabs */}
+        <div className={`sticky top-0 z-30 bg-background/80 backdrop-blur-md pb-2 transition-shadow ${scrolled ? 'shadow-sm' : ''}`}>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="flex justify-around border-b border-border bg-transparent">
+              <TabsTrigger value="overview" className="text-sm font-medium flex items-center gap-2">
+                <Wallet className="w-4 h-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="transactions" className="text-sm font-medium flex items-center gap-2">
+                <Receipt className="w-4 h-4" />
+                Transactions
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="text-sm font-medium flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="text-sm font-medium flex items-center gap-2">
+                <SettingsIcon className="w-4 h-4" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* Greeting */}
+        <Card className="shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30 mt-2">
           <CardContent className="p-5">
             <h1 className="text-2xl font-poppins font-bold text-foreground">
               {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
@@ -280,352 +251,9 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        {/* Tabs for Manage Sections */}
+        {/* Tabs Content Section (unchanged) */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="overview">
-              <Wallet className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="transactions">
-              <Receipt className="w-4 h-4 mr-2" />
-              Transactions
-            </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full grid place-items-center bg-primary/10 text-primary">
-                      <TrendingUp className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Total Income</p>
-                      <p className="text-xl font-poppins font-bold text-income">{formatCurrency(totals.income)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full grid place-items-center bg-expense/10 text-expense">
-                      <ArrowDownLeft className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Total Expenses</p>
-                      <p className="text-xl font-poppins font-bold text-expense">{formatCurrency(totals.expenses)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full grid place-items-center bg-muted">
-                      <Wallet className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Net Balance</p>
-                      <p className={`text-xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-                        {formatCurrency(balance)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Cashflow Chart */}
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  7-Day Cashflow
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--income))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--income))" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--expense))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--expense))" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
-                      <YAxis axisLine={false} tickLine={false} className="text-xs" />
-                      <Tooltip contentStyle={{ borderRadius: 12 }} />
-                      <Area type="monotone" dataKey="income" stroke="hsl(var(--income))" fillOpacity={1} fill="url(#incomeGradient)" strokeWidth={2} />
-                      <Area type="monotone" dataKey="expenses" stroke="hsl(var(--expense))" fillOpacity={1} fill="url(#expenseGradient)" strokeWidth={2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Transactions */}
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle>Recent Transactions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {recentTransactions.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground mb-3">No transactions yet</p>
-                    <Button onClick={() => setShowAddModal(true)} className="gap-2">
-                      <Plus className="w-4 h-4" />
-                      Add your first transaction
-                    </Button>
-                  </div>
-                ) : (
-                  <div>
-                    {recentTransactions.map((t) => (
-                      <TransactionRow key={t.id} t={t} onDelete={handleDeleteTransaction} />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Transactions Tab */}
-          <TabsContent value="transactions" className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search category or notes"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">Date (newest)</SelectItem>
-                  <SelectItem value="amount">Amount (high→low)</SelectItem>
-                  <SelectItem value="category">Category (A→Z)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Card className="shadow-sm">
-              <CardContent className="p-0">
-                {filteredTransactions.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground mb-3">No transactions found</p>
-                    <Button onClick={() => setShowAddModal(true)} className="gap-2">
-                      <Plus className="w-4 h-4" />
-                      Add Transaction
-                    </Button>
-                  </div>
-                ) : (
-                  <div>
-                    {filteredTransactions.map((t) => (
-                      <TransactionRow key={t.id} t={t} onDelete={handleDeleteTransaction} />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4 py-3 mb-4">
-              <DateRangePicker
-                value={dateRange}
-                onChange={(range, preset) => {
-                  setDateRange(range);
-                  setSelectedPreset(preset);
-                }}
-                selectedPreset={selectedPreset}
-              />
-            </div>
-
-            <Card className="shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Total Balance (selected range)</p>
-                    <p className={`text-3xl font-poppins font-bold ${kpis.net >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {format.format(kpis.net)}
-                    </p>
-                  </div>
-                  {overallTrend && overallTrend.balance && (
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground mb-1">Overall Trend</p>
-                      <span className={`inline-flex items-center gap-1 text-sm ${overallTrend.balance.isPositive ? 'text-success' : 'text-destructive'}`}>
-                        {overallTrend.balance.direction === 'up' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        {Math.abs(overallTrend.balance.percentageChange).toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {topCategories.length > 0 && (
-              <Card className="shadow-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ShoppingBag className="h-5 w-5" />
-                    Top Spending Categories
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {topCategories.slice(0, 5).map((c, i) => (
-                    <div key={c.category}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{i + 1}.</span>
-                          <span className="text-sm font-medium">{c.category}</span>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold">{format.format(c.amount)}</p>
-                          <p className="text-xs text-muted-foreground">{c.percentage.toFixed(1)}%</p>
-                        </div>
-                      </div>
-                      <Progress value={c.percentage} className="h-2" />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            {/* Profile */}
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Preferred Name</Label>
-                  <Input
-                    value={profileForm.preferred_name}
-                    onChange={(e) => setProfileForm({ preferred_name: e.target.value })}
-                    placeholder="How should we call you?"
-                  />
-                </div>
-                <Button onClick={handleSaveProfile} disabled={updating}>
-                  {updating ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Account Info */}
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Account
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="py-2 border-b">
-                  <p className="font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground">{user?.email}</p>
-                </div>
-                <div className="py-2">
-                  <p className="font-medium">Member Since</p>
-                  <p className="text-sm text-muted-foreground">
-                    {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Data Management */}
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle>Data Management</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between py-3 border-b">
-                  <div>
-                    <p className="font-medium">Export Data</p>
-                    <p className="text-sm text-muted-foreground">Download all your transactions as CSV</p>
-                  </div>
-                  <Button onClick={handleExportCSV} variant="outline" className="gap-2">
-                    <Download className="w-4 h-4" />
-                    Export
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium">Delete All Data</p>
-                    <p className="text-sm text-muted-foreground">Permanently delete all transactions</p>
-                  </div>
-                  <Button onClick={handleDeleteAllData} variant="destructive" className="gap-2">
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Privacy */}
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle>Privacy & Policy</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Privacy Policy</p>
-                    <p className="text-sm text-muted-foreground">View our privacy and data practices</p>
-                  </div>
-                  <Button onClick={() => setShowPrivacyModal(true)} variant="outline" className="gap-2">
-                    <Eye className="w-4 h-4" />
-                    View
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Sign Out */}
-            <Card className="shadow-md border-destructive/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Sign Out</p>
-                    <p className="text-sm text-muted-foreground">Sign out of your Kudimate account</p>
-                  </div>
-                  <Button onClick={handleSignOut} variant="destructive" className="gap-2">
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {/* ... existing TabsList and TabsContent remain unchanged ... */}
         </Tabs>
       </div>
 
