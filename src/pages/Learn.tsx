@@ -18,14 +18,7 @@ const Learn = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const categories = [
-    'All',
-    'Saving Tips',
-    'Investment Guide',
-    'Currency Updates',
-    'Expense Tracking',
-    'Stories',
-  ];
+  const categories = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking', 'Stories'];
 
   const filteredPosts =
     selectedCategory === 'All'
@@ -41,7 +34,7 @@ const Learn = () => {
       'Investment Guide': 'bg-primary/10 text-primary hover:bg-primary/20',
       'Currency Updates': 'bg-accent/10 text-accent-foreground hover:bg-accent/20',
       'Expense Tracking': 'bg-secondary/10 text-secondary-foreground hover:bg-secondary/20',
-      Stories: 'bg-muted text-muted-foreground hover:bg-muted/80',
+      'Stories': 'bg-muted text-muted-foreground hover:bg-muted/80',
     };
     return colors[category] || 'bg-muted text-muted-foreground hover:bg-muted/80';
   };
@@ -52,7 +45,7 @@ const Learn = () => {
 
         {/* Sticky Category Header */}
         <div
-          className={`sticky top-0 z-50 backdrop-blur-lg border-b border-border transition-all duration-300 ${
+          className={`sticky top-0 z-30 backdrop-blur-lg border-b border-border transition-all duration-300 ${
             scrolled ? 'bg-background/95 shadow-md' : 'bg-background/80'
           }`}
         >
@@ -75,9 +68,6 @@ const Learn = () => {
           </div>
         </div>
 
-        {/* Spacer to prevent layout shift */}
-        <div className="h-[60px] md:h-[70px]" />
-
         {/* Hero Banner */}
         <div className="relative bg-gradient-to-br from-primary/10 via-background to-income/10 py-12 md:py-16 px-4 border-b border-border">
           <div className="max-w-4xl mx-auto text-center space-y-4">
@@ -89,8 +79,7 @@ const Learn = () => {
               Your Daily Dose of Money Lessons
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Financial wisdom for young Africans building wealth. Learn, act, and grow your
-              money with practical tips and insights.
+              Financial wisdom for young Africans building wealth. Learn, act, and grow your money with practical tips and insights.
             </p>
           </div>
         </div>
@@ -120,10 +109,7 @@ const Learn = () => {
                       </div>
                     )}
                     <CardContent className="p-4">
-                      <Badge
-                        className={getCategoryColor(post.category)}
-                        variant="outline"
-                      >
+                      <Badge className={getCategoryColor(post.category)} variant="outline">
                         {post.category}
                       </Badge>
                       <h3 className="text-lg font-poppins font-bold text-foreground mt-2 group-hover:text-primary transition-colors line-clamp-2">
@@ -266,9 +252,7 @@ const Learn = () => {
               Money Quote of the Day
             </h2>
             <blockquote className="text-xl md:text-2xl text-muted-foreground italic max-w-2xl mx-auto">
-              "The habit of saving is itself an education; it fosters every virtue, teaches
-              self-denial, cultivates the sense of order, trains to forethought, and so broadens
-              the mind."
+              "The habit of saving is itself an education; it fosters every virtue, teaches self-denial, cultivates the sense of order, trains to forethought, and so broadens the mind."
             </blockquote>
             <p className="text-sm text-muted-foreground">— T.T. Munger</p>
           </div>
