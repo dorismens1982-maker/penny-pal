@@ -277,89 +277,83 @@ const Manage = () => {
 
         {/* Tabs BELOW greeting; sticky tab bar */}
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
-          <TabsList
-            className="
-              sticky top-0 md:top-[60px] left-0 w-full z-[60]
-              bg-background/95 backdrop-blur-lg border-b border-border shadow-sm
-              -mx-4 md:mx-0
-              grid grid-cols-3 gap-1
-              px-1 py-2 md:py-0
-              md:h-auto h-[64px]
-            "
-          >
-            {/* Yellow pill on mobile; yellow underline on desktop */}
-            <TabsTrigger
-              value="overview"
-              className="
-                w-full h-full
-                flex flex-col items-center justify-center gap-1
-                rounded-lg transition-all
-                text-[11px] font-medium text-muted-foreground
-                data-[state=active]:bg-yellow-100
-                data-[state=active]:text-yellow-700
-                data-[state=active]:shadow-sm
-                data-[state=active]:ring-1 data-[state=active]:ring-yellow-300
-                md:data-[state=active]:bg-transparent
-                md:data-[state=active]:text-foreground
-                md:data-[state=active]:ring-0
-                md:rounded-none
-                md:border-b-2 md:border-transparent
-                md:data-[state=active]:border-yellow-400
-                px-3 py-2
-              "
-            >
-              <Wallet className="w-6 h-6 md:w-4 md:h-4" />
-              <span>Overview</span>
-            </TabsTrigger>
+          <div className="sticky top-0 md:top-[60px] z-[60] -mx-4 md:mx-0 bg-background/95 backdrop-blur-lg border-b border-border">
+            <div className="px-4 md:px-0 max-w-7xl mx-auto">
+              <TabsList
+                className="
+                  w-full grid grid-cols-3 gap-2
+                  p-1 my-2 rounded-2xl bg-muted/40 shadow-inner
+                "
+              >
+                {/* Compact yellow 'pill' like bottom nav */}
+                <TabsTrigger
+                  value="overview"
+                  className="
+                    group w-full h-full text-muted-foreground
+                    data-[state=active]:text-yellow-800
+                    transition-colors
+                  "
+                >
+                  <div
+                    className="
+                      flex flex-col items-center justify-center gap-1
+                      rounded-xl px-2 py-1
+                      group-data-[state=active]:bg-yellow-100
+                      group-data-[state=active]:ring-1 group-data-[state=active]:ring-yellow-300
+                      group-data-[state=active]:shadow-sm
+                    "
+                  >
+                    <Wallet className="w-5 h-5" />
+                    <span className="text-[11px] font-medium">Overview</span>
+                  </div>
+                </TabsTrigger>
 
-            <TabsTrigger
-              value="transactions"
-              className="
-                w-full h-full
-                flex flex-col items-center justify-center gap-1
-                rounded-lg transition-all
-                text-[11px] font-medium text-muted-foreground
-                data-[state=active]:bg-yellow-100
-                data-[state=active]:text-yellow-700
-                data-[state=active]:shadow-sm
-                data-[state=active]:ring-1 data-[state=active]:ring-yellow-300
-                md:data-[state=active]:bg-transparent
-                md:data-[state=active]:text-foreground
-                md:data-[state=active]:ring-0
-                md:rounded-none
-                md:border-b-2 md:border-transparent
-                md:data-[state=active]:border-yellow-400
-                px-3 py-2
-              "
-            >
-              <Receipt className="w-6 h-6 md:w-4 md:h-4" />
-              <span>Transactions</span>
-            </TabsTrigger>
+                <TabsTrigger
+                  value="transactions"
+                  className="
+                    group w-full h-full text-muted-foreground
+                    data-[state=active]:text-yellow-800
+                    transition-colors
+                  "
+                >
+                  <div
+                    className="
+                      flex flex-col items-center justify-center gap-1
+                      rounded-xl px-2 py-1
+                      group-data-[state=active]:bg-yellow-100
+                      group-data-[state=active]:ring-1 group-data-[state=active]:ring-yellow-300
+                      group-data-[state=active]:shadow-sm
+                    "
+                  >
+                    <Receipt className="w-5 h-5" />
+                    <span className="text-[11px] font-medium">Transactions</span>
+                  </div>
+                </TabsTrigger>
 
-            <TabsTrigger
-              value="analytics"
-              className="
-                w-full h-full
-                flex flex-col items-center justify-center gap-1
-                rounded-lg transition-all
-                text-[11px] font-medium text-muted-foreground
-                data-[state=active]:bg-yellow-100
-                data-[state=active]:text-yellow-700
-                data-[state=active]:shadow-sm
-                data-[state=active]:ring-1 data-[state=active]:ring-yellow-300
-                md:data-[state=active]:bg-transparent
-                md:data-[state=active]:text-foreground
-                md:data-[state=active]:ring-0
-                md:rounded-none
-                md:border-b-2 md:border-transparent
-                md:data-[state=active]:border-yellow-400
-                px-3 py-2
-              "
-            >
-              <BarChart3 className="w-6 h-6 md:w-4 md:h-4" />
-              <span>Analytics</span>
-            </TabsTrigger>
-          </TabsList>
+                <TabsTrigger
+                  value="analytics"
+                  className="
+                    group w-full h-full text-muted-foreground
+                    data-[state=active]:text-yellow-800
+                    transition-colors
+                  "
+                >
+                  <div
+                    className="
+                      flex flex-col items-center justify-center gap-1
+                      rounded-xl px-2 py-1
+                      group-data-[state=active]:bg-yellow-100
+                      group-data-[state=active]:ring-1 group-data-[state=active]:ring-yellow-300
+                      group-data-[state=active]:shadow-sm
+                    "
+                  >
+                    <BarChart3 className="w-5 h-5" />
+                    <span className="text-[11px] font-medium">Analytics</span>
+                  </div>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
 
           {/* OVERVIEW */}
           <TabsContent value="overview" className="space-y-6">
@@ -686,10 +680,3 @@ const Manage = () => {
         </Tabs>
       </div>
 
-      <AddTransactionModal open={showAddModal} onOpenChange={setShowAddModal} />
-      <PrivacyPolicyModal open={showPrivacyModal} onOpenChange={setShowPrivacyModal} />
-    </Layout>
-  );
-};
-
-export default Manage;
