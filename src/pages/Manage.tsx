@@ -251,15 +251,36 @@ const Manage = () => {
           >
             <TabsTrigger
   value="overview"
-  className="flex flex-col items-center md:flex-row md:gap-2 
-             data-[state=active]:text-primary 
-             data-[state=active]:border-b-2 
-             data-[state=active]:border-primary 
-             rounded-none"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
 >
   <Wallet className="w-6 h-6 md:w-4 md:h-4" />
   <span className="hidden md:inline">Overview</span>
 </TabsTrigger>
+
+<TabsTrigger
+  value="transactions"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <Receipt className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Transactions</span>
+</TabsTrigger>
+
+<TabsTrigger
+  value="analytics"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <BarChart3 className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Analytics</span>
+</TabsTrigger>
+
+<TabsTrigger
+  value="settings"
+  className="flex flex-col items-center md:flex-row md:gap-2 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+>
+  <SettingsIcon className="w-6 h-6 md:w-4 md:h-4" />
+  <span className="hidden md:inline">Settings</span>
+</TabsTrigger>
+
 
           {/* Spacer for fixed Tabs height */}
           <div className="h-[70px] md:h-[100px]" />
