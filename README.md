@@ -60,6 +60,40 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Documentation
+
+Comprehensive API and component docs live in `docs/`.
+
+- Components: `docs/components.md`
+- Hooks: `docs/hooks.md`
+- Contexts: `docs/contexts.md`
+- Utilities: `docs/utils.md`
+- Integrations (Supabase): `docs/integrations.md`
+- UI components (shadcn): `docs/ui-components.md`
+
+Quick imports (path alias `@` → `src/`):
+
+```ts
+import { Button } from '@/components/ui/button'
+import { useTransactions } from '@/hooks/useTransactions'
+```
+
+Mount the app-level providers in `src/App.tsx` (or root):
+
+```tsx
+import { Toaster } from '@/components/ui/toaster'
+import { AuthProvider } from '@/contexts/AuthContext'
+
+export default function AppRoot() {
+  return (
+    <AuthProvider>
+      <App />
+      <Toaster />
+    </AuthProvider>
+  )
+}
+```
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/e2b1c0ca-8c38-4e69-b7f0-4785d1d2e8d4) and click on Share -> Publish.
