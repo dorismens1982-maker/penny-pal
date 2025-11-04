@@ -92,7 +92,7 @@ export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[90vw] max-w-md sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-xl font-poppins">Add Transaction</DialogTitle>
         </DialogHeader>

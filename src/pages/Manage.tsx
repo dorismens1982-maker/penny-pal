@@ -295,16 +295,16 @@ const Manage = () => {
                 flex flex-col items-center justify-center gap-1
                 rounded-lg transition-all
                 text-[11px] font-medium text-muted-foreground
-                data-[state=active]:bg-yellow-100
-                data-[state=active]:text-yellow-700
+                data-[state=active]:bg-primary/10
+                data-[state=active]:text-primary
                 data-[state=active]:shadow-sm
-                data-[state=active]:ring-1 data-[state=active]:ring-yellow-300
+                data-[state=active]:ring-2 data-[state=active]:ring-primary/30
                 md:data-[state=active]:bg-transparent
                 md:data-[state=active]:text-foreground
                 md:data-[state=active]:ring-0
                 md:rounded-none
                 md:border-b-2 md:border-transparent
-                md:data-[state=active]:border-yellow-400
+                md:data-[state=active]:border-primary
                 px-3 py-2
               "
             >
@@ -319,16 +319,16 @@ const Manage = () => {
                 flex flex-col items-center justify-center gap-1
                 rounded-lg transition-all
                 text-[11px] font-medium text-muted-foreground
-                data-[state=active]:bg-yellow-100
-                data-[state=active]:text-yellow-700
+                data-[state=active]:bg-primary/10
+                data-[state=active]:text-primary
                 data-[state=active]:shadow-sm
-                data-[state=active]:ring-1 data-[state=active]:ring-yellow-300
+                data-[state=active]:ring-2 data-[state=active]:ring-primary/30
                 md:data-[state=active]:bg-transparent
                 md:data-[state=active]:text-foreground
                 md:data-[state=active]:ring-0
                 md:rounded-none
                 md:border-b-2 md:border-transparent
-                md:data-[state=active]:border-yellow-400
+                md:data-[state=active]:border-primary
                 px-3 py-2
               "
             >
@@ -343,16 +343,16 @@ const Manage = () => {
                 flex flex-col items-center justify-center gap-1
                 rounded-lg transition-all
                 text-[11px] font-medium text-muted-foreground
-                data-[state=active]:bg-yellow-100
-                data-[state=active]:text-yellow-700
+                data-[state=active]:bg-primary/10
+                data-[state=active]:text-primary
                 data-[state=active]:shadow-sm
-                data-[state=active]:ring-1 data-[state=active]:ring-yellow-300
+                data-[state=active]:ring-2 data-[state=active]:ring-primary/30
                 md:data-[state=active]:bg-transparent
                 md:data-[state=active]:text-foreground
                 md:data-[state=active]:ring-0
                 md:rounded-none
                 md:border-b-2 md:border-transparent
-                md:data-[state=active]:border-yellow-400
+                md:data-[state=active]:border-primary
                 px-3 py-2
               "
             >
