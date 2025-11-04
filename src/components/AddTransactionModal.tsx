@@ -11,14 +11,15 @@ import { DollarSign, Calendar, Tag, FileText } from 'lucide-react';
 interface AddTransactionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  transactionType?: 'income' | 'expense';
 }
 
-export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalProps) => {
+export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'expense' }: AddTransactionModalProps) => {
   const { addTransaction } = useTransactions();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
-    type: 'expense' as 'income' | 'expense',
+    type: transactionType as 'income' | 'expense',
     category: '',
     note: '',
     date: new Date().toISOString().split('T')[0]
@@ -79,7 +80,7 @@ export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalP
       // Reset form
       setFormData({
         amount: '',
-        type: 'expense',
+        type: transactionType,
         category: '',
         note: '',
         date: new Date().toISOString().split('T')[0]
@@ -90,42 +91,16 @@ export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalP
     setLoading(false);
   };
 
+  const title = formData.type === 'income' ? 'Add Money' : 'Record Spending';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[90vw] max-w-md sm:w-full">
         <DialogHeader>
-          <DialogTitle className="text-xl font-poppins">Add Transaction</DialogTitle>
+          <DialogTitle className="text-xl font-poppins">{title}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Transaction Type */}
-          <div className="space-y-3">
-            <Label>Transaction Type</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                variant={formData.type === 'income' ? 'default' : 'outline'}
-                onClick={() => handleInputChange('type', 'income')}
-                className={formData.type === 'income' 
-                  ? 'bg-gradient-success hover:opacity-90' 
-                  : 'hover:border-income hover:text-income'
-                }
-              >
-                Income
-              </Button>
-              <Button
-                type="button"
-                variant={formData.type === 'expense' ? 'default' : 'outline'}
-                onClick={() => handleInputChange('type', 'expense')}
-                className={formData.type === 'expense' 
-                  ? 'bg-gradient-danger hover:opacity-90' 
-                  : 'hover:border-expense hover:text-expense'
-                }
-              >
-                Expense
-              </Button>
-            </div>
-          </div>
 
           {/* Amount */}
           <div className="space-y-2">
@@ -229,12 +204,12 @@ export const AddTransactionModal = ({ open, onOpenChange }: AddTransactionModalP
               type="submit"
               disabled={loading || !formData.amount || !formData.category}
               className={`flex-1 ${
-                formData.type === 'income' 
+                formData.type === 'income'
                   ? 'bg-gradient-success hover:opacity-90'
                   : 'bg-gradient-danger hover:opacity-90'
               }`}
             >
-              {loading ? 'Adding...' : 'Add Transaction'}
+              {loading ? 'Saving...' : formData.type === 'income' ? 'Add Money' : 'Record Spending'}
             </Button>
           </div>
         </form>
