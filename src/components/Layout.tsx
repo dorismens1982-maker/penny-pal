@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   BookOpen,
   Plus,
   Wallet,
+  Receipt,
+  BarChart3,
+  Settings,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { APP_NAME } from '@/config/app';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,10 +18,20 @@ interface LayoutProps {
 
 export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab');
 
-  const navItems = [
+  const desktopNavItems = [
     { path: '/learn', icon: BookOpen, label: 'Learn' },
     { path: '/manage', icon: Wallet, label: 'Manage' },
+  ];
+
+  const mobileNavItems = [
+    { path: '/manage?tab=overview', icon: Wallet, label: 'Overview', isActive: location.pathname === '/manage' && (currentTab === 'overview' || !currentTab) },
+    { path: '/manage?tab=transactions', icon: Receipt, label: 'Transactions', isActive: location.pathname === '/manage' && currentTab === 'transactions' },
+    { path: '/manage?tab=analytics', icon: BarChart3, label: 'Analytics', isActive: location.pathname === '/manage' && currentTab === 'analytics' },
+    { path: '/learn', icon: BookOpen, label: 'Learn', isActive: location.pathname.startsWith('/learn') },
+    { path: '/manage?tab=settings', icon: Settings, label: 'Settings', isActive: location.pathname === '/manage' && currentTab === 'settings' },
   ];
 
   return (
@@ -31,7 +45,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
               className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm"
               aria-hidden
             >
-              <span className="sr-only">Kudimate</span>
+              <span className="sr-only">{APP_NAME}</span>
               <svg
                 width="20"
                 height="20"
@@ -47,7 +61,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
             </div>
 
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">Kudimate</span>
+              <span className="text-sm font-semibold">{APP_NAME}</span>
               <span className="text-xs text-muted-foreground -mt-0.5">
                 Learn. Act. Grow.
               </span>
@@ -56,17 +70,16 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
 
           {/* Desktop Nav Links */}
           <nav className="flex items-center gap-2">
-            {navItems.map(({ path, icon: Icon, label }) => {
-              const isActive = location.pathname === path;
+            {desktopNavItems.map(({ path, icon: Icon, label }) => {
+              const isActive = location.pathname.startsWith(path);
               return (
                 <Link
                   key={path}
                   to={path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
                       ? 'text-primary bg-primary/10'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{label}</span>
@@ -90,21 +103,19 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
 
       {/* ===================== MOBILE BOTTOM NAV ===================== */}
       <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50">
-        <div className="flex items-center justify-around px-2 py-2">
-          {navItems.map(({ path, icon: Icon, label }) => {
-            const isActive = location.pathname === path;
+        <div className="grid grid-cols-5 items-center justify-between px-1 py-2">
+          {mobileNavItems.map(({ path, icon: Icon, label, isActive }) => {
             return (
               <Link
-                key={path}
+                key={label}
                 to={path}
-                className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors ${
-                  isActive
-                    ? 'text-primary bg-primary/10'
+                className={`flex flex-col items-center justify-center px-1 py-2 rounded-lg transition-colors ${isActive
+                    ? 'text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
+                  }`}
               >
-                <Icon className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">{label}</span>
+                <Icon className={`w-5 h-5 mb-1 ${isActive ? 'fill-current' : ''}`} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="text-[10px] font-medium">{label}</span>
               </Link>
             );
           })}

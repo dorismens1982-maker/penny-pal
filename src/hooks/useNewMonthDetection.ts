@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMonthlySummaries } from './useMonthlySummaries';
 import { useCategoryAnalytics } from './useCategoryAnalytics'; // ✅ NEW IMPORT
 
-const LAST_LOGIN_MONTH_KEY = 'kudimate_last_login_month';
+const LAST_LOGIN_MONTH_KEY = 'pennypal_last_login_month';
 
 export const useNewMonthDetection = () => {
   const { user } = useAuth();

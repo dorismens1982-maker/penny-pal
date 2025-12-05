@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { APP_NAME } from '@/config/app';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -97,211 +98,211 @@ const Settings = () => {
     });
   };
   return <Layout>
-      {header && (
-        <PageHeader
-          title={header.title}
-          subtitle={header.subtitle}
-          imageUrl={header.image_url}
-          mobileImageUrl={header.mobile_image_url}
-          altText={header.alt_text}
-          heightMobile={header.height_mobile}
-          heightDesktop={header.height_desktop}
-          overlayOpacity={header.overlay_opacity}
-          textColor={header.text_color}
-        />
-      )}
-      <div className="p-4 space-y-6 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-poppins font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
-        </div>
+    {header && (
+      <PageHeader
+        title={header.title}
+        subtitle={header.subtitle}
+        imageUrl={header.image_url}
+        mobileImageUrl={header.mobile_image_url}
+        altText={header.alt_text}
+        heightMobile={header.height_mobile}
+        heightDesktop={header.height_desktop}
+        overlayOpacity={header.overlay_opacity}
+        textColor={header.text_color}
+      />
+    )}
+    <div className="p-4 space-y-6 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl font-poppins font-bold text-foreground">Settings</h1>
+        <p className="text-muted-foreground">Manage your account and preferences</p>
+      </div>
 
-        {/* Profile Information */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <User className="w-5 h-5" />
-              <span>Profile Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label className="text-sm text-muted-foreground">Preferred Name</Label>
-                <Input
-                  value={profileForm.preferred_name}
-                  onChange={(e) => setProfileForm((p) => ({ ...p, preferred_name: e.target.value }))}
-                  placeholder="Preferred name"
-                />
-              </div>
+      {/* Profile Information */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <User className="w-5 h-5" />
+            <span>Profile Information</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <Label className="text-sm text-muted-foreground">Preferred Name</Label>
+              <Input
+                value={profileForm.preferred_name}
+                onChange={(e) => setProfileForm((p) => ({ ...p, preferred_name: e.target.value }))}
+                placeholder="Preferred name"
+              />
             </div>
-            <div className="flex justify-end">
-              <Button onClick={handleSaveProfile} disabled={updating}>
-                {updating ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleSaveProfile} disabled={updating}>
+              {updating ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Account Information */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <User className="w-5 h-5" />
-              <span>Account Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-border">
-              <div>
-                <p className="font-medium text-foreground">Email Address</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
-              </div>
+      {/* Account Information */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <User className="w-5 h-5" />
+            <span>Account Information</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between py-3 border-b border-border">
+            <div>
+              <p className="font-medium text-foreground">Email Address</p>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <p className="font-medium text-foreground">Account Created</p>
-                <p className="text-sm text-muted-foreground">
-                  {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {
+          </div>
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <p className="font-medium text-foreground">Account Created</p>
+              <p className="text-sm text-muted-foreground">
+                {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 }) : 'Unknown'}
-                </p>
-              </div>
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Data Management */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <Shield className="w-5 h-5" />
-              <span>Data Management</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-border">
-              <div>
-                <p className="font-medium text-foreground">Export Data</p>
-                <p className="text-sm text-muted-foreground">
-                  Download all your transactions as a CSV file
-                </p>
-              </div>
-              <Button onClick={handleExportCSV} variant="outline" className="flex items-center space-x-2">
-                <Download className="w-4 h-4" />
-                <span>Export CSV</span>
-              </Button>
+      {/* Data Management */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <Shield className="w-5 h-5" />
+            <span>Data Management</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between py-3 border-b border-border">
+            <div>
+              <p className="font-medium text-foreground">Export Data</p>
+              <p className="text-sm text-muted-foreground">
+                Download all your transactions as a CSV file
+              </p>
             </div>
-            
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <p className="font-medium text-foreground">Delete All Data</p>
-                <p className="text-sm text-muted-foreground mx-0 py-0">Permanently delete 
-all your transactions (cannot be undone)</p>
-              </div>
-              <Button onClick={handleDeleteAllData} variant="destructive" className="flex items-center space-x-2">
-                <Trash2 className="w-4 h-4" />
-                <span>Delete All</span>
-              </Button>
+            <Button onClick={handleExportCSV} variant="outline" className="flex items-center space-x-2">
+              <Download className="w-4 h-4" />
+              <span>Export CSV</span>
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <p className="font-medium text-foreground">Delete All Data</p>
+              <p className="text-sm text-muted-foreground mx-0 py-0">Permanently delete
+                all your transactions (cannot be undone)</p>
             </div>
-          </CardContent>
-        </Card>
+            <Button onClick={handleDeleteAllData} variant="destructive" className="flex items-center space-x-2">
+              <Trash2 className="w-4 h-4" />
+              <span>Delete All</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Statistics */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg">Your Statistics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="text-center p-4 bg-muted/30 rounded-lg">
-                <p className="text-2xl font-poppins font-bold text-primary">
-                  {transactions.length}
-                </p>
-                <p className="text-sm text-muted-foreground">Total Transactions</p>
-              </div>
-              <div className="text-center p-4 bg-muted/30 rounded-lg">
-                <p className="text-2xl font-poppins font-bold text-accent">
-                  {new Set(transactions.map(t => t.category)).size}
-                </p>
-                <p className="text-sm text-muted-foreground">Categories Used</p>
-              </div>
+      {/* Statistics */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg">Your Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="text-center p-4 bg-muted/30 rounded-lg">
+              <p className="text-2xl font-poppins font-bold text-primary">
+                {transactions.length}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Transactions</p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Help & About */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <HelpCircle className="w-5 h-5" />
-              <span>About Kudimate</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Kudimate is your personal budget tracker designed to help you manage your finances 
-              in this economy charle. Track your income, expenses, and get insights into your spending habits.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              This was built as a personal project by Big Sam. Hope you love it ❤️ 
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Privacy & Policy */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <Shield className="w-5 h-5" />
-              <span>Privacy & Policy</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <p className="font-medium text-foreground">Privacy & Data Policy</p>
-                <p className="text-sm text-muted-foreground">
-                  View our privacy policy and data handling practices
-                </p>
-              </div>
-              <Button 
-                onClick={() => setShowPrivacyModal(true)} 
-                variant="outline" 
-                className="flex items-center space-x-2"
-              >
-                <Eye className="w-4 h-4" />
-                <span>View Policy</span>
-              </Button>
+            <div className="text-center p-4 bg-muted/30 rounded-lg">
+              <p className="text-2xl font-poppins font-bold text-accent">
+                {new Set(transactions.map(t => t.category)).size}
+              </p>
+              <p className="text-sm text-muted-foreground">Categories Used</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Sign Out */}
-        <Card className="shadow-md border-destructive/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Sign Out</p>
-                <p className="text-sm text-muted-foreground">Sign out of your 
-Kudimate account</p>
-              </div>
-              <Button onClick={handleSignOut} variant="destructive" disabled={loading} className="flex items-center space-x-2">
-                <LogOut className="w-4 h-4" />
-                <span>{loading ? 'Signing out...' : 'Sign Out'}</span>
-              </Button>
+      {/* Help & About */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <HelpCircle className="w-5 h-5" />
+            <span>About {APP_NAME}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {APP_NAME} is your personal budget tracker designed to help you manage your finances
+            in this economy charle. Track your income, expenses, and get insights into your spending habits.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            This was built as a personal project by Big Sam. Hope you love it ❤️
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Privacy & Policy */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <Shield className="w-5 h-5" />
+            <span>Privacy & Policy</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <p className="font-medium text-foreground">Privacy & Data Policy</p>
+              <p className="text-sm text-muted-foreground">
+                View our privacy policy and data handling practices
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <Button
+              onClick={() => setShowPrivacyModal(true)}
+              variant="outline"
+              className="flex items-center space-x-2"
+            >
+              <Eye className="w-4 h-4" />
+              <span>View Policy</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-        <PrivacyPolicyModal 
-          open={showPrivacyModal} 
-          onOpenChange={setShowPrivacyModal} 
-        />
-      </div>
-    </Layout>;
+      {/* Sign Out */}
+      <Card className="shadow-md border-destructive/20">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-foreground">Sign Out</p>
+              <p className="text-sm text-muted-foreground">Sign out of your
+                {APP_NAME} account</p>
+            </div>
+            <Button onClick={handleSignOut} variant="destructive" disabled={loading} className="flex items-center space-x-2">
+              <LogOut className="w-4 h-4" />
+              <span>{loading ? 'Signing out...' : 'Sign Out'}</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <PrivacyPolicyModal
+        open={showPrivacyModal}
+        onOpenChange={setShowPrivacyModal}
+      />
+    </div>
+  </Layout>;
 };
 export default Settings;
