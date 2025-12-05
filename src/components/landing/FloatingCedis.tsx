@@ -21,7 +21,7 @@ export const FloatingCedis = () => {
             delay: `${Math.random() * 5}s`,
             duration: `${15 + Math.random() * 10}s`,
             size: `${40 + Math.random() * 50}px`, // Larger size for better 3D visibility
-            opacity: 0.8 + Math.random() * 0.2, // High opacity (0.8 - 1.0)
+            opacity: 0.4 + Math.random() * 0.3, // Semi-transparent (0.4 - 0.7)
             rotation: `${Math.random() * 360}deg`
         }));
         setCedis(newCedis);
@@ -62,12 +62,12 @@ export const FloatingCedis = () => {
                         animation: `float-up-spin ${cedi.duration} linear infinite`,
                         animationDelay: cedi.delay,
                         transform: `rotate(${cedi.rotation})`,
-                        // 3D Gold Coin Effect
-                        background: 'linear-gradient(135deg, #FFD700 0%, #B8860B 50%, #FFD700 100%)',
-                        color: '#FFF',
-                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                        border: '2px solid #DAA520',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                        // 3D Translucent Gold Coin Effect
+                        background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.6) 0%, rgba(184, 134, 11, 0.6) 50%, rgba(255, 215, 0, 0.6) 100%)',
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+                        border: '2px solid rgba(218, 165, 32, 0.7)',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                         borderRadius: '50%',
                         position: 'absolute',
                         bottom: '-100px',

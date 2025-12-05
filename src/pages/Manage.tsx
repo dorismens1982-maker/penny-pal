@@ -118,6 +118,8 @@ const Manage = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      setSearchParams({ tab: 'overview' }); // Reset tab
+      // The ProtectedRoute or AuthPage will handle redirection based on user state
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Error signing out', description: error.message });
     }
@@ -203,15 +205,9 @@ const Manage = () => {
                     Track, plan, and achieve your money goals
                   </p>
                 </div>
-                <Button
-                  aria-label="Open Settings"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setTab('settings')}
-                  className="shrink-0 w-8 h-8 md:w-9 md:h-9"
-                >
-                  <SettingsIcon className="w-4 h-4" />
-                </Button>
+                <div className="text-2xl md:text-3xl animate-wave">
+                  👋
+                </div>
               </div>
             </CardContent>
           </Card>
