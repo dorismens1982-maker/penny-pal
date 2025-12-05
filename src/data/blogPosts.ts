@@ -36,7 +36,7 @@ Tracking your daily expenses is the foundation of good financial management. Her
 
 ## 1. Use a Digital Budget App
 
-Apps like Kudimate make tracking effortless. Simply log each transaction as it happens, categorize it, and watch your spending patterns emerge. The convenience of having everything on your phone means you're more likely to stay consistent.
+Apps like Penny-Pal make tracking effortless. Simply log each transaction as it happens, categorize it, and watch your spending patterns emerge. The convenience of having everything on your phone means you're more likely to stay consistent.
 
 ## 2. Keep All Your Receipts
 
@@ -176,7 +176,7 @@ Tax refunds, bonuses, or gifts? Put at least 50% into your emergency fund.
 Identify one non-essential expense you can eliminate temporarily. Redirect that money to your emergency fund.
 
 ### 5. Track Your Progress
-Use Kudimate to monitor your emergency fund growth. Seeing progress motivates you to keep going.
+Use Penny-Pal to monitor your emergency fund growth. Seeing progress motivates you to keep going.
 
 ## Where to Keep Your Emergency Fund
 

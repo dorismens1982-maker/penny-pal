@@ -1,334 +1,118 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
-import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
-import { usePageHeader } from '@/hooks/usePageHeader';
-
-type ViewState = 'welcome' | 'signup' | 'signin';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { FeaturesSection } from '@/components/landing/FeaturesSection';
+import { AuthForms } from '@/components/landing/AuthForms';
+import { FloatingCedis } from '@/components/landing/FloatingCedis';
+import { APP_NAME } from '@/config/app';
 
 const AuthPage = () => {
-  const { user, signIn, signUp } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [currentView, setCurrentView] = useState<ViewState>('welcome');
-  const [formData, setFormData] = useState({
-    preferredName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const { header } = usePageHeader('auth');
+  const authScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/manage');
     }
   }, [user, navigate]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+  const scrollToAuth = () => {
+    authScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const { error, profile } = await signIn(formData.email, formData.password);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign in failed",
-        description: error.message,
-      });
-    }
-    setLoading(false);
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match.",
-      });
-      return;
-    }
-
-    setLoading(true);
-    const { error } = await signUp(formData.email, formData.password, formData.preferredName);
-    
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign up failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
-      });
-    }
-    setLoading(false);
-  };
-
-  const renderWelcomeView = () => (
-    <div className="text-center space-y-8 animate-fade-in">
-      <div className="space-y-4">
-        <div className="mx-auto w-32 h-32 rounded-3xl flex items-center justify-center">
-          <img 
-            src="/logo.png" 
-            alt="Kudimate Logo" 
-            className="w-32 h-32 object-contain rounded-3xl"
-          />
-        </div>
-        <div className="space-y-3">
-          <h1 className="text-4xl md:text-5xl font-poppins font-bold text-white">
-            Track Your Spending Effortlessly
-          </h1>
-          <p className="text-lg text-white/80 max-w-md mx-auto">
-            Take control of your finances with our smart budget tracker designed for modern life
-          </p>
-        </div>
-      </div>
-      
-      <div className="space-y-4">
-        <Button 
-          onClick={() => setCurrentView('signup')}
-          size="lg"
-          className="w-full max-w-sm bg-white text-primary hover:bg-white/90 transition-all duration-200 h-14 text-lg font-semibold"
-        >
-          Get Started
-          <ChevronRight className="ml-2 h-5 w-5" />
-        </Button>
-        
-        <div className="space-y-2">
-          <p className="text-white/60 text-sm">Already have an account?</p>
-          <button
-            onClick={() => setCurrentView('signin')}
-            className="text-white font-medium underline underline-offset-4 hover:no-underline transition-all"
-          >
-            Sign in here
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSignUpView = () => (
-    <div className="w-full max-w-sm mx-auto animate-fade-in">
-      <div className="mb-8">
-        <button
-          onClick={() => setCurrentView('welcome')}
-          className="flex items-center text-white/80 hover:text-white transition-colors mb-6"
-        >
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back
-        </button>
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-poppins font-bold text-white">Create Account</h2>
-          <p className="text-white/80">Start tracking your expenses today</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSignUp} className="space-y-6">
-        <div className="space-y-4">
-          <div>
-            <Input
-              name="preferredName"
-              type="text"
-              placeholder="Preferred name"
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
-              value={formData.preferredName}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              name="password"
-              type="password"
-              placeholder="Create a password"
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        <Button 
-          type="submit" 
-          size="lg"
-          className="w-full bg-white text-primary hover:bg-white/90 transition-all h-12 font-semibold"
-          disabled={loading}
-        >
-          {loading ? "Creating account..." : "Create Account"}
-        </Button>
-      </form>
-
-      <div className="mt-6 text-center space-y-3">
-        <p className="text-white/60 text-sm">Already have an account?</p>
-        <button
-          onClick={() => setCurrentView('signin')}
-          className="text-white font-medium underline underline-offset-4 hover:no-underline transition-all"
-        >
-          Sign in instead
-        </button>
-        
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={() => setShowPrivacyModal(true)}
-            className="text-white/80 text-sm underline underline-offset-4 hover:text-white transition-colors"
-          >
-            Privacy & Data Policy
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSignInView = () => (
-    <div className="w-full max-w-sm mx-auto animate-fade-in">
-      <div className="mb-8">
-        <button
-          onClick={() => setCurrentView('welcome')}
-          className="flex items-center text-white/80 hover:text-white transition-colors mb-6"
-        >
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          Back
-        </button>
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-poppins font-bold text-white">Welcome Back</h2>
-          <p className="text-white/80">Sign in to continue tracking</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSignIn} className="space-y-6">
-        <div className="space-y-4">
-          <div>
-            <Input
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 transition-all"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        <Button 
-          type="submit" 
-          size="lg"
-          className="w-full bg-white text-primary hover:bg-white/90 transition-all h-12 font-semibold"
-          disabled={loading}
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </Button>
-      </form>
-
-      <div className="mt-6 text-center space-y-3">
-        <p className="text-white/60 text-sm">Don't have an account?</p>
-        <button
-          onClick={() => setCurrentView('signup')}
-          className="text-white font-medium underline underline-offset-4 hover:no-underline transition-all"
-        >
-          Create one here
-        </button>
-        
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={() => setShowPrivacyModal(true)}
-            className="text-white/80 text-sm underline underline-offset-4 hover:text-white transition-colors"
-          >
-            Privacy & Data Policy
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
-    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4 relative overflow-hidden">
-      {header && (
-        <>
-          <img
-            src={header.image_url}
-            alt={header.alt_text}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"
-            style={{ opacity: header.overlay_opacity + 0.3 }}
-          />
-        </>
-      )}
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
-      <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="w-full max-w-lg relative z-10">
-        {currentView === 'welcome' && renderWelcomeView()}
-        {currentView === 'signup' && renderSignUpView()}
-        {currentView === 'signin' && renderSignInView()}
-      </div>
+    <div className="min-h-screen bg-background flex flex-col relative">
+      <FloatingCedis />
 
-      <PrivacyPolicyModal 
-        open={showPrivacyModal} 
-        onOpenChange={setShowPrivacyModal} 
-      />
+      {/* Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center">
+              <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
+            </div>
+            <span className="font-bold text-xl tracking-tight hidden sm:block">{APP_NAME}</span>
+          </div>
+          <button
+            onClick={scrollToAuth}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <HeroSection onGetStarted={scrollToAuth} />
+
+      {/* Features Section */}
+      <FeaturesSection />
+
+      {/* Auth Section */}
+      <section ref={authScrollRef} className="py-20 bg-muted/50 relative overflow-hidden">
+        {/* Decorative blobs */}
+        <div className="absolute top-1/2 left-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl translate-y-1/2 translate-x-1/4" />
+
+        <div className="container px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            <div className="order-2 lg:order-1 space-y-6">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-white/20 mb-6 group">
+                <img
+                  src="/male-finance.png"
+                  alt="Young man managing finances"
+                  className="w-full h-64 object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                  <p className="text-white font-medium text-lg">"Achieving my financial dreams one step at a time."</p>
+                </div>
+              </div>
+
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Ready to take control?
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Join thousands of users who are already mastering their finances with {APP_NAME}.
+                It's free, secure, and easy to use.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  "Unlimited transaction tracking",
+                  "Visual financial insights",
+                  "Export data anytime",
+                  "Dark mode included"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-green-500/10 text-green-600 flex items-center justify-center">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <span className="text-foreground/80">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <AuthForms onSuccess={() => navigate('/manage')} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 border-t border-border bg-background">
+        <div className="container px-4 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 };
+
 
 export default AuthPage;
