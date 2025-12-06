@@ -28,6 +28,8 @@ interface MonthlyRecapModalProps {
         spendingTrend: number;
         topCategory?: string;
         topCategoryAmount?: number;
+        bottomCategory?: string;
+        bottomCategoryAmount?: number;
     } | null;
 }
 
@@ -40,137 +42,122 @@ export const MonthlyRecapModal = ({ open, onClose, data }: MonthlyRecapModalProp
     const isSavingsPositive = data.saved > 0;
     const isSpendingDown = data.spendingTrend < 0;
 
+    // Mood Logic
+    const moodImage = isSavingsPositive ? '/recap_happy.jpg' : '/recap_sad.png';
+    const moodHeadline = isSavingsPositive ? "Money Moves! 🚀" : "We Move, Regardless. 💪";
+    const moodSubhead = isSavingsPositive
+        ? "You saved more than you spent. The soft life is loading."
+        : "Expenses were higher this month. Next month is a fresh start.";
+    const moodButtonText = isSavingsPositive ? "Keep Flowing" : "We Go Again";
+    const moodColor = isSavingsPositive ? 'text-yellow-600' : 'text-slate-900';
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-transparent border-none shadow-none text-foreground">
+            <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-white border-none shadow-2xl text-slate-900 transition-all duration-300">
 
-                {/* Confetti for positive savings */}
+                {/* Confetti only for winners */}
                 {isSavingsPositive && open && (
-                    <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div className="absolute inset-0 z-50 pointer-events-none">
                         <Confetti
                             width={size.width}
                             height={size.height}
-                            numberOfPieces={200}
+                            numberOfPieces={150}
                             recycle={false}
                             colors={['#EAB308', '#F59E0B', '#FCD34D', '#FFF']}
                         />
                     </div>
                 )}
 
-                <div className="relative bg-background/80 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="relative h-[85vh] max-h-[750px] flex flex-col">
 
-                    {/* Decorative Gradients */}
-                    <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-yellow-500/20 to-transparent pointer-events-none" />
-                    <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none mix-blend-screen" />
-
-                    {/* Header */}
-                    <div className="pt-8 pb-4 text-center relative z-10">
-                        <motion.div
-                            initial={{ scale: 0.5, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                            className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-2xl shadow-lg shadow-yellow-500/20 mb-4"
-                        >
-                            <Award className="w-8 h-8 text-white stroke-[2.5]" />
-                        </motion.div>
-                        <motion.h2
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-2xl font-bold font-poppins bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80"
-                        >
-                            {monthName} Recap
-                        </motion.h2>
-                        <motion.p
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="text-sm text-muted-foreground mt-1"
-                        >
-                            Your financial performance report
-                        </motion.p>
+                    {/* Hero Image Section (Fixed Top) */}
+                    <div className="h-[45%] w-full relative bg-white flex items-center justify-center">
+                        <img
+                            src={moodImage}
+                            alt={isSavingsPositive ? "Happy Manager" : "Stressed Manager"}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
 
-                    {/* Report Cards Carousel */}
-                    <div className="p-6 space-y-4 relative z-10">
+                    {/* Sliding Card Content */}
+                    <motion.div
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, type: 'spring', damping: 20 }}
+                        className="flex-1 bg-white border-t border-slate-100 relative z-20 flex flex-col shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden"
+                    >
+                        {/* Header Decoration (Fixed) */}
+                        <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-2 flex-shrink-0" />
 
-                        {/* 1. Trend Card */}
-                        <motion.div
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10 p-4 hover:border-yellow-500/30 transition-colors"
-                        >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2.5 rounded-xl ${isSpendingDown ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'}`}>
-                                        {isSpendingDown ? <ArrowDown className="w-5 h-5" /> : <ArrowUp className="w-5 h-5" />}
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Spend Trend</p>
-                                        <p className="font-bold text-lg">
-                                            {Math.abs(data.spendingTrend).toFixed(1)}% {isSpendingDown ? 'Down' : 'Up'}
-                                        </p>
-                                    </div>
+                        {/* Scrollable Content Area */}
+                        <div className="flex-1 overflow-y-auto px-6 pb-4 custom-scrollbar">
+
+                            {/* Title Section */}
+                            <div className="text-center mb-6">
+                                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">📅 {monthName} {data.year} Report</p>
+                                <h2 className={`text-2xl font-bold font-poppins mb-2 ${moodColor}`}>{moodHeadline}</h2>
+                                <p className="text-sm text-slate-500">{moodSubhead}</p>
+                            </div>
+
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-2 gap-3 mb-6">
+                                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">💰 Income</p>
+                                    <p className="font-bold text-lg text-slate-900">₵{data.income.toFixed(0)}</p>
+                                </div>
+                                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">💸 Expenses</p>
+                                    <p className="font-bold text-lg text-slate-900">₵{data.expenses.toFixed(0)}</p>
                                 </div>
                             </div>
-                        </motion.div>
 
-                        {/* 2. Top Category Card */}
-                        {data.topCategory && (
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.5 }}
-                                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10 p-4 hover:border-yellow-500/30 transition-colors"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-500">
-                                        <TrendingUp className="w-5 h-5" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Top Spend</p>
-                                        <div className="flex items-baseline justify-between">
-                                            <p className="font-bold text-lg">{data.topCategory}</p>
-                                            <p className="text-sm font-medium text-muted-foreground">₵{data.topCategoryAmount?.toFixed(0)}</p>
+                            {/* Spending Insights */}
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">📊 Spending Breakdown</p>
+
+                                {/* Biggest Drain */}
+                                {data.topCategory && (
+                                    <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-3">
+                                        <div className="text-2xl">🔥</div>
+                                        <div className="flex-1">
+                                            <p className="text-xs font-medium text-red-500 uppercase">Biggest Drain</p>
+                                            <p className="text-sm font-bold text-slate-900">{data.topCategory}</p>
                                         </div>
+                                        <p className="text-sm font-bold text-red-500">₵{data.topCategoryAmount?.toFixed(0)}</p>
                                     </div>
-                                </div>
-                            </motion.div>
-                        )}
+                                )}
 
-                        {/* 3. Net Savings Card (Hero) */}
-                        <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.6 }}
-                            className={`rounded-2xl p-5 border ${isSavingsPositive ? 'bg-gradient-to-br from-yellow-500/10 to-amber-500/5 border-yellow-500/20' : 'bg-red-500/5 border-red-500/20'}`}
-                        >
-                            <div className="flex flex-col items-center text-center">
-                                <p className="text-sm font-medium text-muted-foreground mb-1">Net Savings</p>
-                                <h3 className={`text-3xl font-black font-poppins ${isSavingsPositive ? 'text-yellow-500' : 'text-red-500'}`}>
-                                    {isSavingsPositive ? '+' : ''}₵{data.saved.toFixed(2)}
-                                </h3>
-                                <div className="mt-3 flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full bg-background/50 border border-border/50">
-                                    {isSavingsPositive ? <Sparkles className="w-3 h-3 text-yellow-500" /> : <Wallet className="w-3 h-3" />}
-                                    {isSavingsPositive ? 'You crushed it!' : 'Next month will be better.'}
-                                </div>
+                                {/* Best Discipline */}
+                                {data.bottomCategory && (
+                                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl flex items-center gap-3">
+                                        <div className="text-2xl">✅</div>
+                                        <div className="flex-1">
+                                            <p className="text-xs font-medium text-green-600 uppercase">Best Discipline</p>
+                                            <p className="text-sm font-bold text-slate-900">{data.bottomCategory}</p>
+                                        </div>
+                                        <p className="text-sm font-bold text-green-600">₵{data.bottomCategoryAmount?.toFixed(0)}</p>
+                                    </div>
+                                )}
                             </div>
-                        </motion.div>
-                    </div>
+                        </div>
 
-                    {/* Footer */}
-                    <div className="p-6 pt-2">
-                        <Button
-                            className="w-full h-12 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-white font-bold shadow-lg shadow-yellow-500/25 transition-all active:scale-[0.98]"
-                            onClick={onClose}
-                        >
-                            Awesome, Let's Go! 🚀
-                        </Button>
-                    </div>
+                        {/* Footer Button (Fixed) */}
+                        <div className="p-6 pt-2 bg-white border-t border-slate-50 flex-shrink-0">
+                            <Button
+                                className={`w-full h-12 rounded-xl font-bold text-white ${isSavingsPositive
+                                    ? 'bg-yellow-500 hover:bg-yellow-600 shadow-lg shadow-yellow-500/20'
+                                    : 'bg-slate-900 hover:bg-slate-800'
+                                    }`}
+                                onClick={onClose}
+                            >
+                                {moodButtonText}
+                            </Button>
+                        </div>
+
+                    </motion.div>
                 </div>
+
             </DialogContent>
         </Dialog>
     );
 };
-
