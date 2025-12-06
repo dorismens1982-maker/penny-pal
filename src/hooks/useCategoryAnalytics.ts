@@ -15,6 +15,8 @@ export interface MonthlyCategoryData {
   year: number;
   topCategory: string;
   topCategoryAmount: number;
+  bottomCategory?: string;
+  bottomCategoryAmount?: number;
   categories: CategorySpending[];
 }
 
@@ -152,12 +154,16 @@ export const useCategoryAnalytics = (options?: UseCategoryAnalyticsOptions) => {
         .sort((a, b) => b.amount - a.amount);
 
       const topCategory = categories[0];
+      // Get bottom category (lowest non-zero spending)
+      const bottomCategory = categories.length > 1 ? categories[categories.length - 1] : undefined;
 
       result.push({
         month,
         year,
         topCategory: topCategory?.category || '',
         topCategoryAmount: topCategory?.amount || 0,
+        bottomCategory: bottomCategory?.category,
+        bottomCategoryAmount: bottomCategory?.amount,
         categories,
       });
     });

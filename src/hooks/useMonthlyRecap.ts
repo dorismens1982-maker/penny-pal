@@ -51,7 +51,9 @@ export const useMonthlyRecap = () => {
                         saved: lastMonthSummary.income - lastMonthSummary.expenses,
                         spendingTrend,
                         topCategory: topCategoryData?.topCategory,
-                        topCategoryAmount: topCategoryData?.topCategoryAmount
+                        topCategoryAmount: topCategoryData?.topCategoryAmount,
+                        bottomCategory: topCategoryData?.bottomCategory,
+                        bottomCategoryAmount: topCategoryData?.bottomCategoryAmount
                     });
 
                     setShowRecap(true);
@@ -71,43 +73,54 @@ export const useMonthlyRecap = () => {
     };
 
     const manuallyTriggerRecap = () => {
-        // For testing, just show the last available data or current month
-        const now = new Date();
-        // Mock data or fetch real data for preview
-        // For simplicity, we just trigger the same logic but force it
+        // Use REAL data from the last month's summary
+        const lastMonthSummary = getLastMonthSummary();
 
-        // 1. Get Last Month's Data (or current if last is empty for new users)
-        let summary = getLastMonthSummary();
-        if (!summary && summaries.length > 0) summary = summaries[0];
-
-        // If still no summary (brand new user), create a mock one for preview
-        if (!summary) {
-            summary = {
+        if (!lastMonthSummary) {
+            // Fallback: If no data exists yet, show current month with zeros
+            const now = new Date();
+            setRecapData({
                 month: now.getMonth() + 1,
                 year: now.getFullYear(),
-                income: 1500,
-                expenses: 1200,
-                balance: 300,
-                transaction_count: 5,
-                user_id: user?.id || '',
-                id: 'mock',
-                created_at: now.toISOString(),
-                updated_at: now.toISOString()
-            };
+                income: 0,
+                expenses: 0,
+                saved: 0,
+                spendingTrend: 0,
+                topCategory: undefined,
+                topCategoryAmount: undefined,
+                bottomCategory: undefined,
+                bottomCategoryAmount: undefined
+            });
+        } else {
+            // Calculate spending trend
+            const twoMonthsAgoDate = new Date();
+            twoMonthsAgoDate.setMonth(twoMonthsAgoDate.getMonth() - 2);
+            const twoMonthsAgoMonth = twoMonthsAgoDate.getMonth() + 1;
+            const twoMonthsAgoYear = twoMonthsAgoDate.getFullYear();
+
+            const twoMonthsAgoSummary = summaries.find(s => s.month === twoMonthsAgoMonth && s.year === twoMonthsAgoYear);
+
+            let spendingTrend = 0;
+            if (twoMonthsAgoSummary && twoMonthsAgoSummary.expenses > 0) {
+                spendingTrend = ((lastMonthSummary.expenses - twoMonthsAgoSummary.expenses) / twoMonthsAgoSummary.expenses) * 100;
+            }
+
+            // Get category data
+            const topCategoryData = getTopCategoryForMonth(lastMonthSummary.month, lastMonthSummary.year);
+
+            setRecapData({
+                month: lastMonthSummary.month,
+                year: lastMonthSummary.year,
+                income: lastMonthSummary.income,
+                expenses: lastMonthSummary.expenses,
+                saved: lastMonthSummary.income - lastMonthSummary.expenses,
+                spendingTrend,
+                topCategory: topCategoryData?.topCategory,
+                topCategoryAmount: topCategoryData?.topCategoryAmount,
+                bottomCategory: topCategoryData?.bottomCategory,
+                bottomCategoryAmount: topCategoryData?.bottomCategoryAmount
+            });
         }
-
-        const topCategoryData = getTopCategoryForMonth(summary.month, summary.year) || { topCategory: 'Food & Dining', topCategoryAmount: 450 };
-
-        setRecapData({
-            month: summary.month,
-            year: summary.year,
-            income: summary.income,
-            expenses: summary.expenses,
-            saved: summary.income - summary.expenses,
-            spendingTrend: -12.5, // Mock trend for preview
-            topCategory: topCategoryData?.topCategory,
-            topCategoryAmount: topCategoryData?.topCategoryAmount
-        });
 
         setShowRecap(true);
     };
