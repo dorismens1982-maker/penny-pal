@@ -19,6 +19,8 @@ import { useCategoryAnalytics } from '@/hooks/useCategoryAnalytics';
 import { DateRange } from '@/components/DateRangePicker';
 import { getOverallTrend } from '@/utils/trendCalculations';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
+import { useMonthlyRecap } from '@/hooks/useMonthlyRecap';
+import { MonthlyRecapModal } from '@/components/manage/MonthlyRecapModal';
 
 import { OverviewTab } from '@/components/manage/OverviewTab';
 import { TransactionsTab } from '@/components/manage/TransactionsTab';
@@ -50,6 +52,7 @@ const Manage = () => {
 
   const { summaries } = useMonthlySummaries({ startDate: dateRange.from, endDate: dateRange.to });
   const { topCategories } = useCategoryAnalytics({ startDate: dateRange.from, endDate: dateRange.to });
+  const { showRecap, recapData, closeRecap, manuallyTriggerRecap } = useMonthlyRecap();
 
   React.useEffect(() => {
     setProfileForm({ preferred_name: profile?.preferred_name || '' });
@@ -284,6 +287,7 @@ const Manage = () => {
               handleDeleteAllData={handleDeleteAllData}
               setShowPrivacyModal={setShowPrivacyModal}
               handleSignOut={handleSignOut}
+              onPreviewRecap={manuallyTriggerRecap}
             />
           </TabsContent>
         </Tabs>
@@ -291,6 +295,7 @@ const Manage = () => {
 
       <AddTransactionModal open={showAddModal} onOpenChange={setShowAddModal} />
       <PrivacyPolicyModal open={showPrivacyModal} onOpenChange={setShowPrivacyModal} />
+      <MonthlyRecapModal open={showRecap} onClose={closeRecap} data={recapData} />
     </Layout>
   );
 };

@@ -27,9 +27,9 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
 
   const commonCategories = {
     income: ['Salary', 'Freelance', 'Business', 'Investment', 'Gift', 'Bonus', 'Other Income'],
-    expense: ['Food & Dining 🍽️', 'Transportation 🚗', 'Shopping 🛒', 'Entertainment 🎬', 
-              'Bills & Utilities ⚡', 'Healthcare 🏥', 'Education 📚', 'Travel ✈️', 
-              'Groceries 🛍️', 'Rent 🏠', 'Other Expense']
+    expense: ['Food & Dining 🍽️', 'Transportation 🚗', 'Shopping 🛒', 'Entertainment 🎬',
+      'Bills & Utilities ⚡', 'Healthcare 🏥', 'Education 📚', 'Travel ✈️',
+      'Groceries 🛍️', 'Rent 🏠', 'Other Expense']
   };
 
   const loanIncomeCategories = ['Loan Received 💰', 'Loan Repayment Received 💵'];
@@ -61,13 +61,13 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.amount || !formData.category || !formData.date) {
       return;
     }
 
     setLoading(true);
-    
+
     const { error } = await addTransaction({
       amount: parseFloat(formData.amount),
       type: formData.type,
@@ -101,6 +101,32 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Transaction Type Toggle */}
+          <div className="flex gap-2 p-1 bg-muted rounded-lg">
+            <Button
+              type="button"
+              variant={formData.type === 'expense' ? 'default' : 'ghost'}
+              className={`flex-1 ${formData.type === 'expense' ? 'bg-gradient-danger' : ''}`}
+              onClick={() => {
+                handleInputChange('type', 'expense');
+                handleInputChange('category', ''); // Reset category when switching type
+              }}
+            >
+              💸 Expense
+            </Button>
+            <Button
+              type="button"
+              variant={formData.type === 'income' ? 'default' : 'ghost'}
+              className={`flex-1 ${formData.type === 'income' ? 'bg-gradient-success' : ''}`}
+              onClick={() => {
+                handleInputChange('type', 'income');
+                handleInputChange('category', ''); // Reset category when switching type
+              }}
+            >
+              💰 Income
+            </Button>
+          </div>
 
           {/* Amount */}
           <div className="space-y-2">
@@ -143,9 +169,9 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
                   ))}
                 </SelectContent>
               </Select>
-              
+
               <div className="text-center text-xs text-muted-foreground">or</div>
-              
+
               <div className="relative">
                 <Tag className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -203,11 +229,10 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
             <Button
               type="submit"
               disabled={loading || !formData.amount || !formData.category}
-              className={`flex-1 ${
-                formData.type === 'income'
+              className={`flex-1 ${formData.type === 'income'
                   ? 'bg-gradient-success hover:opacity-90'
                   : 'bg-gradient-danger hover:opacity-90'
-              }`}
+                }`}
             >
               {loading ? 'Saving...' : formData.type === 'income' ? 'Add Money' : 'Record Spending'}
             </Button>

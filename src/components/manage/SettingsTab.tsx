@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { User, Shield, Download, Trash2, Eye, LogOut } from 'lucide-react';
+import { User, Shield, Download, Trash2, Eye, LogOut, Award } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
 
 interface SettingsTabProps {
@@ -16,6 +16,7 @@ interface SettingsTabProps {
     handleDeleteAllData: () => void;
     setShowPrivacyModal: (show: boolean) => void;
     handleSignOut: () => void;
+    onPreviewRecap?: () => void;
 }
 
 export const SettingsTab = ({
@@ -27,7 +28,8 @@ export const SettingsTab = ({
     handleExportCSV,
     handleDeleteAllData,
     setShowPrivacyModal,
-    handleSignOut
+    handleSignOut,
+    onPreviewRecap
 }: SettingsTabProps) => {
     return (
         <div className="space-y-6">
@@ -119,6 +121,29 @@ export const SettingsTab = ({
                         <Button onClick={() => setShowPrivacyModal(true)} variant="outline" className="gap-2">
                             <Eye className="w-4 h-4" />
                             View
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* App Features (Debug/Preview) */}
+            <Card className="shadow-md">
+                <CardHeader>
+                    <CardTitle>Features Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-medium">Monthly Recap</p>
+                            <p className="text-sm text-muted-foreground">Preview your monthly financial report card</p>
+                        </div>
+                        <Button
+                            onClick={onPreviewRecap}
+                            variant="outline"
+                            className="gap-2 border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                        >
+                            <Award className="w-4 h-4" />
+                            Preview
                         </Button>
                     </div>
                 </CardContent>
