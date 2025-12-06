@@ -14,7 +14,7 @@ export const useTransactions = () => {
 
   const fetchTransactions = async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('transactions')
@@ -55,14 +55,14 @@ export const useTransactions = () => {
         .single();
 
       if (error) throw error;
-      
+
       setTransactions(prev => [data, ...prev]);
       toast({
         title: 'Transaction added!',
         description: `₵${transactionData.amount.toFixed(2)} ${transactionData.type} recorded.`,
         className: 'animate-success-pulse',
       });
-      
+
       return { data, error: null };
     } catch (error: any) {
       toast({
@@ -82,7 +82,7 @@ export const useTransactions = () => {
         .eq('id', id);
 
       if (error) throw error;
-      
+
       setTransactions(prev => prev.filter(t => t.id !== id));
       toast({
         title: 'Transaction deleted',
@@ -107,7 +107,7 @@ export const useTransactions = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      
+
       setTransactions([]);
       toast({
         title: 'All transactions deleted',
@@ -124,6 +124,31 @@ export const useTransactions = () => {
 
   useEffect(() => {
     fetchTransactions();
+  }, [user]);
+
+  // Real-time subscription for instant updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('transactions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchTransactions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   // Calculate totals
