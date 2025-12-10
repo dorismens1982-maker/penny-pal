@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ArrowUp, ArrowDown, TrendingUp, Wallet, Award, Share2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -54,6 +54,7 @@ export const MonthlyRecapModal = ({ open, onClose, data }: MonthlyRecapModalProp
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-white border-none shadow-2xl text-slate-900 transition-all duration-300">
+                <DialogTitle className="sr-only">Monthly Recap</DialogTitle>
 
                 {/* Confetti only for winners */}
                 {isSavingsPositive && open && (

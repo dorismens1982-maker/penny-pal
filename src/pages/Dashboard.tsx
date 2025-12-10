@@ -3,11 +3,12 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTransactions } from '@/hooks/useTransactions';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
+import { usePageHeader } from '@/hooks/usePageHeader';
 
 const MAX_NOTE_LENGTH = 30;
 
@@ -32,9 +33,8 @@ const RecentTransactionItem = memo(({ transaction }: { transaction: any }) => {
     <div className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
       <div className="flex items-center gap-3">
         <div
-          className={`w-9 h-9 rounded-full flex items-center justify-center ${
-            transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
-          }`}
+          className={`w-9 h-9 rounded-full flex items-center justify-center ${transaction.type === 'income' ? 'bg-income/10' : 'bg-expense/10'
+            }`}
           aria-hidden
         >
           {transaction.type === 'income' ? (
@@ -53,9 +53,8 @@ const RecentTransactionItem = memo(({ transaction }: { transaction: any }) => {
       </div>
       <div className="text-right">
         <p
-          className={`font-semibold ${
-            transaction.type === 'income' ? 'text-income' : 'text-expense'
-          }`}
+          className={`font-semibold ${transaction.type === 'income' ? 'text-income' : 'text-expense'
+            }`}
         >
           {transaction.type === 'income' ? '+' : '-'}
           {formatCurrency(transaction.amount)}
@@ -116,7 +115,7 @@ const Dashboard = () => {
 
   return (
     <Layout onAddTransaction={handleOpenSpendingModal}>
-      <div className="p-4 space-y-6 max-w-2xl mx-auto">
+      <div className="p-4 space-y-6 max-w-7xl mx-auto">
         {/* BALANCE DISPLAY */}
         <div className="text-center space-y-4">
           <div>
