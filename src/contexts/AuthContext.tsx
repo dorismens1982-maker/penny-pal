@@ -139,6 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(null);
     setUser(null);
     setProfile(null);
+    // Use window.location instead of navigate since AuthProvider is outside Router
+    window.location.href = '/';
   };
 
   const value = {

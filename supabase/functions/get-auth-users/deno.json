@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "deno.window"
+        ],
+        "types": [
+            "https://deno.land/x/types/index.d.ts"
+        ]
+    },
+    "lint": {
+        "files": {
+            "include": [
+                "index.ts"
+            ]
+        }
+    },
+    "fmt": {
+        "files": {
+            "include": [
+                "index.ts"
+            ]
+        }
+    }
+}

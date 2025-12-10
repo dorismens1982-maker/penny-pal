@@ -100,9 +100,21 @@ const Manage = () => {
     });
   }, [transactions]);
 
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
+
+  const counts = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    for (const t of transactions) t.type === 'income' ? income++ : expense++;
+    return { all: transactions.length, income, expense };
+  }, [transactions]);
+
   const filteredTransactions = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     let arr = transactions.filter((t) => {
+      const matchesType = filterType === 'all' || t.type === filterType;
+      if (!matchesType) return false;
+
       if (!q) return true;
       return t.category.toLowerCase().includes(q) || (t.note && t.note.toLowerCase().includes(q));
     });
@@ -112,7 +124,7 @@ const Manage = () => {
       return a.category.localeCompare(b.category);
     });
     return arr;
-  }, [transactions, searchTerm, sortBy]);
+  }, [transactions, searchTerm, sortBy, filterType]);
 
   const handleDeleteTransaction = async (id: string) => {
     if (confirm('Delete this transaction?')) await deleteTransaction(id);
@@ -194,7 +206,7 @@ const Manage = () => {
 
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
-      <div className="px-4 pb-20 md:pb-4 space-y-4 max-w-7xl mx-auto">
+      <div className="px-4 pb-20 md:pb-4 space-y-4 max-w-7xl">
         {/* Greeting */}
         {tab === 'overview' && (
           <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
@@ -261,6 +273,9 @@ const Manage = () => {
               filteredTransactions={filteredTransactions}
               onAddTransaction={() => setShowAddModal(true)}
               onDeleteTransaction={handleDeleteTransaction}
+              filterType={filterType}
+              setFilterType={setFilterType}
+              counts={counts}
             />
           </TabsContent>
 

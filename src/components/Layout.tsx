@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { isAdminEmail } from '@/utils/admin';
 import {
   BookOpen,
   Plus,
@@ -7,6 +9,7 @@ import {
   Receipt,
   BarChart3,
   Settings,
+  LayoutDashboard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/config/app';
@@ -17,21 +20,25 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
+  const { user } = useAuth();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const currentTab = searchParams.get('tab');
+  const isAdmin = isAdminEmail(user?.email);
 
   const desktopNavItems = [
-    { path: '/learn', icon: BookOpen, label: 'Learn' },
+    { path: '/insights', icon: BookOpen, label: 'Insights' },
     { path: '/manage', icon: Wallet, label: 'Manage' },
+    ...(isAdmin ? [{ path: '/superadmin', icon: LayoutDashboard, label: 'Admin' }] : []),
   ];
 
   const mobileNavItems = [
     { path: '/manage?tab=overview', icon: Wallet, label: 'Overview', isActive: location.pathname === '/manage' && (currentTab === 'overview' || !currentTab) },
     { path: '/manage?tab=transactions', icon: Receipt, label: 'Transactions', isActive: location.pathname === '/manage' && currentTab === 'transactions' },
     { path: '/manage?tab=analytics', icon: BarChart3, label: 'Analytics', isActive: location.pathname === '/manage' && currentTab === 'analytics' },
-    { path: '/learn', icon: BookOpen, label: 'Learn', isActive: location.pathname.startsWith('/learn') },
+    { path: '/insights', icon: BookOpen, label: 'Insights', isActive: location.pathname.startsWith('/insights') },
     { path: '/manage?tab=settings', icon: Settings, label: 'Settings', isActive: location.pathname === '/manage' && currentTab === 'settings' },
+    ...(isAdmin ? [{ path: '/superadmin', icon: LayoutDashboard, label: 'Admin', isActive: location.pathname.startsWith('/superadmin') }] : []),
   ];
 
   return (
@@ -63,7 +70,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold">{APP_NAME}</span>
               <span className="text-xs text-muted-foreground -mt-0.5">
-                Learn. Act. Grow.
+                Insights. Act. Grow.
               </span>
             </div>
           </div>
@@ -77,8 +84,8 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
                   key={path}
                   to={path}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
-                      ? 'text-primary bg-primary/10'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -103,15 +110,15 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
 
       {/* ===================== MOBILE BOTTOM NAV ===================== */}
       <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50">
-        <div className="grid grid-cols-5 items-center justify-between px-1 py-2">
+        <div className={`grid ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'} items-center justify-between px-1 py-2`}>
           {mobileNavItems.map(({ path, icon: Icon, label, isActive }) => {
             return (
               <Link
                 key={label}
                 to={path}
                 className={`flex flex-col items-center justify-center px-1 py-2 rounded-lg transition-colors ${isActive
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
               >
                 <Icon className={`w-5 h-5 mb-1 ${isActive ? 'fill-current' : ''}`} strokeWidth={isActive ? 2.5 : 2} />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Search, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,6 +15,32 @@ interface TransactionsTabProps {
     filteredTransactions: any[];
     onAddTransaction: () => void;
     onDeleteTransaction: (id: string) => void;
+    filterType: 'all' | 'income' | 'expense';
+    setFilterType: (value: 'all' | 'income' | 'expense') => void;
+    counts: { all: number; income: number; expense: number };
+}
+
+function TypeSegment({
+    value, onChange, counts
+}: {
+    value: 'all' | 'income' | 'expense';
+    onChange: (v: 'all' | 'income' | 'expense') => void;
+    counts: { all: number; income: number; expense: number };
+}) {
+    const base = "px-3 py-1.5 rounded-full text-sm transition-all";
+    return (
+        <div className="inline-flex bg-muted rounded-full p-1">
+            {(['all', 'income', 'expense'] as const).map(k => (
+                <button
+                    key={k}
+                    onClick={() => onChange(k)}
+                    className={`${base} ${value === k ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                    {k[0].toUpperCase() + k.slice(1)} <Badge variant="secondary" className="ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{counts[k]}</Badge>
+                </button>
+            ))}
+        </div>
+    );
 }
 
 export const TransactionsTab = ({
@@ -23,30 +50,36 @@ export const TransactionsTab = ({
     setSortBy,
     filteredTransactions,
     onAddTransaction,
-    onDeleteTransaction
+    onDeleteTransaction,
+    filterType,
+    setFilterType,
+    counts
 }: TransactionsTabProps) => {
     return (
         <div className="space-y-4">
-            <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search category or notes"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9"
-                    />
+            <div className="flex flex-col sm:flex-row gap-2">
+                <TypeSegment value={filterType} onChange={setFilterType} counts={counts} />
+                <div className="flex-1 flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search category or notes"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
+                    <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+                        <SelectTrigger className="w-[160px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="date">Date (newest)</SelectItem>
+                            <SelectItem value="amount">Amount (high→low)</SelectItem>
+                            <SelectItem value="category">Category (A→Z)</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-                <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
-                    <SelectTrigger className="w-[160px]">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="date">Date (newest)</SelectItem>
-                        <SelectItem value="amount">Amount (high→low)</SelectItem>
-                        <SelectItem value="category">Category (A→Z)</SelectItem>
-                    </SelectContent>
-                </Select>
             </div>
 
             <Card className="shadow-sm">
