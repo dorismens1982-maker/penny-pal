@@ -1,4 +1,5 @@
 import React from 'react';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,7 @@ export const VibeCarousel = () => {
     const vibes = [
         {
             id: 1,
-            image: '/vibe_freedom.png',
+            image: getCloudinaryUrl('vibe_freedom.png'),
             title: 'Financial Freedom',
             subtitle: 'Visualize the life you want to live.',
             icon: <Sparkles className="w-4 h-4 text-sky-300" />,
@@ -54,7 +55,7 @@ export const VibeCarousel = () => {
         },
         {
             id: 2,
-            image: '/vibe_growth.png',
+            image: getCloudinaryUrl('vibe_growth.png'),
             title: 'Smart Growth',
             subtitle: 'Watch your savings bloom every day.',
             icon: <TrendingUp className="w-4 h-4 text-emerald-300" />,
@@ -62,7 +63,7 @@ export const VibeCarousel = () => {
         },
         {
             id: 3,
-            image: '/vibe_goal.png',
+            image: getCloudinaryUrl('vibe_goal.png'),
             title: 'Celebrate Wins',
             subtitle: 'Big or small, every step forward counts.',
             icon: <Zap className="w-4 h-4 text-amber-300" />,

@@ -9,6 +9,7 @@ import type { BlogPost } from '@/types/blog';
 import { Clock, Calendar, ArrowRight, Search, TrendingUp, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 
 const Insights = () => {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ const Insights = () => {
           {/* Visual Header */}
           <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted shadow-sm group">
             <img
-              src="/vibe_insights.png"
+              src={getCloudinaryUrl('vibe_insights.png')}
               alt="Insights"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />

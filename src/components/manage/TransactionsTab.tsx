@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TransactionRow } from './TransactionRow';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 
 interface TransactionsTabProps {
     searchTerm: string;
@@ -60,7 +61,7 @@ export const TransactionsTab = ({
             {/* Visual Header */}
             <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted mb-4 group">
                 <img
-                    src="/vibe_transactions.png"
+                    src={getCloudinaryUrl('vibe_transactions.png')}
                     alt="Transactions"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
