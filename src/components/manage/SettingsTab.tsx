@@ -7,6 +7,7 @@ import { User, Shield, Download, Trash2, Eye, LogOut, Award, Moon } from 'lucide
 import { APP_NAME } from '@/config/app';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/contexts/ThemeContext';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 
 interface SettingsTabProps {
     profileForm: { preferred_name: string };
@@ -40,7 +41,7 @@ export const SettingsTab = ({
             {/* Visual Header */}
             <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted mb-4 group">
                 <img
-                    src="/vibe_settings.png"
+                    src={getCloudinaryUrl('vibe_settings.png')}
                     alt="Settings"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />

@@ -4,6 +4,7 @@ import { DateRangePicker, DateRange, DateRangePreset } from '@/components/DateRa
 import { ChevronUp, ChevronDown, ShoppingBag } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrencyIntl } from '@/utils/currency';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 
 interface AnalyticsTabProps {
     dateRange: DateRange;
@@ -29,7 +30,7 @@ export const AnalyticsTab = ({
             {/* Visual Header */}
             <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted mb-4 group">
                 <img
-                    src="/vibe_analytics.png"
+                    src={getCloudinaryUrl('vibe_analytics.png')}
                     alt="Analytics"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />

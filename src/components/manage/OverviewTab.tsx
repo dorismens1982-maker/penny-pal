@@ -6,6 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { TransactionRow } from './TransactionRow';
 import { formatCurrency } from '@/utils/currency';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 
 interface OverviewTabProps {
     totals: { income: number; expenses: number };
@@ -154,7 +155,7 @@ export const OverviewTab = ({
             {/* Strategy Banner */}
             <div className="relative w-full h-32 md:h-48 rounded-2xl overflow-hidden shadow-sm group cursor-default">
                 <img
-                    src="/vibe_strategy.png"
+                    src={getCloudinaryUrl('vibe_strategy.png')}
                     alt="Financial Strategy"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
