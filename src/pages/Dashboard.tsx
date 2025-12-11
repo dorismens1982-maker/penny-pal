@@ -127,12 +127,18 @@ const Dashboard = () => {
 
           {/* QUICK SUMMARY */}
           <div className="flex justify-center gap-6 text-sm">
-            <div className="text-center">
+            <div
+              className="text-center cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => goToTransactions('income')}
+            >
               <p className="text-xs text-muted-foreground">Total Received</p>
               <p className="font-semibold text-income">{formatCurrency(totals.income)}</p>
             </div>
             <div className="w-px bg-border" />
-            <div className="text-center">
+            <div
+              className="text-center cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => goToTransactions('expense')}
+            >
               <p className="text-xs text-muted-foreground">Total Spent</p>
               <p className="font-semibold text-expense">{formatCurrency(totals.expenses)}</p>
             </div>

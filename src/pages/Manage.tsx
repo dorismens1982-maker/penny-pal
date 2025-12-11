@@ -11,6 +11,7 @@ import {
   Receipt,
   BarChart3,
   Settings as SettingsIcon,
+  Sparkles,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
@@ -28,6 +29,7 @@ import { AnalyticsTab } from '@/components/manage/AnalyticsTab';
 import { SettingsTab } from '@/components/manage/SettingsTab';
 
 import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Manage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,11 +50,31 @@ const Manage = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [profileForm, setProfileForm] = useState({ preferred_name: profile?.preferred_name || '' });
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
-  const [selectedPreset, setSelectedPreset] = useState<any>('all'); // Type explicit or any if not exported
+  const [selectedPreset, setSelectedPreset] = useState<any>('all');
 
   const { summaries } = useMonthlySummaries({ startDate: dateRange.from, endDate: dateRange.to });
   const { topCategories } = useCategoryAnalytics({ startDate: dateRange.from, endDate: dateRange.to });
   const { showRecap, recapData, closeRecap, manuallyTriggerRecap } = useMonthlyRecap();
+
+  // --- Mascot State ---
+  const [showQuote, setShowQuote] = useState(false);
+  const quotes = [
+    "Every penny counts! 🌟",
+    "You're the boss of your wallet! 👔",
+    "Small steps, big goals! 💰",
+    "Budgeting is self-care! 💆‍♂️",
+    "Keep that streak alive! 🔥",
+    "Money moves only! 🚀"
+  ];
+  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
+
+  const handleMascotClick = () => {
+    const random = quotes[Math.floor(Math.random() * quotes.length)];
+    setCurrentQuote(random);
+    setShowQuote(true);
+    setTimeout(() => setShowQuote(false), 3000);
+  };
+  // --------------------
 
   React.useEffect(() => {
     setProfileForm({ preferred_name: profile?.preferred_name || '' });
@@ -133,8 +155,7 @@ const Manage = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      setSearchParams({ tab: 'overview' }); // Reset tab
-      // The ProtectedRoute or AuthPage will handle redirection based on user state
+      setSearchParams({ tab: 'overview' });
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Error signing out', description: error.message });
     }
@@ -207,6 +228,7 @@ const Manage = () => {
   return (
     <Layout onAddTransaction={() => setShowAddModal(true)}>
       <div className="px-4 pb-20 md:pb-4 space-y-4 max-w-7xl">
+
         {/* Greeting */}
         {tab === 'overview' && (
           <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
@@ -220,18 +242,48 @@ const Manage = () => {
                     Track, plan, and achieve your money goals
                   </p>
                 </div>
-                <div className="text-2xl md:text-3xl animate-wave">
-                  👋
+
+                {/* Mascot in Greeting Card */}
+                <div className="relative">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    whileTap={{ scale: 0.9 }}
+                    animate={{
+                      y: [0, -3, 0],
+                    }}
+                    transition={{
+                      y: { repeat: Infinity, duration: 2.5, ease: "easeInOut" }
+                    }}
+                    onClick={handleMascotClick}
+                    className="cursor-pointer relative z-10"
+                  >
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white shadow-md border-2 border-white ring-2 ring-yellow-400/50 p-0.5 flex items-center justify-center overflow-hidden">
+                      <img src="/penny_avatar.png" alt="Mascot" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute bottom-0 right-0 bg-yellow-400 rounded-full p-0.5 border border-white">
+                      <Sparkles className="w-2 h-2 text-white fill-white" />
+                    </div>
+                  </motion.div>
+
+                  <AnimatePresence>
+                    {showQuote && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, x: 10 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                        className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white px-3 py-2 rounded-xl shadow-xl border border-border/50 text-xs font-medium text-center min-w-[140px] max-w-[200px] z-20 text-foreground whitespace-normal"
+                      >
+                        {currentQuote}
+                        <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-t border-r border-border/50" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* 
-           Mobile: TabsList is hidden because we use the global Bottom Nav (in Layout).
-           Desktop: TabsList is visible.
-        */}
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="hidden md:grid sticky top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm grid-cols-4 gap-1 px-0 py-0 h-auto">
             <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-3">
@@ -252,7 +304,6 @@ const Manage = () => {
             </TabsTrigger>
           </TabsList>
 
-
           <TabsContent value="overview">
             <OverviewTab
               totals={totals}
@@ -261,6 +312,14 @@ const Manage = () => {
               transactions={transactions}
               onAddTransaction={() => setShowAddModal(true)}
               onDeleteTransaction={handleDeleteTransaction}
+              onViewIncome={() => {
+                setTab('transactions');
+                setFilterType('income');
+              }}
+              onViewExpenses={() => {
+                setTab('transactions');
+                setFilterType('expense');
+              }}
             />
           </TabsContent>
 

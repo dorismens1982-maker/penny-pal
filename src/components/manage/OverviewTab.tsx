@@ -13,6 +13,8 @@ interface OverviewTabProps {
     transactions: any[];
     onAddTransaction: () => void;
     onDeleteTransaction: (id: string) => void;
+    onViewIncome?: () => void;
+    onViewExpenses?: () => void;
 }
 
 export const OverviewTab = ({
@@ -22,11 +24,16 @@ export const OverviewTab = ({
     transactions,
     onAddTransaction,
     onDeleteTransaction,
+    onViewIncome,
+    onViewExpenses,
 }: OverviewTabProps) => {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <Card className="shadow-sm">
+                <Card
+                    className="shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={onViewIncome}
+                >
                     <CardContent className="p-3 md:p-4 flex items-center gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-full grid place-items-center bg-primary/10 text-primary shrink-0">
                             <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
@@ -39,7 +46,10 @@ export const OverviewTab = ({
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="shadow-sm">
+                <Card
+                    className="shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={onViewExpenses}
+                >
                     <CardContent className="p-3 md:p-4 flex items-center gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-full grid place-items-center bg-expense/10 text-expense shrink-0">
                             <ArrowDownLeft className="w-4 h-4 md:w-5 md:h-5" />
