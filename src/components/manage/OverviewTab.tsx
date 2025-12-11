@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, ArrowDownLeft, Wallet, Plus } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { TransactionRow } from './TransactionRow';
 import { formatCurrency } from '@/utils/currency';
 
@@ -87,28 +88,83 @@ export const OverviewTab = ({
                 </CardHeader>
                 <CardContent>
                     <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData}>
+                        <ChartContainer config={{
+                            income: {
+                                label: "Income",
+                                color: "hsl(var(--income))",
+                            },
+                            expenses: {
+                                label: "Expenses",
+                                color: "hsl(var(--expense))",
+                            },
+                        }} className="h-full w-full">
+                            <AreaChart data={chartData} margin={{ left: -20, right: 12, top: 12, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--income))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--income))" stopOpacity={0} />
+                                    <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--income))" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="hsl(var(--income))" stopOpacity={0.1} />
                                     </linearGradient>
-                                    <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--expense))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--expense))" stopOpacity={0} />
+                                    <linearGradient id="fillExpenses" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--expense))" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="hsl(var(--expense))" stopOpacity={0.1} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
-                                <YAxis axisLine={false} tickLine={false} className="text-xs" />
-                                <Tooltip contentStyle={{ borderRadius: 12 }} />
-                                <Area type="monotone" dataKey="income" stroke="hsl(var(--income))" fillOpacity={1} fill="url(#incomeGradient)" strokeWidth={2} />
-                                <Area type="monotone" dataKey="expenses" stroke="hsl(var(--expense))" fillOpacity={1} fill="url(#expenseGradient)" strokeWidth={2} />
+                                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--muted-foreground)/0.1)" />
+                                <XAxis
+                                    dataKey="label"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    className="text-xs font-medium text-muted-foreground"
+                                />
+                                <YAxis
+                                    tickLine={false}
+                                    axisLine={false}
+                                    className="text-xs font-medium text-muted-foreground"
+                                    tickFormatter={(value) => `${value}`}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent indicator="dot" />}
+                                />
+                                <Area
+                                    dataKey="expenses"
+                                    type="natural"
+                                    fill="url(#fillExpenses)"
+                                    fillOpacity={0.4}
+                                    stroke="hsl(var(--expense))"
+                                    strokeWidth={3}
+                                    stackId="a"
+                                />
+                                <Area
+                                    dataKey="income"
+                                    type="natural"
+                                    fill="url(#fillIncome)"
+                                    fillOpacity={0.4}
+                                    stroke="hsl(var(--income))"
+                                    strokeWidth={3}
+                                    stackId="b"
+                                />
                             </AreaChart>
-                        </ResponsiveContainer>
+                        </ChartContainer>
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Strategy Banner */}
+            <div className="relative w-full h-32 md:h-48 rounded-2xl overflow-hidden shadow-sm group cursor-default">
+                <img
+                    src="/vibe_strategy.png"
+                    alt="Financial Strategy"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex items-center p-6 md:p-8">
+                    <div>
+                        <h3 className="text-white font-poppins font-bold text-lg md:text-2xl mb-1">Every Move Counts</h3>
+                        <p className="text-white/80 text-xs md:text-sm max-w-[200px] md:max-w-none">Review your recent moves below.</p>
+                    </div>
+                </div>
+            </div>
 
             {/* Recent Transactions */}
             <Card className="shadow-sm">

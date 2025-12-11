@@ -100,6 +100,18 @@ const Insights = () => {
 
         <div className="container max-w-7xl mx-auto px-4 mt-6 space-y-8 relative z-10">
 
+          {/* Visual Header */}
+          <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted shadow-sm group">
+            <img
+              src="/vibe_insights.png"
+              alt="Insights"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+              <h2 className="text-white font-bold text-xl md:text-2xl">Financial Wisdom</h2>
+            </div>
+          </div>
+
           {/* Featured Carousel (Mobile First Snap) */}
           <AnimatePresence>
             {showFeatured && featuredPosts.length > 0 && (

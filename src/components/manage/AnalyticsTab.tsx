@@ -26,6 +26,17 @@ export const AnalyticsTab = ({
 }: AnalyticsTabProps) => {
     return (
         <div className="space-y-6">
+            {/* Visual Header */}
+            <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted mb-4 group">
+                <img
+                    src="/vibe_analytics.png"
+                    alt="Analytics"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                    <h2 className="text-white font-bold text-xl md:text-2xl">Financial Insights</h2>
+                </div>
+            </div>
             <div className="bg-background border-b border-border px-4 py-3 mb-4">
                 <DateRangePicker
                     value={dateRange}

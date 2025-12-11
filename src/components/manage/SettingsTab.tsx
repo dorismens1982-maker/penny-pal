@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { User, Shield, Download, Trash2, Eye, LogOut, Award } from 'lucide-react';
+import { User, Shield, Download, Trash2, Eye, LogOut, Award, Moon } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SettingsTabProps {
     profileForm: { preferred_name: string };
@@ -31,8 +33,22 @@ export const SettingsTab = ({
     handleSignOut,
     onPreviewRecap
 }: SettingsTabProps) => {
+    const { theme, setTheme } = useTheme();
+
     return (
         <div className="space-y-6">
+            {/* Visual Header */}
+            <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted mb-4 group">
+                <img
+                    src="/vibe_settings.png"
+                    alt="Settings"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                    <h2 className="text-white font-bold text-xl md:text-2xl">Preferences</h2>
+                </div>
+            </div>
+
             {/* Profile */}
             <Card className="shadow-md">
                 <CardHeader>
@@ -53,6 +69,26 @@ export const SettingsTab = ({
                     <Button onClick={handleSaveProfile} disabled={updating}>
                         {updating ? 'Saving...' : 'Save Changes'}
                     </Button>
+                </CardContent>
+            </Card>
+
+            {/* Appearance */}
+            <Card className="shadow-md">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Moon className="w-5 h-5" />
+                        Appearance
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                    <div>
+                        <p className="font-medium">Dark Mode</p>
+                        <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
+                    </div>
+                    <Switch
+                        checked={theme === 'dark'}
+                        onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                    />
                 </CardContent>
             </Card>
 
