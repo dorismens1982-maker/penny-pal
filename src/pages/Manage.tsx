@@ -22,7 +22,7 @@ import { getOverallTrend } from '@/utils/trendCalculations';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 import { useMonthlyRecap } from '@/hooks/useMonthlyRecap';
 import { MonthlyRecapModal } from '@/components/manage/MonthlyRecapModal';
-
+import { VibeCarousel } from '@/components/manage/VibeCarousel';
 import { OverviewTab } from '@/components/manage/OverviewTab';
 import { TransactionsTab } from '@/components/manage/TransactionsTab';
 import { AnalyticsTab } from '@/components/manage/AnalyticsTab';
@@ -57,7 +57,7 @@ const Manage = () => {
   const { showRecap, recapData, closeRecap, manuallyTriggerRecap } = useMonthlyRecap();
 
   // --- Mascot State ---
-  const [showQuote, setShowQuote] = useState(false);
+  const [showQuote, setShowQuote] = useState(true);
   const quotes = [
     "Every penny counts! 🌟",
     "You're the boss of your wallet! 👔",
@@ -67,6 +67,12 @@ const Manage = () => {
     "Money moves only! 🚀"
   ];
   const [currentQuote, setCurrentQuote] = useState(quotes[0]);
+
+  // Initial greeting timer
+  React.useEffect(() => {
+    const timer = setTimeout(() => setShowQuote(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleMascotClick = () => {
     const random = quotes[Math.floor(Math.random() * quotes.length)];
@@ -231,57 +237,59 @@ const Manage = () => {
 
         {/* Greeting */}
         {tab === 'overview' && (
-          <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
-            <CardContent className="p-4 md:p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h1 className="text-lg md:text-2xl font-poppins font-bold text-foreground">
-                    {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
-                  </h1>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
-                    Track, plan, and achieve your money goals
-                  </p>
-                </div>
+          <>
+            <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+              <CardContent className="p-4 md:p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h1 className="text-lg md:text-2xl font-poppins font-bold text-foreground">
+                      {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
+                    </h1>
+                    <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                      Track, plan, and achieve your money goals
+                    </p>
+                  </div>
 
-                {/* Mascot in Greeting Card */}
-                <div className="relative">
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                    animate={{
-                      y: [0, -3, 0],
-                    }}
-                    transition={{
-                      y: { repeat: Infinity, duration: 2.5, ease: "easeInOut" }
-                    }}
-                    onClick={handleMascotClick}
-                    className="cursor-pointer relative z-10"
-                  >
-                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white shadow-md border-2 border-white ring-2 ring-yellow-400/50 p-0.5 flex items-center justify-center overflow-hidden">
-                      <img src="/penny_avatar.png" alt="Mascot" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="absolute bottom-0 right-0 bg-yellow-400 rounded-full p-0.5 border border-white">
-                      <Sparkles className="w-2 h-2 text-white fill-white" />
-                    </div>
-                  </motion.div>
+                  {/* Mascot in Greeting Card */}
+                  <div className="relative">
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.9 }}
+                      animate={{
+                        y: [0, -3, 0],
+                      }}
+                      transition={{
+                        y: { repeat: Infinity, duration: 2.5, ease: "easeInOut" }
+                      }}
+                      onClick={handleMascotClick}
+                      className="cursor-pointer relative z-10"
+                    >
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white shadow-md border-2 border-white ring-2 ring-yellow-400/50 p-0.5 flex items-center justify-center overflow-hidden">
+                        <img src="/penny_avatar.png" alt="Mascot" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="absolute bottom-0 right-0 bg-yellow-400 rounded-full p-0.5 border border-white">
+                        <Sparkles className="w-2 h-2 text-white fill-white" />
+                      </div>
+                    </motion.div>
 
-                  <AnimatePresence>
-                    {showQuote && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8, x: 10 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                        className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white px-3 py-2 rounded-xl shadow-xl border border-border/50 text-xs font-medium text-center min-w-[140px] max-w-[200px] z-20 text-foreground whitespace-normal"
-                      >
-                        {currentQuote}
-                        <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-t border-r border-border/50" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                    <AnimatePresence>
+                      {showQuote && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8, x: 10 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                          className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-popover px-3 py-2 rounded-xl shadow-xl border border-border/50 text-xs font-medium text-center min-w-[140px] max-w-[200px] z-20 text-popover-foreground whitespace-normal"
+                        >
+                          {currentQuote}
+                          <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-popover rotate-45 border-t border-r border-border/50" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </>
         )}
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
@@ -305,6 +313,9 @@ const Manage = () => {
           </TabsList>
 
           <TabsContent value="overview">
+            <div className="mt-2 mb-6">
+              <VibeCarousel />
+            </div>
             <OverviewTab
               totals={totals}
               balance={balance}

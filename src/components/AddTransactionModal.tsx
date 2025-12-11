@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTransactions } from '@/hooks/useTransactions';
 import { DollarSign, Calendar, Tag, FileText } from 'lucide-react';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { cn } from '@/lib/utils';
 
 interface AddTransactionModalProps {
   open: boolean;
@@ -15,11 +18,71 @@ interface AddTransactionModalProps {
 }
 
 export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'expense' }: AddTransactionModalProps) => {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-[90vw] max-w-md sm:w-full">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-poppins">
+              {/* Dynamic title handled inside form for now, or we can lift state. 
+                  Let's keep it simple and render the form which has its own header logic if needed, 
+                  but standard Dialog has header outside content usually. 
+                  The form manages the "Add Money/Record Spending" toggles, so the title changes dynamically.
+                  We'll let the Form handle the content title context if we want, or just generic "Transaction".
+                  Actually, existing code had dynamic title "Add Money" vs "Record Spending".
+                  We will let the Form Component pass the current mode back up? No, simpler to just hide the title in DialogHeader 
+                  if we put it in the form, OR lift the type state up.
+                  
+                  Let's Lift the type state up? No, that makes it complex. 
+                  Let's just render the TransactionForm.
+              */}
+              Transaction
+            </DialogTitle>
+          </DialogHeader>
+          <TransactionForm
+            onClose={() => onOpenChange(false)}
+            initialType={transactionType}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle>Transaction</DrawerTitle>
+          <DrawerDescription>
+            Record your income or expenses.
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="px-4 pb-8">
+          <TransactionForm
+            onClose={() => onOpenChange(false)}
+            initialType={transactionType}
+            className="pb-safe"
+          />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+interface TransactionFormProps {
+  onClose: () => void;
+  initialType: 'income' | 'expense';
+  className?: string;
+}
+
+const TransactionForm = ({ onClose, initialType, className }: TransactionFormProps) => {
   const { addTransaction } = useTransactions();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
-    type: transactionType as 'income' | 'expense',
+    type: initialType as 'income' | 'expense',
     category: '',
     note: '',
     date: new Date().toISOString().split('T')[0]
@@ -38,7 +101,7 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
     ? [...loanIncomeCategories, ...commonCategories.income]
     : [...loanExpenseCategories, ...commonCategories.expense];
 
-  // Emoji-augmented income categories (without altering stored values)
+  // Emoji-augmented income categories
   const incomeEmojiMap: Record<string, string> = {
     'Salary': 'Salary 💼',
     'Freelance': 'Freelance 🧑‍💻',
@@ -77,168 +140,158 @@ export const AddTransactionModal = ({ open, onOpenChange, transactionType = 'exp
     });
 
     if (!error) {
-      // Reset form
       setFormData({
         amount: '',
-        type: transactionType,
+        type: initialType,
         category: '',
         note: '',
         date: new Date().toISOString().split('T')[0]
       });
-      onOpenChange(false);
+      onClose();
     }
 
     setLoading(false);
   };
 
-  const title = formData.type === 'income' ? 'Add Money' : 'Record Spending';
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md sm:w-full">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-poppins">{title}</DialogTitle>
-        </DialogHeader>
+    <form onSubmit={handleSubmit} className={cn("space-y-5", className)}>
+      {/* Transaction Type Toggle */}
+      <div className="flex gap-2 p-1 bg-muted rounded-lg">
+        <Button
+          type="button"
+          variant={formData.type === 'expense' ? 'default' : 'ghost'}
+          className={`flex-1 ${formData.type === 'expense' ? 'bg-gradient-danger' : ''}`}
+          onClick={() => {
+            handleInputChange('type', 'expense');
+            handleInputChange('category', '');
+          }}
+        >
+          💸 Expense
+        </Button>
+        <Button
+          type="button"
+          variant={formData.type === 'income' ? 'default' : 'ghost'}
+          className={`flex-1 ${formData.type === 'income' ? 'bg-gradient-success' : ''}`}
+          onClick={() => {
+            handleInputChange('type', 'income');
+            handleInputChange('category', '');
+          }}
+        >
+          💰 Income
+        </Button>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Amount */}
+      <div className="space-y-2">
+        <Label htmlFor="amount">Amount (₵)</Label>
+        <div className="relative">
+          <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            id="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            className="pl-10"
+            value={formData.amount}
+            onChange={(e) => handleInputChange('amount', e.target.value)}
+            required
+            autoFocus={false} // Prevent auto-zoom on load
+          />
+        </div>
+      </div>
 
-          {/* Transaction Type Toggle */}
-          <div className="flex gap-2 p-1 bg-muted rounded-lg">
-            <Button
-              type="button"
-              variant={formData.type === 'expense' ? 'default' : 'ghost'}
-              className={`flex-1 ${formData.type === 'expense' ? 'bg-gradient-danger' : ''}`}
-              onClick={() => {
-                handleInputChange('type', 'expense');
-                handleInputChange('category', ''); // Reset category when switching type
-              }}
-            >
-              💸 Expense
-            </Button>
-            <Button
-              type="button"
-              variant={formData.type === 'income' ? 'default' : 'ghost'}
-              className={`flex-1 ${formData.type === 'income' ? 'bg-gradient-success' : ''}`}
-              onClick={() => {
-                handleInputChange('type', 'income');
-                handleInputChange('category', ''); // Reset category when switching type
-              }}
-            >
-              💰 Income
-            </Button>
-          </div>
-
-          {/* Amount */}
-          <div className="space-y-2">
-            <Label htmlFor="amount">Amount (₵)</Label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                className="pl-10"
-                value={formData.amount}
-                onChange={(e) => handleInputChange('amount', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Category */}
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <div className="space-y-2">
-              <Select
-                value={formData.category}
-                onValueChange={(value) => handleInputChange('category', value)}
-              >
-                <SelectTrigger>
-                  <div className="flex items-center">
-                    <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <SelectValue placeholder="Choose a category" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {categoriesForTypeWithLabel.map(({ value, label }) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <div className="text-center text-xs text-muted-foreground">or</div>
-
-              <div className="relative">
-                <Tag className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Create custom category"
-                  className="pl-10"
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                />
+      {/* Category */}
+      <div className="space-y-2">
+        <Label>Category</Label>
+        <div className="space-y-2">
+          <Select
+            value={formData.category}
+            onValueChange={(value) => handleInputChange('category', value)}
+          >
+            <SelectTrigger>
+              <div className="flex items-center">
+                <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
+                <SelectValue placeholder="Choose a category" />
               </div>
-            </div>
-          </div>
+            </SelectTrigger>
+            <SelectContent>
+              {categoriesForTypeWithLabel.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          {/* Date */}
-          <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="date"
-                type="date"
-                className="pl-10"
-                value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                required
-              />
-            </div>
-          </div>
+          <div className="text-center text-xs text-muted-foreground">or</div>
 
-          {/* Note */}
-          <div className="space-y-2">
-            <Label htmlFor="note">Note (optional)</Label>
-            <div className="relative">
-              <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Textarea
-                id="note"
-                placeholder="Add a note..."
-                className="pl-10 resize-none"
-                rows={3}
-                value={formData.note}
-                onChange={(e) => handleInputChange('note', e.target.value)}
-              />
-            </div>
+          <div className="relative">
+            <Tag className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Create custom category"
+              className="pl-10"
+              value={formData.category}
+              onChange={(e) => handleInputChange('category', e.target.value)}
+            />
           </div>
+        </div>
+      </div>
 
-          {/* Actions */}
-          <div className="flex space-x-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || !formData.amount || !formData.category}
-              className={`flex-1 ${formData.type === 'income'
-                  ? 'bg-gradient-success hover:opacity-90'
-                  : 'bg-gradient-danger hover:opacity-90'
-                }`}
-            >
-              {loading ? 'Saving...' : formData.type === 'income' ? 'Add Money' : 'Record Spending'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      {/* Date */}
+      <div className="space-y-2">
+        <Label htmlFor="date">Date</Label>
+        <div className="relative">
+          <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            id="date"
+            type="date"
+            className="pl-10"
+            value={formData.date}
+            onChange={(e) => handleInputChange('date', e.target.value)}
+            required
+          />
+        </div>
+      </div>
+
+      {/* Note */}
+      <div className="space-y-2">
+        <Label htmlFor="note">Note (optional)</Label>
+        <div className="relative">
+          <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Textarea
+            id="note"
+            placeholder="Add a note..."
+            className="pl-10 resize-none"
+            rows={3}
+            value={formData.note}
+            onChange={(e) => handleInputChange('note', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex space-x-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={loading || !formData.amount || !formData.category}
+          className={`flex-1 ${formData.type === 'income'
+            ? 'bg-gradient-success hover:opacity-90'
+            : 'bg-gradient-danger hover:opacity-90'
+            }`}
+        >
+          {loading ? 'Saving...' : formData.type === 'income' ? 'Add Money' : 'Record Spending'}
+        </Button>
+      </div>
+    </form>
   );
 };
+
