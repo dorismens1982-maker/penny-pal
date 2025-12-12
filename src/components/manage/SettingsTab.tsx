@@ -178,6 +178,7 @@ export const SettingsTab = ({
                             onClick={onPreviewRecap}
                             variant="outline"
                             className="gap-2 border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                            id="tour-monthly-recap-btn"
                         >
                             <Award className="w-4 h-4" />
                             Preview

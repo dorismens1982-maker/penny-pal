@@ -28,6 +28,7 @@ import { OverviewTab } from '@/components/manage/OverviewTab';
 import { TransactionsTab } from '@/components/manage/TransactionsTab';
 import { AnalyticsTab } from '@/components/manage/AnalyticsTab';
 import { SettingsTab } from '@/components/manage/SettingsTab';
+import { useTour } from '@/hooks/useTour';
 
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -56,6 +57,7 @@ const Manage = () => {
   const { summaries } = useMonthlySummaries({ startDate: dateRange.from, endDate: dateRange.to });
   const { topCategories } = useCategoryAnalytics({ startDate: dateRange.from, endDate: dateRange.to });
   const { showRecap, recapData, closeRecap, manuallyTriggerRecap } = useMonthlyRecap();
+  const { startTour } = useTour({ setTab });
 
   // --- Mascot State ---
   const [showQuote, setShowQuote] = useState(true);
@@ -72,14 +74,33 @@ const Manage = () => {
   // Initial greeting timer
   React.useEffect(() => {
     const timer = setTimeout(() => setShowQuote(false), 4000);
+    // Start tour after a slight delay to allow rendering
+    startTour();
     return () => clearTimeout(timer);
   }, []);
 
   const handleMascotClick = () => {
+    // 50% chance to show quote, 50% to restart tour if user explicitly clicks
+    // actually, let's make it intuitive: if tour is done, maybe clicking opens a menu?
+    // For simplicity: mascot click always shows quote, but we'll add a specific logic:
+    // If user clicks, show quote. Double click? No.
+    // Let's stick to the plan: "Click me... to take this tour again!" implies click restarts it?
+    // Or we keep mascot click for quotes and add a small "Help" button?
+    // The user request was "create a virtual assistance".
+    // Let's make the mascot click restart the tour if they confirm or maybe just restart it.
+    // Better: Standard click = Quote. Long press?
+    // Let's just add a small "Tour" button near the mascot or trigger on click if it's been a while.
+    // Re-reading hook: startTour(force=true) restarts it.
+    // Let's cycle quotes.
     const random = quotes[Math.floor(Math.random() * quotes.length)];
     setCurrentQuote(random);
     setShowQuote(true);
     setTimeout(() => setShowQuote(false), 3000);
+  };
+
+  const handleRestartTour = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    startTour(true);
   };
   // --------------------
 
@@ -239,7 +260,7 @@ const Manage = () => {
         {/* Greeting */}
         {tab === 'overview' && (
           <>
-            <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+            <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30" id="tour-welcome">
               <CardContent className="p-4 md:p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -252,7 +273,7 @@ const Manage = () => {
                   </div>
 
                   {/* Mascot in Greeting Card */}
-                  <div className="relative">
+                  <div className="relative" id="tour-mascot">
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       whileTap={{ scale: 0.9 }}
@@ -272,6 +293,14 @@ const Manage = () => {
                         <Sparkles className="w-2 h-2 text-white fill-white" />
                       </div>
                     </motion.div>
+
+                    {/* Tour restart button - small and distinct */}
+                    <div
+                      onClick={handleRestartTour}
+                      className="absolute -bottom-2 -right-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full cursor-pointer shadow-sm z-30 font-bold hover:scale-110 transition-transform"
+                    >
+                      Tour?
+                    </div>
 
                     <AnimatePresence>
                       {showQuote && (
@@ -294,7 +323,7 @@ const Manage = () => {
         )}
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="hidden md:grid sticky top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm grid-cols-4 gap-1 px-0 py-0 h-auto">
+          <TabsList className="hidden md:grid sticky top-[60px] left-0 w-full z-[60] bg-background/95 backdrop-blur-lg border-b border-border shadow-sm grid-cols-4 gap-1 px-0 py-0 h-auto" id="tour-nav">
             <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-3">
               <Wallet className="w-4 h-4 mr-2" />
               <span>Overview</span>
@@ -314,7 +343,7 @@ const Manage = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <div className="mt-2 mb-6">
+            <div className="mt-2 mb-6" id="tour-vibes">
               <VibeCarousel />
             </div>
             <OverviewTab
