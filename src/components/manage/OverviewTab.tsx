@@ -31,7 +31,7 @@ export const OverviewTab = ({
 }: OverviewTabProps) => {
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3" id="tour-balance">
                 <Card
                     className="shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={onViewIncome}

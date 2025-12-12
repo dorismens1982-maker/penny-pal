@@ -100,6 +100,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
             <Button
               onClick={onAddTransaction}
               className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-150"
+              id="tour-quick-actions-desktop"
             >
               <Plus className="w-4 h-4 text-primary-foreground" />
               <span className="text-sm font-medium">Add Transaction</span>
@@ -109,7 +110,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
       </header>
 
       {/* ===================== MOBILE BOTTOM NAV ===================== */}
-      <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50">
+      <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50" id="tour-nav-mobile">
         <div className={`grid ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'} items-center justify-between px-1 py-2`}>
           {mobileNavItems.map(({ path, icon: Icon, label, isActive }) => {
             return (
@@ -146,6 +147,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
           onClick={onAddTransaction}
           className="fixed bottom-20 md:bottom-8 right-4 w-14 h-14 rounded-full bg-gradient-primary shadow-primary hover:shadow-lg transition-all duration-200 hover:scale-105 z-40"
           size="icon"
+          id="tour-quick-actions-mobile"
         >
           <Plus className="w-6 h-6 text-primary-foreground" />
         </Button>
