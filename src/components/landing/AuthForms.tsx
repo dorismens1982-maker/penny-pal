@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
@@ -209,7 +210,10 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
                     {loading ? "Signing in..." : "Sign In"}
                 </Button>
             </form>
-            <div className="mt-4 text-center">
+            <div className="mt-4 flex flex-col items-center gap-2">
+                <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                    Forgot Password?
+                </Link>
                 <button onClick={() => setCurrentView('signup')} className="text-sm text-primary hover:underline">
                     New here? Create an account
                 </button>

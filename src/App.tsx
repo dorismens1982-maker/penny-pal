@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import AuthPage from '@/pages/AuthPage';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 import Dashboard from '@/pages/Dashboard';
 import Manage from '@/pages/Manage';
 import Insights from '@/pages/Insights';
@@ -39,6 +41,8 @@ function App() {
           <Router>
             <Routes>
               <Route path="/" element={<AuthPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Protected User Routes */}
               <Route
