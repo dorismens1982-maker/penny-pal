@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { AuthForms } from '@/components/landing/AuthForms';
@@ -10,13 +10,16 @@ import { APP_NAME } from '@/config/app';
 const AuthPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const authScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user) {
+    // Don't redirect if user is on reset-password or forgot-password pages
+    const isAuthFlowPage = location.pathname === '/reset-password' || location.pathname === '/forgot-password';
+    if (user && !isAuthFlowPage) {
       navigate('/manage');
     }
-  }, [user, navigate]);
+  }, [user, navigate, location.pathname]);
 
   const scrollToAuth = () => {
     authScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
