@@ -75,9 +75,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // Check if this is a password recovery flow from the URL hash
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const isRecoveryFlow = hashParams.get('type') === 'recovery';
+
+    if (isRecoveryFlow && window.location.pathname !== '/reset-password') {
+      // Redirect to reset password page while preserving the hash for Supabase to process
+      window.location.href = '/reset-password' + window.location.hash;
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         setSession(session);
         const nextUser = session?.user ?? null;
         setUser(nextUser);
@@ -87,6 +97,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
         }
         setLoading(false);
+
+        // Handle password recovery - redirect to reset password page
+        if (event === 'PASSWORD_RECOVERY' && window.location.pathname !== '/reset-password') {
+          window.location.href = '/reset-password';
+        }
       }
     );
 
