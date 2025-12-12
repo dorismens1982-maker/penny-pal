@@ -9,6 +9,8 @@ const IMAGE_MAP: Record<string, string> = {
     'vibe_settings.png': 'https://res.cloudinary.com/dvyj0bgui/image/upload/v1765476494/vibe_settings_q7gkmg.jpg',
     'vibe_strategy.png': 'https://res.cloudinary.com/dvyj0bgui/image/upload/v1765476493/vibe_strategy_ymghxt.jpg',
     'vibe_growth.png': 'https://res.cloudinary.com/dvyj0bgui/image/upload/v1765476493/vibe_growth_cmgttg.jpg',
+    'vibe_strategic_wealth.jpg': 'https://res.cloudinary.com/dvyj0bgui/image/upload/v1765536295/strategic_wealth_vibe_ejturj.jpg',
+    'penny_avatar.jpg': 'https://res.cloudinary.com/dvyj0bgui/image/upload/v1765476493/penny_avatar_jffsr9.jpg',
 };
 
 export const getCloudinaryUrl = (filename: string) => {
