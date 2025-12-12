@@ -1,7 +1,7 @@
 import React from 'react';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles, TrendingUp, Zap, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface VibeCardProps {
@@ -68,6 +68,14 @@ export const VibeCarousel = () => {
             subtitle: 'Big or small, every step forward counts.',
             icon: <Zap className="w-4 h-4 text-amber-300" />,
             color: 'text-amber-300'
+        },
+        {
+            id: 4,
+            image: getCloudinaryUrl('vibe_strategic_wealth.jpg'),
+            title: 'Strategic Wealth',
+            subtitle: 'Plan ahead for a secure future.',
+            icon: <Target className="w-4 h-4 text-purple-300" />,
+            color: 'text-purple-300'
         }
     ];
 

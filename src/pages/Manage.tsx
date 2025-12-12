@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Layout } from '@/components/Layout';
+import { getCloudinaryUrl } from '@/utils/cloudinary';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -265,7 +266,7 @@ const Manage = () => {
                       className="cursor-pointer relative z-10"
                     >
                       <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white shadow-md border-2 border-white ring-2 ring-yellow-400/50 p-0.5 flex items-center justify-center overflow-hidden">
-                        <img src="/penny_avatar.png" alt="Mascot" className="w-full h-full object-cover" />
+                        <img src={getCloudinaryUrl('penny_avatar.jpg')} alt="Mascot" className="w-full h-full object-cover" />
                       </div>
                       <div className="absolute bottom-0 right-0 bg-yellow-400 rounded-full p-0.5 border border-white">
                         <Sparkles className="w-2 h-2 text-white fill-white" />
