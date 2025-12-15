@@ -50,12 +50,12 @@ export const TransactionRow = memo(({ t, onDelete, onEdit }: TransactionRowProps
                     )}
                 </div>
             </div>
-            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => onEdit(t)}
-                    className="text-muted-foreground hover:text-primary"
+                    className="hidden md:inline-flex text-muted-foreground hover:text-primary"
                 >
                     <Pencil className="w-4 h-4" />
                 </Button>
