@@ -1,5 +1,5 @@
 import React, { useState, memo } from 'react';
-import { ArrowUpRight, ArrowDownLeft, Trash2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/currency';
 
@@ -15,17 +15,18 @@ interface Transaction {
 interface TransactionRowProps {
     t: Transaction;
     onDelete: (id: string) => void;
+    onEdit: (t: Transaction) => void;
 }
 
-export const TransactionRow = memo(({ t, onDelete }: TransactionRowProps) => {
+export const TransactionRow = memo(({ t, onDelete, onEdit }: TransactionRowProps) => {
     const [expand, setExpand] = useState(false);
     const MAX_NOTE_LENGTH = 50;
     const longNote = t.note && t.note.length > MAX_NOTE_LENGTH;
     const note = !t.note ? null : expand ? t.note : t.note.slice(0, MAX_NOTE_LENGTH) + (longNote ? '…' : '');
 
     return (
-        <div className="flex items-center justify-between p-3 hover:bg-muted/40 transition-colors border-b last:border-0">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex items-center justify-between p-3 hover:bg-muted/40 transition-colors border-b last:border-0 group">
+            <div className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer" onClick={() => onEdit(t)}>
                 <div className={`w-10 h-10 rounded-full grid place-items-center ${t.type === 'income' ? 'bg-income/10' : 'bg-expense/10'}`}>
                     {t.type === 'income' ? <ArrowUpRight className="w-5 h-5 text-income" /> : <ArrowDownLeft className="w-5 h-5 text-expense" />}
                 </div>
@@ -41,7 +42,7 @@ export const TransactionRow = memo(({ t, onDelete }: TransactionRowProps) => {
                         <div className="text-sm text-muted-foreground mt-1">
                             <span>{note}</span>
                             {longNote && (
-                                <button onClick={() => setExpand((v) => !v)} className="text-primary hover:underline text-xs ml-1">
+                                <button onClick={(e) => { e.stopPropagation(); setExpand((v) => !v); }} className="text-primary hover:underline text-xs ml-1">
                                     {expand ? 'less' : 'more'}
                                 </button>
                             )}
@@ -49,14 +50,24 @@ export const TransactionRow = memo(({ t, onDelete }: TransactionRowProps) => {
                     )}
                 </div>
             </div>
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(t.id)}
-                className="ml-2 text-muted-foreground hover:text-destructive"
-            >
-                <Trash2 className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(t)}
+                    className="text-muted-foreground hover:text-primary"
+                >
+                    <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(t.id)}
+                    className="ml-1 text-muted-foreground hover:text-destructive"
+                >
+                    <Trash2 className="w-4 h-4" />
+                </Button>
+            </div>
         </div>
     );
 });

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Plus, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
-import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { TransactionModal } from '@/components/TransactionModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
@@ -189,7 +189,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      <AddTransactionModal open={showAddModal} onOpenChange={setShowAddModal} transactionType={modalType} />
+      <TransactionModal open={showAddModal} onOpenChange={setShowAddModal} transactionType={modalType} />
     </Layout>
   );
 };
