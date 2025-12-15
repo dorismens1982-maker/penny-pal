@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useAuth } from '@/contexts/AuthContext';
-import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { TransactionModal } from '@/components/TransactionModal';
 import {
   Wallet,
   Receipt,
@@ -46,7 +46,9 @@ const Manage = () => {
   const { profile, updateProfile, updating } = useProfile();
   const { toast } = useToast();
 
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<any>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'category'>('date');
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -80,18 +82,6 @@ const Manage = () => {
   }, []);
 
   const handleMascotClick = () => {
-    // 50% chance to show quote, 50% to restart tour if user explicitly clicks
-    // actually, let's make it intuitive: if tour is done, maybe clicking opens a menu?
-    // For simplicity: mascot click always shows quote, but we'll add a specific logic:
-    // If user clicks, show quote. Double click? No.
-    // Let's stick to the plan: "Click me... to take this tour again!" implies click restarts it?
-    // Or we keep mascot click for quotes and add a small "Help" button?
-    // The user request was "create a virtual assistance".
-    // Let's make the mascot click restart the tour if they confirm or maybe just restart it.
-    // Better: Standard click = Quote. Long press?
-    // Let's just add a small "Tour" button near the mascot or trigger on click if it's been a while.
-    // Re-reading hook: startTour(force=true) restarts it.
-    // Let's cycle quotes.
     const random = quotes[Math.floor(Math.random() * quotes.length)];
     setCurrentQuote(random);
     setShowQuote(true);
@@ -180,6 +170,16 @@ const Manage = () => {
     if (confirm('Delete this transaction?')) await deleteTransaction(id);
   };
 
+  const handleEditTransaction = (t: any) => {
+    setEditingTransaction(t);
+    setShowModal(true);
+  };
+
+  const handleAddStart = () => {
+    setEditingTransaction(null);
+    setShowModal(true);
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -254,7 +254,7 @@ const Manage = () => {
   }
 
   return (
-    <Layout onAddTransaction={() => setShowAddModal(true)}>
+    <Layout onAddTransaction={handleAddStart}>
       <div className="px-4 pb-20 md:pb-4 space-y-4 max-w-7xl">
 
         {/* Greeting */}
@@ -351,8 +351,9 @@ const Manage = () => {
               balance={balance}
               chartData={chartData}
               transactions={transactions}
-              onAddTransaction={() => setShowAddModal(true)}
+              onAddTransaction={handleAddStart}
               onDeleteTransaction={handleDeleteTransaction}
+              onEditTransaction={handleEditTransaction}
               onViewIncome={() => {
                 setTab('transactions');
                 setFilterType('income');
@@ -371,8 +372,9 @@ const Manage = () => {
               sortBy={sortBy}
               setSortBy={setSortBy}
               filteredTransactions={filteredTransactions}
-              onAddTransaction={() => setShowAddModal(true)}
+              onAddTransaction={handleAddStart}
               onDeleteTransaction={handleDeleteTransaction}
+              onEditTransaction={handleEditTransaction}
               filterType={filterType}
               setFilterType={setFilterType}
               counts={counts}
@@ -408,7 +410,7 @@ const Manage = () => {
         </Tabs>
       </div>
 
-      <AddTransactionModal open={showAddModal} onOpenChange={setShowAddModal} />
+      <TransactionModal open={showModal} onOpenChange={setShowModal} transactionToEdit={editingTransaction} />
       <PrivacyPolicyModal open={showPrivacyModal} onOpenChange={setShowPrivacyModal} />
       <MonthlyRecapModal open={showRecap} onClose={closeRecap} data={recapData} />
     </Layout>

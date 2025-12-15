@@ -17,6 +17,7 @@ interface OverviewTabProps {
     onDeleteTransaction: (id: string) => void;
     onViewIncome?: () => void;
     onViewExpenses?: () => void;
+    onEditTransaction: (t: any) => void;
 }
 
 export const OverviewTab = ({
@@ -28,6 +29,7 @@ export const OverviewTab = ({
     onDeleteTransaction,
     onViewIncome,
     onViewExpenses,
+    onEditTransaction,
 }: OverviewTabProps) => {
     return (
         <div className="space-y-4">
@@ -184,7 +186,7 @@ export const OverviewTab = ({
                     ) : (
                         <div>
                             {transactions.slice(0, 5).map((t) => (
-                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} />
+                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} onEdit={onEditTransaction} />
                             ))}
                         </div>
                     )}

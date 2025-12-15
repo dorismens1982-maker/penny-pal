@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Search, ArrowUpRight, ArrowDownLeft, Trash2, Plus } from 'lucide-react';
-import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { TransactionModal } from '@/components/TransactionModal';
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/PageHeader';
 import { usePageHeader } from '@/hooks/usePageHeader';
 import { Badge } from '@/components/ui/badge';
+import { Pencil } from 'lucide-react';
 
 const MAX_NOTE_LENGTH = 50;
 
@@ -19,44 +20,44 @@ const fmtAmt = (n: number) => `₵${n.toFixed(2)}`;
 const dayKey = (iso: string) => {
   // Normalize date key to local yyyy-mm-dd for grouping
   const d = new Date(iso);
-  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), da = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${da}`;
 };
 const dayLabel = (iso: string) => {
   const d = new Date(iso);
   const today = new Date(); const yest = new Date(); yest.setDate(today.getDate() - 1);
-  const same = (a: Date, b: Date) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  const same = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   if (same(d, today)) return 'Today';
   if (same(d, yest)) return 'Yesterday';
   return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 // --- Row ---
-const TransactionRow = memo(({ t, onDelete }: { t: any; onDelete: (id: string) => void }) => {
+const TransactionRow = memo(({ t, onDelete, onEdit }: { t: any; onDelete: (id: string) => void; onEdit: (t: any) => void }) => {
   const [expand, setExpand] = useState(false);
   const longNote = t.note && t.note.length > MAX_NOTE_LENGTH;
   const note = !t.note ? null : expand ? t.note : t.note.slice(0, MAX_NOTE_LENGTH) + (longNote ? '…' : '');
   return (
     <div className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/40 transition-colors">
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full grid place-items-center ${t.type==='income'?'bg-income/10':'bg-expense/10'}`} aria-hidden>
-          {t.type==='income' ? <ArrowUpRight className="w-5 h-5 text-income" /> : <ArrowDownLeft className="w-5 h-5 text-expense" />}
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0" onClick={() => onEdit(t)} role="button">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full grid place-items-center ${t.type === 'income' ? 'bg-income/10' : 'bg-expense/10'}`} aria-hidden>
+          {t.type === 'income' ? <ArrowUpRight className="w-5 h-5 text-income" /> : <ArrowDownLeft className="w-5 h-5 text-expense" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <p className="font-semibold truncate">{t.category}</p>
-            <p className={`font-poppins font-bold shrink-0 ${t.type==='income'?'text-income':'text-expense'}`}>
-              {t.type==='income' ? '+' : '-'}{fmtAmt(t.amount)}
+            <p className={`font-poppins font-bold shrink-0 ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+              {t.type === 'income' ? '+' : '-'}{fmtAmt(t.amount)}
             </p>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {new Date(t.date).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })}
+            {new Date(t.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
           </p>
           {note && (
             <div className="text-sm text-muted-foreground mt-1">
               <span className="line-clamp-2">{note}</span>
               {longNote && (
-                <button onClick={() => setExpand(v=>!v)} className="text-primary hover:underline text-xs ml-1">
+                <button onClick={(e) => { e.stopPropagation(); setExpand(v => !v); }} className="text-primary hover:underline text-xs ml-1">
                   {expand ? 'Show less' : 'Show more'}
                 </button>
               )}
@@ -64,15 +65,26 @@ const TransactionRow = memo(({ t, onDelete }: { t: any; onDelete: (id: string) =
           )}
         </div>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => onDelete(t.id)}
-        className="ml-2 text-muted-foreground hover:text-destructive"
-        aria-label="Delete transaction"
-      >
-        <Trash2 className="w-4 h-4" />
-      </Button>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onEdit(t)}
+          className="text-muted-foreground hover:text-primary"
+          aria-label="Edit transaction"
+        >
+          <Pencil className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onDelete(t.id)}
+          className="text-muted-foreground hover:text-destructive"
+          aria-label="Delete transaction"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 });
@@ -81,21 +93,21 @@ TransactionRow.displayName = 'TransactionRow';
 // --- Toolbar segmented control (All / Income / Expense) ---
 function TypeSegment({
   value, onChange, counts
-}:{
-  value: 'all'|'income'|'expense';
-  onChange: (v:'all'|'income'|'expense')=>void;
-  counts: { all:number; income:number; expense:number };
+}: {
+  value: 'all' | 'income' | 'expense';
+  onChange: (v: 'all' | 'income' | 'expense') => void;
+  counts: { all: number; income: number; expense: number };
 }) {
   const base = "px-3 py-1.5 rounded-full text-sm";
   return (
     <div className="inline-flex bg-muted rounded-full p-1">
-      {(['all','income','expense'] as const).map(k => (
+      {(['all', 'income', 'expense'] as const).map(k => (
         <button
           key={k}
           onClick={() => onChange(k)}
-          className={`${base} ${value===k ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+          className={`${base} ${value === k ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
         >
-          {k[0].toUpperCase()+k.slice(1)} <Badge variant="outline" className="ml-1">{counts[k]}</Badge>
+          {k[0].toUpperCase() + k.slice(1)} <Badge variant="outline" className="ml-1">{counts[k]}</Badge>
         </button>
       ))}
     </div>
@@ -106,10 +118,12 @@ const PAGE_SIZE = 25;
 
 export default function Transactions() {
   const { transactions, loading, deleteTransaction } = useTransactions();
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<any>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [type, setType] = useState<'all'|'income'|'expense'>('all');
-  const [sortBy, setSortBy] = useState<'date'|'amount'|'category'>('date');
+  const [type, setType] = useState<'all' | 'income' | 'expense'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'category'>('date');
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -128,8 +142,8 @@ export default function Transactions() {
 
   // Counts for chips
   const counts = useMemo(() => {
-    let income=0, expense=0;
-    for (const t of transactions) t.type==='income'?income++:expense++;
+    let income = 0, expense = 0;
+    for (const t of transactions) t.type === 'income' ? income++ : expense++;
     return { all: transactions.length, income, expense };
   }, [transactions]);
 
@@ -137,16 +151,16 @@ export default function Transactions() {
   const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     let arr = transactions.filter(t => {
-      const matchesType = type==='all' || t.type===type;
+      const matchesType = type === 'all' || t.type === type;
       if (!matchesType) return false;
       if (!q) return true;
       const inCat = t.category.toLowerCase().includes(q);
       const inNote = t.note ? t.note.toLowerCase().includes(q) : false;
       return inCat || inNote;
     });
-    arr.sort((a,b) => {
-      if (sortBy==='date') return new Date(b.date).getTime() - new Date(a.date).getTime();
-      if (sortBy==='amount') return b.amount - a.amount;
+    arr.sort((a, b) => {
+      if (sortBy === 'date') return new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (sortBy === 'amount') return b.amount - a.amount;
       return a.category.localeCompare(b.category);
     });
     return arr;
@@ -161,11 +175,21 @@ export default function Transactions() {
       map.get(k)!.push(t);
     }
     // newest day first
-    return Array.from(map.entries()).sort(([a],[b]) => (a > b ? -1 : 1));
+    return Array.from(map.entries()).sort(([a], [b]) => (a > b ? -1 : 1));
   }, [filtered]);
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this transaction?')) await deleteTransaction(id);
+  };
+
+  const handleEdit = (t: any) => {
+    setEditingTransaction(t);
+    setShowModal(true);
+  };
+
+  const handleAddStart = () => {
+    setEditingTransaction(null);
+    setShowModal(true);
   };
 
   if (loading) {
@@ -181,7 +205,7 @@ export default function Transactions() {
   }
 
   return (
-    <Layout onAddTransaction={() => setShowAddModal(true)}>
+    <Layout onAddTransaction={handleAddStart}>
       {header && (
         <PageHeader
           title={header.title}
@@ -212,7 +236,7 @@ export default function Transactions() {
                 className="pl-9"
               />
             </div>
-            <Select value={sortBy} onValueChange={(v:any)=>setSortBy(v)}>
+            <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -232,7 +256,7 @@ export default function Transactions() {
           <p className="text-sm text-muted-foreground">
             Showing {filtered.length} of {transactions.length} transactions
           </p>
-          {type!=='all' && (
+          {type !== 'all' && (
             <Button variant="outline" onClick={() => setType('all')}>Clear filter</Button>
           )}
         </div>
@@ -243,10 +267,10 @@ export default function Transactions() {
             {filtered.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-3">
-                  {searchTerm || type!=='all' ? 'No transactions match your filters' : 'No transactions yet'}
+                  {searchTerm || type !== 'all' ? 'No transactions match your filters' : 'No transactions yet'}
                 </p>
-                {!searchTerm && type==='all' && (
-                  <Button onClick={() => setShowAddModal(true)} className="gap-2">
+                {!searchTerm && type === 'all' && (
+                  <Button onClick={handleAddStart} className="gap-2">
                     <Plus className="w-4 h-4" /> Add your first transaction
                   </Button>
                 )}
@@ -260,7 +284,7 @@ export default function Transactions() {
                     </header>
                     <div className="divide-y divide-border">
                       {items.slice(0, visible).map((t: any, idx: number) => (
-                        <TransactionRow key={t.id} t={t} onDelete={handleDelete} />
+                        <TransactionRow key={t.id} t={t} onDelete={handleDelete} onEdit={handleEdit} />
                       ))}
                     </div>
                   </section>
@@ -282,12 +306,16 @@ export default function Transactions() {
 
       {/* Mobile FAB */}
       <div className="fixed right-4 bottom-20 sm:hidden">
-        <Button onClick={() => setShowAddModal(true)} className="rounded-full h-12 w-12 p-0 shadow-lg">
+        <Button onClick={handleAddStart} className="rounded-full h-12 w-12 p-0 shadow-lg">
           <Plus className="w-5 h-5" />
         </Button>
       </div>
 
-      <AddTransactionModal open={showAddModal} onOpenChange={setShowAddModal} />
+      <TransactionModal
+        open={showModal}
+        onOpenChange={setShowModal}
+        transactionToEdit={editingTransaction}
+      />
     </Layout>
   );
 }

@@ -16,6 +16,7 @@ interface TransactionsTabProps {
     filteredTransactions: any[];
     onAddTransaction: () => void;
     onDeleteTransaction: (id: string) => void;
+    onEditTransaction: (t: any) => void;
     filterType: 'all' | 'income' | 'expense';
     setFilterType: (value: 'all' | 'income' | 'expense') => void;
     counts: { all: number; income: number; expense: number };
@@ -52,6 +53,7 @@ export const TransactionsTab = ({
     filteredTransactions,
     onAddTransaction,
     onDeleteTransaction,
+    onEditTransaction,
     filterType,
     setFilterType,
     counts
@@ -108,7 +110,7 @@ export const TransactionsTab = ({
                     ) : (
                         <div>
                             {filteredTransactions.map((t) => (
-                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} />
+                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} onEdit={onEditTransaction} />
                             ))}
                         </div>
                     )}
