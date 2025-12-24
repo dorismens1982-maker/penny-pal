@@ -6,6 +6,7 @@ import { TransactionsProvider } from '@/contexts/TransactionsContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ChristmasGreeting } from '@/components/ChristmasGreeting';
 import AuthPage from '@/pages/AuthPage';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
@@ -40,6 +41,7 @@ function App() {
       <AuthProvider>
         <ThemeProvider>
           <TransactionsProvider>
+            <ChristmasGreeting />
             <Router>
               <Routes>
                 <Route path="/" element={<AuthPage />} />
