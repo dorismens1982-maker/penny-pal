@@ -2,6 +2,7 @@ import React, { useState, memo } from 'react';
 import { ArrowUpRight, ArrowDownLeft, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/currency';
+import { CurrencyCode } from '@/utils/currencyConfig';
 
 interface Transaction {
     id: string;
@@ -16,9 +17,10 @@ interface TransactionRowProps {
     t: Transaction;
     onDelete: (id: string) => void;
     onEdit: (t: Transaction) => void;
+    currency: CurrencyCode;
 }
 
-export const TransactionRow = memo(({ t, onDelete, onEdit }: TransactionRowProps) => {
+export const TransactionRow = memo(({ t, onDelete, onEdit, currency }: TransactionRowProps) => {
     const [expand, setExpand] = useState(false);
     const MAX_NOTE_LENGTH = 50;
     const longNote = t.note && t.note.length > MAX_NOTE_LENGTH;
@@ -34,7 +36,7 @@ export const TransactionRow = memo(({ t, onDelete, onEdit }: TransactionRowProps
                     <div className="flex items-center justify-between gap-2">
                         <p className="font-semibold truncate">{t.category}</p>
                         <p className={`font-poppins font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
-                            {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                            {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount, currency)}
                         </p>
                     </div>
                     <p className="text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()}</p>

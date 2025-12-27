@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TransactionRow } from './TransactionRow';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
+import { CurrencyCode } from '@/utils/currencyConfig';
 
 interface TransactionsTabProps {
     searchTerm: string;
@@ -20,6 +21,7 @@ interface TransactionsTabProps {
     filterType: 'all' | 'income' | 'expense';
     setFilterType: (value: 'all' | 'income' | 'expense') => void;
     counts: { all: number; income: number; expense: number };
+    currency: CurrencyCode;
 }
 
 function TypeSegment({
@@ -56,7 +58,8 @@ export const TransactionsTab = ({
     onEditTransaction,
     filterType,
     setFilterType,
-    counts
+    counts,
+    currency
 }: TransactionsTabProps) => {
     return (
         <div className="space-y-4">
@@ -110,7 +113,7 @@ export const TransactionsTab = ({
                     ) : (
                         <div>
                             {filteredTransactions.map((t) => (
-                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} onEdit={onEditTransaction} />
+                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} onEdit={onEditTransaction} currency={currency} />
                             ))}
                         </div>
                     )}

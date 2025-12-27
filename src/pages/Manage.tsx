@@ -29,6 +29,7 @@ import { TransactionsTab } from '@/components/manage/TransactionsTab';
 import { AnalyticsTab } from '@/components/manage/AnalyticsTab';
 import { SettingsTab } from '@/components/manage/SettingsTab';
 import { useTour } from '@/hooks/useTour';
+import { CurrencyCode, DEFAULT_CURRENCY } from '@/utils/currencyConfig';
 
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -99,6 +100,7 @@ const Manage = () => {
   }, [profile]);
 
   const preferred = profile?.preferred_name || (user?.user_metadata as any)?.preferred_name || '';
+  const userCurrency: CurrencyCode = (profile?.currency as CurrencyCode) || DEFAULT_CURRENCY;
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -362,6 +364,7 @@ const Manage = () => {
                 setTab('transactions');
                 setFilterType('expense');
               }}
+              currency={userCurrency}
             />
           </TabsContent>
 
@@ -378,6 +381,7 @@ const Manage = () => {
               filterType={filterType}
               setFilterType={setFilterType}
               counts={counts}
+              currency={userCurrency}
             />
           </TabsContent>
 
@@ -390,6 +394,7 @@ const Manage = () => {
               kpis={kpis}
               overallTrend={overallTrend}
               topCategories={topCategories}
+              currency={userCurrency}
             />
           </TabsContent>
 

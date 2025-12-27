@@ -9,11 +9,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
 import { usePageHeader } from '@/hooks/usePageHeader';
+import { formatCurrency as formatCurrencyUtil } from '@/utils/currency';
+import { CurrencyCode, DEFAULT_CURRENCY } from '@/utils/currencyConfig';
 
 const MAX_NOTE_LENGTH = 30;
 
 // --- Helpers ---
-const formatCurrency = (amount: number) => `₵${Math.abs(amount).toFixed(2)}`;
 const dateKey = (d: Date) => {
   // Prevent timezone mismatches when comparing with stored YYYY-MM-DD
   const y = d.getFullYear();
@@ -23,7 +24,7 @@ const dateKey = (d: Date) => {
 };
 
 // --- Recent item ---
-const RecentTransactionItem = memo(({ transaction }: { transaction: any }) => {
+const RecentTransactionItem = memo(({ transaction, currency }: { transaction: any; currency: CurrencyCode }) => {
   const truncated =
     transaction.note && transaction.note.length > MAX_NOTE_LENGTH
       ? `${transaction.note.substring(0, MAX_NOTE_LENGTH)}…`
@@ -57,7 +58,7 @@ const RecentTransactionItem = memo(({ transaction }: { transaction: any }) => {
             }`}
         >
           {transaction.type === 'income' ? '+' : '-'}
-          {formatCurrency(transaction.amount)}
+          {formatCurrencyUtil(transaction.amount, currency)}
         </p>
       </div>
     </div>
@@ -77,6 +78,7 @@ const Dashboard = () => {
 
   const preferred =
     profile?.preferred_name || (session?.user?.user_metadata as any)?.preferred_name || '';
+  const userCurrency: CurrencyCode = (profile?.currency as CurrencyCode) || DEFAULT_CURRENCY;
 
   const handleOpenMoneyModal = () => {
     setModalType('income');
@@ -121,7 +123,7 @@ const Dashboard = () => {
           <div>
             <p className="text-sm text-muted-foreground mb-2">My Balance</p>
             <p className={`text-6xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-              {formatCurrency(balance)}
+              {formatCurrencyUtil(balance, userCurrency)}
             </p>
           </div>
 
@@ -132,7 +134,7 @@ const Dashboard = () => {
               onClick={() => goToTransactions('income')}
             >
               <p className="text-xs text-muted-foreground">Total Received</p>
-              <p className="font-semibold text-income">{formatCurrency(totals.income)}</p>
+              <p className="font-semibold text-income">{formatCurrencyUtil(totals.income, userCurrency)}</p>
             </div>
             <div className="w-px bg-border" />
             <div
@@ -140,7 +142,7 @@ const Dashboard = () => {
               onClick={() => goToTransactions('expense')}
             >
               <p className="text-xs text-muted-foreground">Total Spent</p>
-              <p className="font-semibold text-expense">{formatCurrency(totals.expenses)}</p>
+              <p className="font-semibold text-expense">{formatCurrencyUtil(totals.expenses, userCurrency)}</p>
             </div>
           </div>
         </div>
@@ -181,7 +183,7 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-2">
                 {recentTransactions.map((t) => (
-                  <RecentTransactionItem key={t.id} transaction={t} />
+                  <RecentTransactionItem key={t.id} transaction={t} currency={userCurrency} />
                 ))}
               </div>
             </CardContent>
