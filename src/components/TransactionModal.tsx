@@ -234,7 +234,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                         step="0.01"
                         min="0"
                         placeholder="0.00"
-                        className="pl-10"
+                        className="pl-10 text-base md:text-sm"
                         value={formData.amount}
                         onChange={(e) => handleInputChange('amount', e.target.value)}
                         required
@@ -272,7 +272,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                         <Tag className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Create custom category"
-                            className="pl-10"
+                            className="pl-10 text-base md:text-sm"
                             value={formData.category}
                             onChange={(e) => handleInputChange('category', e.target.value)}
                         />
@@ -288,7 +288,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                     <Input
                         id="date"
                         type="date"
-                        className="pl-10"
+                        className="pl-10 text-base md:text-sm"
                         value={formData.date}
                         onChange={(e) => handleInputChange('date', e.target.value)}
                         required
@@ -304,7 +304,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                     <Textarea
                         id="note"
                         placeholder="Add a note..."
-                        className="pl-10 resize-none"
+                        className="pl-10 resize-none text-base md:text-sm"
                         rows={3}
                         value={formData.note}
                         onChange={(e) => handleInputChange('note', e.target.value)}
