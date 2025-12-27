@@ -132,6 +132,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       }
     });
+
+    // TRIGGER WELCOME EMAIL if signup was successful
+    if (!error && email) {
+      // We fire and forget (don't await) so we don't block the UI
+      supabase.functions.invoke('send-welcome-email', {
+        body: {
+          email: email,
+          name: preferredName || null
+        }
+      });
+    }
     return { error };
   };
 
