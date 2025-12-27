@@ -6,6 +6,7 @@ import { ArrowLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
+import { CURRENCIES, DEFAULT_CURRENCY } from '@/utils/currencyConfig';
 
 type ViewState = 'welcome' | 'signup' | 'signin';
 
@@ -23,13 +24,14 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
         preferredName: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        currency: DEFAULT_CURRENCY
     });
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData(prev => ({
             ...prev,
             [e.target.name]: e.target.value
@@ -63,7 +65,7 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
             return;
         }
         setLoading(true);
-        const { error } = await signUp(formData.email, formData.password, formData.preferredName);
+        const { error } = await signUp(formData.email, formData.password, formData.preferredName, formData.currency);
         if (error) {
             toast({
                 variant: "destructive",
@@ -185,6 +187,21 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
                             <Eye className="h-4 w-4" />
                         )}
                     </button>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">Preferred Currency</label>
+                    <select
+                        name="currency"
+                        value={formData.currency}
+                        onChange={handleInputChange}
+                        className="w-full h-11 px-3 rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                        {CURRENCIES.map((curr) => (
+                            <option key={curr.code} value={curr.code}>
+                                {curr.symbol} {curr.name} ({curr.code})
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <Button type="submit" size="lg" className="w-full h-12" disabled={loading}>
                     {loading ? "Creating..." : "Sign Up"}

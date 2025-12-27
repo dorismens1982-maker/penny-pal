@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export type ProfileInput = {
   preferred_name?: string | null;
+  currency?: string;
 };
 
 export const useProfile = () => {
@@ -23,6 +24,7 @@ export const useProfile = () => {
         const payload = {
           user_id: user.id,
           preferred_name: input.preferred_name ?? null,
+          currency: input.currency ?? 'GHS',
         };
 
         const sb: any = supabase as any;

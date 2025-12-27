@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown, ShoppingBag } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrencyIntl } from '@/utils/currency';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
+import { CurrencyCode } from '@/utils/currencyConfig';
 
 interface AnalyticsTabProps {
     dateRange: DateRange;
@@ -14,6 +15,7 @@ interface AnalyticsTabProps {
     kpis: { income: number; expenses: number; net: number; monthsCount: number };
     overallTrend: any;
     topCategories: { category: string; amount: number; percentage: number }[];
+    currency: CurrencyCode;
 }
 
 export const AnalyticsTab = ({
@@ -23,7 +25,8 @@ export const AnalyticsTab = ({
     setSelectedPreset,
     kpis,
     overallTrend,
-    topCategories
+    topCategories,
+    currency
 }: AnalyticsTabProps) => {
     return (
         <div className="space-y-6">
@@ -54,7 +57,7 @@ export const AnalyticsTab = ({
                     <div>
                         <p className="text-xs text-muted-foreground">Total Balance (selected range)</p>
                         <p className={`text-3xl font-poppins font-bold ${kpis.net >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            {formatCurrencyIntl.format(kpis.net)}
+                            {formatCurrencyIntl(kpis.net, currency)}
                         </p>
                     </div>
                     {overallTrend && overallTrend.balance && (
@@ -90,7 +93,7 @@ export const AnalyticsTab = ({
                                         <span className="text-sm font-medium">{c.category}</span>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-bold">{formatCurrencyIntl.format(c.amount)}</p>
+                                        <p className="text-sm font-bold">{formatCurrencyIntl(c.amount, currency)}</p>
                                         <p className="text-xs text-muted-foreground">{c.percentage.toFixed(1)}%</p>
                                     </div>
                                 </div>

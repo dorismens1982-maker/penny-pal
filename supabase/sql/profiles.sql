@@ -41,10 +41,11 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (user_id, preferred_name)
+  insert into public.profiles (user_id, preferred_name, currency)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'preferred_name', null)
+    coalesce(new.raw_user_meta_data->>'preferred_name', null),
+    coalesce(new.raw_user_meta_data->>'currency', 'GHS')
   )
   on conflict (user_id) do nothing;
   return new;

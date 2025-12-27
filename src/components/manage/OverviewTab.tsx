@@ -7,6 +7,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { TransactionRow } from './TransactionRow';
 import { formatCurrency } from '@/utils/currency';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
+import { CurrencyCode } from '@/utils/currencyConfig';
 
 interface OverviewTabProps {
     totals: { income: number; expenses: number };
@@ -18,6 +19,7 @@ interface OverviewTabProps {
     onViewIncome?: () => void;
     onViewExpenses?: () => void;
     onEditTransaction: (t: any) => void;
+    currency: CurrencyCode;
 }
 
 export const OverviewTab = ({
@@ -30,6 +32,7 @@ export const OverviewTab = ({
     onViewIncome,
     onViewExpenses,
     onEditTransaction,
+    currency,
 }: OverviewTabProps) => {
     return (
         <div className="space-y-4">
@@ -45,7 +48,7 @@ export const OverviewTab = ({
                         <div className="overflow-hidden">
                             <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground truncate">Income</p>
                             <p className="text-sm md:text-xl font-poppins font-bold text-income truncate">
-                                {formatCurrency(totals.income)}
+                                {formatCurrency(totals.income, currency)}
                             </p>
                         </div>
                     </CardContent>
@@ -61,7 +64,7 @@ export const OverviewTab = ({
                         <div className="overflow-hidden">
                             <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground truncate">Expenses</p>
                             <p className="text-sm md:text-xl font-poppins font-bold text-expense truncate">
-                                {formatCurrency(totals.expenses)}
+                                {formatCurrency(totals.expenses, currency)}
                             </p>
                         </div>
                     </CardContent>
@@ -74,7 +77,7 @@ export const OverviewTab = ({
                         <div>
                             <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Net Balance</p>
                             <p className={`text-base md:text-xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-                                {formatCurrency(balance)}
+                                {formatCurrency(balance, currency)}
                             </p>
                         </div>
                     </CardContent>
@@ -186,7 +189,7 @@ export const OverviewTab = ({
                     ) : (
                         <div>
                             {transactions.slice(0, 5).map((t) => (
-                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} onEdit={onEditTransaction} />
+                                <TransactionRow key={t.id} t={t} onDelete={onDeleteTransaction} onEdit={onEditTransaction} currency={currency} />
                             ))}
                         </div>
                     )}

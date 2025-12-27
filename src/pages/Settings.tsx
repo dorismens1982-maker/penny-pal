@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useProfile } from '@/hooks/useProfile';
 import { PageHeader } from '@/components/PageHeader';
 import { usePageHeader } from '@/hooks/usePageHeader';
+import { CURRENCIES } from '@/utils/currencyConfig';
 const Settings = () => {
   const {
     user,
@@ -28,12 +29,13 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const { profile, updateProfile, updating } = useProfile();
-  const [profileForm, setProfileForm] = useState({ preferred_name: '' });
+  const [profileForm, setProfileForm] = useState({ preferred_name: '', currency: 'GHS' });
   const { header } = usePageHeader('settings');
 
   useEffect(() => {
     setProfileForm({
       preferred_name: profile?.preferred_name || '',
+      currency: profile?.currency || 'GHS',
     });
   }, [profile]);
   const handleSignOut = async () => {
@@ -95,6 +97,7 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     await updateProfile({
       preferred_name: profileForm.preferred_name || null,
+      currency: profileForm.currency,
     });
   };
   return <Layout>
@@ -135,6 +138,20 @@ const Settings = () => {
                 onChange={(e) => setProfileForm((p) => ({ ...p, preferred_name: e.target.value }))}
                 placeholder="Preferred name"
               />
+            </div>
+            <div>
+              <Label className="text-sm text-muted-foreground">Preferred Currency</Label>
+              <select
+                value={profileForm.currency}
+                onChange={(e) => setProfileForm((p) => ({ ...p, currency: e.target.value }))}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mt-2"
+              >
+                {CURRENCIES.map((curr) => (
+                  <option key={curr.code} value={curr.code}>
+                    {curr.symbol} {curr.name} ({curr.code})
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="flex justify-end">

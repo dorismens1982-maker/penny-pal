@@ -6,6 +6,7 @@ export type Profile = {
   id?: string;
   user_id: string;
   preferred_name: string | null;
+  currency?: string;
   created_at?: string | null;
 } | null;
 
@@ -19,6 +20,7 @@ interface AuthContextType {
     email: string,
     password: string,
     preferredName?: string,
+    currency?: string,
   ) => Promise<{ error: any }>;
   signIn: (
     email: string,
@@ -54,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const sb: any = supabase as any;
       const { data, error } = await sb
         .from('profiles')
-        .select('id, user_id, preferred_name, created_at')
+        .select('id, user_id, preferred_name, currency, created_at')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -119,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, preferredName?: string) => {
+  const signUp = async (email: string, password: string, preferredName?: string, currency?: string) => {
     const redirectUrl = `${window.location.origin}/`;
 
     const { error } = await supabase.auth.signUp({
@@ -129,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: redirectUrl,
         data: {
           preferred_name: preferredName ?? null,
+          currency: currency ?? 'GHS',
         },
       }
     });
