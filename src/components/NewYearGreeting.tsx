@@ -40,6 +40,12 @@ export const NewYearGreeting = () => {
 
         checkGreetingEligibility();
 
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                checkGreetingEligibility();
+            }
+        };
+
         const handleResize = () => {
             setWindowSize({
                 width: window.innerWidth,
@@ -47,8 +53,13 @@ export const NewYearGreeting = () => {
             });
         };
 
+        document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     const handleClose = () => {
