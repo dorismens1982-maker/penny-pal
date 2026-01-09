@@ -111,7 +111,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
         income: ['Salary', 'Freelance', 'Business', 'Investment', 'Gift', 'Bonus', 'Other Income'],
         expense: ['Food & Dining 🍽️', 'Transportation 🚗', 'Shopping 🛒', 'Entertainment 🎬',
             'Bills & Utilities ⚡', 'Healthcare 🏥', 'Education 📚', 'Travel ✈️',
-            'Groceries 🛍️', 'Rent 🏠', 'Other Expense']
+            'Groceries 🛍️', 'Rent 🏠', 'Gifting 🎁', 'Other Expense']
     };
 
     const loanIncomeCategories = ['Loan Received 💰', 'Loan Repayment Received 💵'];
