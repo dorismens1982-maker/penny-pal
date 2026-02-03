@@ -1,12 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
+import { useNavigate } from 'react-router-dom';
 
 interface HeroSectionProps {
     onGetStarted: () => void;
 }
 
 export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
+    const navigate = useNavigate();
+
     return (
         <section className="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
             {/* Background Elements */}
@@ -45,6 +48,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                         variant="outline"
                         size="lg"
                         className="w-full sm:w-auto min-w-[200px] h-14 text-lg"
+                        onClick={() => navigate('/guide')}
                     >
                         Learn More
                     </Button>
