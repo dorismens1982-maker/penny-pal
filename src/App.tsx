@@ -17,6 +17,7 @@ import Insights from '@/pages/Insights';
 import InsightsPost from '@/pages/InsightsPost';
 import Settings from '@/pages/Settings';
 import { BlogAdmin } from '@/pages/BlogAdmin';
+import Guide from '@/pages/Guide';
 
 // Super Admin Imports
 import { SuperAdminLayout } from '@/layouts/SuperAdminLayout';
@@ -45,6 +46,7 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<AuthPage />} />
+                <Route path="/guide" element={<Guide />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
