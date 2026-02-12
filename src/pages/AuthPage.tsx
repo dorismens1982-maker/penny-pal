@@ -48,7 +48,10 @@ const AuthPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <HeroSection onGetStarted={scrollToAuth} />
+      <HeroSection
+        onGetStarted={scrollToAuth}
+        videoSrc="https://res.cloudinary.com/dopscbnty/video/upload/v1770858068/Create_a_smooth_202602112137_o9z9x_qwm381.mp4"
+      />
 
       {/* Features Section */}
       <FeaturesSection />
