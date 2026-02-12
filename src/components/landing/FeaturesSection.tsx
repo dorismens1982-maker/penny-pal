@@ -40,14 +40,7 @@ export const FeaturesSection = () => {
     return (
         <section className="py-20 md:py-32 bg-muted/30">
             <div className="container px-4 md:px-6">
-                <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
-                        Everything you need to master your money
-                    </h2>
-                    <p className="text-lg text-muted-foreground">
-                        Simple enough for beginners, powerful enough for pros.
-                    </p>
-                </div>
+                {/* Features Grid */}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {features.map((feature, index) => (

@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 interface HeroSectionProps {
     onGetStarted: () => void;
+    videoSrc?: string;
+    posterSrc?: string;
 }
 
-export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
+export const HeroSection = ({ onGetStarted, videoSrc, posterSrc }: HeroSectionProps) => {
     const navigate = useNavigate();
 
     return (
@@ -54,18 +56,34 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                     </Button>
                 </div>
 
-                {/* Hero Image */}
+                {/* Hero Image or Video */}
                 <div className="relative w-full max-w-5xl mx-auto mt-12 perspective-1000">
                     <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-x-6 hover:rotate-x-0 transition-transform duration-700 ease-out group">
-                        <img
-                            src="/hero-image.png"
-                            alt="Happy Ghanaian using Penny-Pal"
-                            className="w-full h-auto object-cover max-h-[500px]"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-                        <div className="absolute bottom-4 left-4 right-4 text-white">
-                            <p className="font-medium text-lg drop-shadow-md">Empowering Ghanaians to build wealth 🇬🇭</p>
-                        </div>
+                        {videoSrc ? (
+                            <div className="relative w-full h-auto max-h-[500px] bg-black">
+                                <video
+                                    src={videoSrc}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    poster={posterSrc}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none" />
+                            </div>
+                        ) : (
+                            <>
+                                <img
+                                    src="/hero-image.png"
+                                    alt="Happy Ghanaian using Penny-Pal"
+                                    className="w-full h-auto object-cover max-h-[500px]"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+                            </>
+                        )}
+
+                        {/* Overlay text removed as requested */}
                     </div>
                 </div>
             </div>
