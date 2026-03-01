@@ -90,7 +90,7 @@ export const useAnalytics = () => {
             const activity = users.slice(0, 5).map((user: any) => ({
                 id: user.id + '_signup',
                 type: 'user_signup' as const,
-                description: `New user joined: ${user.preferred_name || 'Unnamed User'}`,
+                description: `New user joined: ${user.user_metadata?.preferred_name || user.email?.split('@')[0] || 'Unnamed User'}`,
                 time: user.created_at,
             }));
 
