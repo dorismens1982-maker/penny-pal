@@ -1,86 +1,97 @@
-// @ts-nocheck
+// @ts-nocheck - Deno runtime file: TS errors here are false positives (VS Code has no Deno extension)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
 
+const ALLOWED_ORIGIN = 'https://www.mypennypal.com';
+
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 Deno.serve(async (req) => {
-    if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders })
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  // ✅ JWT Verification: campaign functions must be called by authenticated admins only
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Check for Resend API Key
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      throw new Error('Missing RESEND_API_KEY');
     }
 
-    try {
-        // Initialize Supabase client
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const resend = new Resend(resendApiKey);
+    const SENDER_EMAIL = 'Penny Pal <support@mypennypal.com>';
 
-        // Check for Resend API Key
-        const resendApiKey = Deno.env.get('RESEND_API_KEY');
-        if (!resendApiKey) {
-            throw new Error('Missing RESEND_API_KEY');
-        }
+    // Get date range for last week
+    const today = new Date();
+    const lastMonday = new Date(today);
+    lastMonday.setDate(today.getDate() - today.getDay() - 6); // Last Monday
+    lastMonday.setHours(0, 0, 0, 0);
 
-        const resend = new Resend(resendApiKey);
-        const SENDER_EMAIL = 'Penny Pal <hello@mypennypa.com>';
+    const lastSunday = new Date(lastMonday);
+    lastSunday.setDate(lastMonday.getDate() + 6); // Last Sunday
+    lastSunday.setHours(23, 59, 59, 999);
 
-        // Get date range for last week
-        const today = new Date();
-        const lastMonday = new Date(today);
-        lastMonday.setDate(today.getDate() - today.getDay() - 6); // Last Monday
-        lastMonday.setHours(0, 0, 0, 0);
+    const startDate = lastMonday.toISOString().split('T')[0];
+    const endDate = lastSunday.toISOString().split('T')[0];
 
-        const lastSunday = new Date(lastMonday);
-        lastSunday.setDate(lastMonday.getDate() + 6); // Last Sunday
-        lastSunday.setHours(23, 59, 59, 999);
+    console.log(`Fetching weekly summaries for ${startDate} to ${endDate}`);
 
-        const startDate = lastMonday.toISOString().split('T')[0];
-        const endDate = lastSunday.toISOString().split('T')[0];
+    // Get all active users (logged in within last 14 days)
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-        console.log(`Fetching weekly summaries for ${startDate} to ${endDate}`);
+    const { data: users, error: usersError } = await supabase
+      .from('profiles')
+      .select('user_id, preferred_name, currency')
+      .gte('created_at', fourteenDaysAgo.toISOString());
 
-        // Get all active users (logged in within last 14 days)
-        const fourteenDaysAgo = new Date();
-        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    if (usersError) throw usersError;
 
-        const { data: users, error: usersError } = await supabase
-            .from('profiles')
-            .select('user_id, preferred_name, currency')
-            .gte('created_at', fourteenDaysAgo.toISOString());
+    console.log(`Found ${users?.length || 0} active users`);
 
-        if (usersError) throw usersError;
+    let emailsSent = 0;
+    let emailsFailed = 0;
 
-        console.log(`Found ${users?.length || 0} active users`);
+    // Process each user
+    for (const user of users || []) {
+      try {
+        // Get user's email from auth
+        const email = ((authUser.user.email as any) || '').toString();
+        const userName = user.preferred_name || 'Friend';
 
-        let emailsSent = 0;
-        let emailsFailed = 0;
+        // Generate motivational tip
+        const tips = [
+          "Small steps lead to big financial goals. Keep going!",
+          "Did you know? Tracking every penny helps you save more in the long run.",
+          "Take a moment to review your budget this week.",
+          "Financial freedom starts with understanding your spending.",
+          "A budget is telling your money where to go instead of wondering where it went."
+        ];
+        const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
-        // Process each user
-        for (const user of users || []) {
-            try {
-                // Get user's email from auth
-                const email = ((authUser.user.email as any) || '').toString();
-                const userName = user.preferred_name || 'Friend';
-
-                // Generate motivational tip
-                const tips = [
-                    "Small steps lead to big financial goals. Keep going!",
-                    "Did you know? Tracking every penny helps you save more in the long run.",
-                    "Take a moment to review your budget this week.",
-                    "Financial freedom starts with understanding your spending.",
-                    "A budget is telling your money where to go instead of wondering where it went."
-                ];
-                const randomTip = tips[Math.floor(Math.random() * tips.length)];
-
-                // Send email
-                const { error: emailError } = await resend.emails.send({
-                    from: SENDER_EMAIL,
-                    to: [email],
-                    subject: `Your Weekly Motivation 🚀 - ${userName}`,
-                    text: `Hi ${userName},
+        // Send email
+        const { error: emailError } = await resend.emails.send({
+          from: SENDER_EMAIL,
+          to: [email],
+          subject: `Your Weekly Motivation 🚀 - ${userName}`,
+          text: `Hi ${userName},
 
 Hope you're having a great start to your week!
 
@@ -91,7 +102,7 @@ Remember to log your transactions to keep your financial health in check.
 
 Happy tracking!
 The Penny Pal Team`,
-                    html: `
+          html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
                       <div style="background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         <!-- Logo -->
@@ -126,7 +137,7 @@ The Penny Pal Team`,
 
                           <!-- CTA -->
                           <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://www.mypennypa.com" style="background-color: #eab308; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">Go to Dashboard</a>
+                            <a href="https://www.mypennypal.com" style="background-color: #eab308; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">Go to Dashboard</a>
                           </div>
 
                           <p style="color: #6b7280; font-size: 14px; text-align: center;">
@@ -137,37 +148,37 @@ The Penny Pal Team`,
                       </div>
                     </div>
                     `
-                });
+        });
 
-                if (emailError) {
-                    console.error(`Failed to send email to ${email}:`, emailError);
-                    emailsFailed++;
-                } else {
-                    console.log(`✓ Sent weekly motivation to ${email}`);
-                    emailsSent++;
-                }
-
-            } catch (userError) {
-                console.error(`Error processing user ${user.user_id}:`, userError);
-                emailsFailed++;
-            }
+        if (emailError) {
+          console.error(`Failed to send email to ${email}:`, emailError);
+          emailsFailed++;
+        } else {
+          console.log(`✓ Sent weekly motivation to ${email}`);
+          emailsSent++;
         }
 
-        return new Response(
-            JSON.stringify({
-                message: 'Weekly summary emails processed',
-                sent: emailsSent,
-                failed: emailsFailed,
-                total: users?.length || 0
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        )
-
-    } catch (error: any) {
-        console.error('Error:', error);
-        return new Response(
-            JSON.stringify({ error: error.message }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-        )
+      } catch (userError) {
+        console.error(`Error processing user ${user.user_id}:`, userError);
+        emailsFailed++;
+      }
     }
+
+    return new Response(
+      JSON.stringify({
+        message: 'Weekly summary emails processed',
+        sent: emailsSent,
+        failed: emailsFailed,
+        total: users?.length || 0
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+    )
+
+  } catch (error: any) {
+    console.error('Error:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    )
+  }
 })

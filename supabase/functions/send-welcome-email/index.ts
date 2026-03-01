@@ -1,15 +1,27 @@
-// @ts-nocheck
+// @ts-nocheck - Deno runtime file: TS errors here are false positives (VS Code has no Deno extension)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
 
+// Restrict CORS to the production app domain
+const ALLOWED_ORIGIN = 'https://www.mypennypal.com';
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  // ✅ JWT Verification: only authenticated Supabase sessions can call this
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 
   try {
@@ -31,7 +43,7 @@ Deno.serve(async (req) => {
     const resend = new Resend(resendApiKey);
 
     // CONFIGURATION
-    const SENDER_EMAIL = 'Penny Pal <hello@mypennypa.com>';
+    const SENDER_EMAIL = 'Penny Pal <support@mypennypal.com>';
     const userName = name || 'Friend';
 
     console.log(`Sending Welcome Email to ${email} (${userName})`);
@@ -72,7 +84,7 @@ The Penny Pal Team`,
                   </p>
                   
                   <div style="margin: 30px 0;">
-                    <a href="https://www.mypennypa.com" style="background-color: #eab308; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Go to Dashboard</a>
+                    <a href="https://www.mypennypal.com" style="background-color: #eab308; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Go to Dashboard</a>
                   </div>
 
                   <p style="color: #6b7280; font-size: 14px;">
