@@ -7,7 +7,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
-
 import AuthPage from '@/pages/AuthPage';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
@@ -18,6 +17,11 @@ import InsightsPost from '@/pages/InsightsPost';
 import Settings from '@/pages/Settings';
 import { BlogAdmin } from '@/pages/BlogAdmin';
 import Guide from '@/pages/Guide';
+import PublicBlog from '@/pages/PublicBlog';
+import AboutPage from '@/pages/AboutPage';
+import TermsOfService from '@/pages/TermsOfService';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import CookiePolicy from '@/pages/CookiePolicy';
 
 // Super Admin Imports
 import { SuperAdminLayout } from '@/layouts/SuperAdminLayout';
@@ -47,6 +51,11 @@ function App() {
               <Routes>
                 <Route path="/" element={<AuthPage />} />
                 <Route path="/guide" element={<Guide />} />
+                <Route path="/blog" element={<PublicBlog />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 

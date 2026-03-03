@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { startOfMonth, subMonths, format, parseISO } from 'date-fns';
+import { subMonths, format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 
 export interface DashboardStats {
     totalUsers: number;
-    activeUsers: number; // For now, this might just be total users or users with recent login if tracked
+    activeUsers: number;
     totalPosts: number;
     userGrowth: { date: string; count: number }[];
     recentActivity: {
@@ -39,7 +39,6 @@ export const useAnalytics = () => {
                 users = data.users;
             } catch (e) {
                 console.warn('Edge function failed, falling back to profiles:', e);
-                // Fallback to profiles table
                 const { data: profileData } = await (supabase as any)
                     .from('profiles')
                     .select('id, created_at, preferred_name')
@@ -47,12 +46,21 @@ export const useAnalytics = () => {
                 users = profileData || [];
             }
 
-            // 2. Fetch Blog Posts
-            const { count: postsCount, error: postsError } = await (supabase as any)
-                .from('blog_posts')
-                .select('*', { count: 'exact', head: true });
+            // 2. Fetch Blog Posts count (independently, so failure doesn't kill other stats)
+            let postsCount = 0;
+            try {
+                const { count, error: postsError } = await (supabase as any)
+                    .from('blog_posts')
+                    .select('*', { count: 'exact', head: true });
 
-            if (postsError) throw postsError;
+                if (!postsError) {
+                    postsCount = count || 0;
+                } else {
+                    console.warn('Blog posts fetch failed:', postsError.message);
+                }
+            } catch (e) {
+                console.warn('Blog posts fetch exception:', e);
+            }
 
             // 3. Process User Growth (Last 6 months)
             const growthMap = new Map<string, number>();
@@ -66,27 +74,34 @@ export const useAnalytics = () => {
             }
 
             users.forEach((user: any) => {
-                const date = parseISO(user.created_at);
-                const key = format(date, 'MMM yyyy');
-                if (growthMap.has(key)) {
-                    growthMap.set(key, (growthMap.get(key) || 0) + 1);
-                }
+                try {
+                    const date = parseISO(user.created_at);
+                    const key = format(date, 'MMM yyyy');
+                    if (growthMap.has(key)) {
+                        growthMap.set(key, (growthMap.get(key) || 0) + 1);
+                    }
+                } catch (_) { /* skip malformed dates */ }
             });
 
-            // Convert to cumulative or monthly array? 
-            // Let's do cumulative growth for the chart
             const growthArray: { date: string; count: number }[] = [];
-            let cumulative = 0;
-            // Note: This logic assumes we only have 6 months of data or we are only showing growth IN those months.
-            // For true cumulative, we'd need total before the window. 
-            // For simplicity, let's show "New Users per Month" which is usually more interesting for activity.
-
             Array.from(growthMap.entries()).forEach(([date, count]) => {
                 growthArray.push({ date, count });
             });
 
-            // 4. Activity Feed (Mix of new users)
-            // Taking top 5 most recent users
+            // 4. Calculate real growth rate: (this month vs last month) as a %
+            const thisMonthKey = format(today, 'MMM yyyy');
+            const lastMonthKey = format(subMonths(today, 1), 'MMM yyyy');
+            const thisMonthCount = growthMap.get(thisMonthKey) || 0;
+            const lastMonthCount = growthMap.get(lastMonthKey) || 0;
+
+            let growthRate = 0;
+            if (lastMonthCount > 0) {
+                growthRate = Math.round(((thisMonthCount - lastMonthCount) / lastMonthCount) * 100);
+            } else if (thisMonthCount > 0) {
+                growthRate = 100; // First users this month with none last month = 100% growth
+            }
+
+            // 5. Activity Feed — top 5 most recent signups
             const activity = users.slice(0, 5).map((user: any) => ({
                 id: user.id + '_signup',
                 type: 'user_signup' as const,
@@ -96,10 +111,11 @@ export const useAnalytics = () => {
 
             setStats({
                 totalUsers: users.length,
-                activeUsers: users.length, // Placeholder logic
-                totalPosts: postsCount || 0,
+                activeUsers: users.length, // Placeholder: Real active tracking would require last_sign_in_at data
+                totalPosts: postsCount,
                 userGrowth: growthArray,
                 recentActivity: activity,
+                growthRate,
             });
 
         } catch (error) {

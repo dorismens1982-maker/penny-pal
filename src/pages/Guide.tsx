@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
 import { Input } from '@/components/ui/input';
+import { LandingFooter } from '@/components/landing/LandingFooter';
 
 const Guide = () => {
     const navigate = useNavigate();
@@ -494,12 +495,7 @@ const Guide = () => {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="py-6 border-t border-border bg-background">
-                <div className="container px-4 text-center text-xs md:text-sm text-muted-foreground">
-                    <p>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
-                </div>
-            </footer>
+            <LandingFooter />
         </div>
     );
 };

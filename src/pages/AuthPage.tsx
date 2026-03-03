@@ -3,8 +3,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
+import { PartnersSection } from '@/components/landing/PartnersSection';
 import { AuthForms } from '@/components/landing/AuthForms';
-import { FloatingCedis } from '@/components/landing/FloatingCedis';
+import { LandingFooter } from '@/components/landing/LandingFooter';
 import { APP_NAME } from '@/config/app';
 
 const AuthPage = () => {
@@ -27,8 +28,6 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
-      <FloatingCedis />
-
       {/* Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -55,6 +54,9 @@ const AuthPage = () => {
 
       {/* Features Section */}
       <FeaturesSection />
+
+      {/* Partners / B2B Section */}
+      <PartnersSection />
 
       {/* Auth Section */}
       <section ref={authScrollRef} className="py-20 bg-muted/50 relative overflow-hidden">
@@ -110,12 +112,7 @@ const AuthPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-border bg-background">
-        <div className="container px-4 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { getBlogPost } from '@/data/blogPosts';
 import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePageHeader } from '@/hooks/usePageHeader';
+import { SEO } from '@/components/SEO';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -133,6 +134,12 @@ const BlogPost = () => {
 
   return (
     <Layout>
+      <SEO
+        title={post.title}
+        description={post.excerpt}
+        image={heroImage}
+        type="article"
+      />
       <div className="min-h-screen bg-background">
         {/* ✅ Hero Section */}
         <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden">
