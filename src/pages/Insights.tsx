@@ -7,13 +7,16 @@ import { Input } from '@/components/ui/input';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 import type { BlogPost } from '@/types/blog';
 import { Clock, Calendar, ArrowRight, Search, TrendingUp, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
+import { useAuth } from '@/contexts/AuthContext';
+import { SEO } from '@/components/SEO';
 
 const Insights = () => {
   const navigate = useNavigate();
   const { posts, loading } = useBlogPosts();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
@@ -55,6 +58,10 @@ const Insights = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Insights | Penny Pal — Financial Tips & Money Guides"
+        description="Explore expert financial tips, saving strategies, investment guides and money management articles from the Penny Pal blog."
+      />
       <div className="min-h-screen relative bg-slate-50 pb-20 md:-mt-[60px] md:pt-[60px]">
         {/* Animated Gradient Background */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden h-screen w-screen">
@@ -101,7 +108,26 @@ const Insights = () => {
 
         <div className="container max-w-7xl mx-auto px-4 mt-6 space-y-8 relative z-10">
 
+          {/* Guest CTA bar */}
+          {!user && (
+            <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-primary/10 to-income/10 border border-primary/20 rounded-2xl px-5 py-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">💡</span>
+                <p className="text-sm font-medium text-slate-700">
+                  <span className="hidden sm:inline">You're reading for free. </span>Sign up to track your finances too!
+                </p>
+              </div>
+              <Link
+                to="/"
+                className="shrink-0 text-sm font-bold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+
           {/* Visual Header */}
+
           <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted shadow-sm group">
             <img
               src={getCloudinaryUrl('vibe_insights.png')}

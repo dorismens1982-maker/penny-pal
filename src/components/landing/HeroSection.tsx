@@ -70,7 +70,7 @@ export const HeroSection = ({ onGetStarted, videoSrc, posterSrc }: HeroSectionPr
                 </div>
 
                 <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-8">
-                    {APP_NAME} is Ghana's personal finance platform — built for everyday users who want control over their money,
+                    {APP_NAME} is Ghana's personal finance platform built for everyday users who want control over their money,
                     and for fintech companies ready to embed best-in-class budgeting tools into their products.
                 </p>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdminEmail } from '@/utils/admin';
 import {
@@ -41,6 +41,46 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
     ...(isAdmin ? [{ path: '/superadmin', icon: LayoutDashboard, label: 'Admin', isActive: location.pathname.startsWith('/superadmin') }] : []),
   ];
 
+  // ── Guest (public) layout ──────────────────────────────────────────────
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Public minimal header */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b border-border">
+          <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
+            {/* Logo */}
+            <Link to="/insights" className="flex items-center gap-3 group">
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                  <path d="M4 12h16" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M4 7h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M4 17h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-sm font-semibold">{APP_NAME}</span>
+                <span className="text-xs text-muted-foreground -mt-0.5">Insights. Act. Grow.</span>
+              </div>
+            </Link>
+            {/* Auth buttons */}
+            <div className="flex items-center gap-2">
+              <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-md hover:bg-muted/50 transition-colors">
+                Sign In
+              </Link>
+              <Link to="/" className="text-sm font-semibold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm">
+                Sign Up Free
+              </Link>
+            </div>
+          </div>
+        </header>
+        <main className="pt-[60px] flex-1">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
+  // ── Authenticated layout ─────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ===================== DESKTOP HEADER ===================== */}
@@ -109,26 +149,28 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
         </div>
       </header>
 
-      {/* ===================== MOBILE BOTTOM NAV ===================== */}
-      <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50" id="tour-nav-mobile">
-        <div className={`grid ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'} items-center justify-between px-1 py-2`}>
-          {mobileNavItems.map(({ path, icon: Icon, label, isActive }) => {
-            return (
-              <Link
-                key={label}
-                to={path}
-                className={`flex flex-col items-center justify-center px-1 py-2 rounded-lg transition-colors ${isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-              >
-                <Icon className={`w-5 h-5 mb-1 ${isActive ? 'fill-current' : ''}`} strokeWidth={isActive ? 2.5 : 2} />
-                <span className="text-[10px] font-medium">{label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      {/* ===================== MOBILE BOTTOM NAV (authenticated only) ===================== */}
+      {user && (
+        <nav className="fixed md:hidden bottom-0 left-0 right-0 bg-card border-t border-border safe-area-bottom z-50" id="tour-nav-mobile">
+          <div className={`grid ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'} items-center justify-between px-1 py-2`}>
+            {mobileNavItems.map(({ path, icon: Icon, label, isActive }) => {
+              return (
+                <Link
+                  key={label}
+                  to={path}
+                  className={`flex flex-col items-center justify-center px-1 py-2 rounded-lg transition-colors ${isActive
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                >
+                  <Icon className={`w-5 h-5 mb-1 ${isActive ? 'fill-current' : ''}`} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-[10px] font-medium">{label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
 
       {/* ===================== MAIN CONTENT ===================== */}
       {/* CHANGED: remove mobile top padding; keep only md+ padding to sit under fixed header */}

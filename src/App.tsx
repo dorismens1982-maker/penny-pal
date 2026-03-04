@@ -76,22 +76,12 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/insights"
-                  element={
-                    <ProtectedRoute>
-                      <Insights />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/insights/:slug"
-                  element={
-                    <ProtectedRoute>
-                      <InsightsPost />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* /blog → /insights redirect for SEO */}
+                <Route path="/blog" element={<Navigate to="/insights" replace />} />
+                <Route path="/blog/:slug" element={<Navigate to="/insights" replace />} />
+
+                <Route path="/insights" element={<Insights />} />
+                <Route path="/insights/:slug" element={<InsightsPost />} />
 
                 {/* Super Admin Routes */}
                 <Route
