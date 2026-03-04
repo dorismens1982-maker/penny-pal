@@ -1,11 +1,13 @@
-// @ts-nocheck
+// @ts-nocheck - Deno runtime file: TS errors here are false positives (VS Code has no Deno extension)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'npm:resend@2.0.0'
 
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const ALLOWED_ORIGINS = ['https://mypennypal.com', 'https://www.mypennypal.com'];
+const getCorsHeaders = (req) => {
+    const origin = req.headers.get('Origin') || '';
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+    return { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' };
+};
 
 interface EmailResponse {
     success: number;
@@ -15,7 +17,16 @@ interface EmailResponse {
 
 Deno.serve(async (req) => {
     if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders })
+        return new Response('ok', { headers: getCorsHeaders(req) })
+    }
+    const corsHeaders = getCorsHeaders(req);
+    // ✅ JWT Verification
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
     }
 
     try {
@@ -41,7 +52,7 @@ Deno.serve(async (req) => {
         // CONFIGURATION
         // TODO: Replace with your custom domain email after verifying it in Resend
         // Example: 'Penny Pal <hello@penny-pal.com>'
-        const SENDER_EMAIL = 'Penny Pal <hello@mypennypa.com>';
+        const SENDER_EMAIL = 'Penny Pal <support@mypennypal.com>';
         const CATCH_UP_DATE = '2025-12-25T09:00:00Z'; // Users who signed up after this time
 
         // 1. Fetch users

@@ -4,6 +4,7 @@ import { Users, FileText, Activity, TrendingUp } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
+import { PartnershipBanner } from '@/components/partnerships/PartnershipBanner';
 
 const StatCard = ({ title, value, change, icon: Icon, trend }: any) => (
     <Card>
@@ -66,6 +67,11 @@ const SuperAdminDashboard = () => {
                 {statCards.map((stat, i) => (
                     <StatCard key={i} {...stat} />
                 ))}
+            </div>
+
+            {/* Partnership Pitch Area */}
+            <div className="w-full">
+                <PartnershipBanner theme="dark" />
             </div>
 
             {/* Analytics Charts */}

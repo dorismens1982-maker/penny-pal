@@ -41,6 +41,14 @@ export const useAuth = () => {
   return context;
 };
 
+// Password strength validator
+const validatePassword = (password: string): string | null => {
+  if (password.length < 8) return 'Password must be at least 8 characters.';
+  if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.';
+  if (!/[0-9]/.test(password)) return 'Password must contain at least one number.';
+  return null; // valid
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -122,6 +130,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, preferredName?: string, currency?: string) => {
+    // ✅ Enforce password strength before calling Supabase
+    const passwordError = validatePassword(password);
+    if (passwordError) return { error: { message: passwordError } };
+
     const redirectUrl = `${window.location.origin}/`;
 
     const { error } = await supabase.auth.signUp({
@@ -183,6 +195,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updatePassword = async (newPassword: string) => {
+    // ✅ Enforce password strength before calling Supabase
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) return { error: { message: passwordError } };
+
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });

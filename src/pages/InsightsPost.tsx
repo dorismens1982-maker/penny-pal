@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { BlogInteractions } from '@/components/blog/BlogInteractions';
 import { CommentsSection } from '@/components/blog/CommentsSection';
+import { SEO } from '@/components/SEO';
 
 const InsightsPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -127,6 +128,13 @@ const InsightsPost = () => {
           <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse" />
           <div className="absolute top-[10%] left-[-10%] w-[400px] h-[400px] bg-income/10 rounded-full blur-[80px]" />
         </div>
+
+        <SEO
+          title={post.title}
+          description={post.excerpt}
+          image={post.image_url || undefined}
+          type="article"
+        />
 
         <div className="relative z-10 container max-w-5xl mx-auto px-4 py-8 md:py-12">
           {/* Navigation Bar */}
