@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,11 +12,15 @@ import { motion } from 'framer-motion';
 import { BlogInteractions } from '@/components/blog/BlogInteractions';
 import { CommentsSection } from '@/components/blog/CommentsSection';
 import { SEO } from '@/components/SEO';
+import { useAuth } from '@/contexts/AuthContext';
+import { X } from 'lucide-react';
 
 const InsightsPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const [post, setPost] = useState<BlogPost | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -320,6 +324,56 @@ const InsightsPost = () => {
           )}
         </div>
       </div>
+
+      {/* ── Guest sticky sign-up banner ───────────────────────────────────── */}
+      {!user && !bannerDismissed && (
+        <motion.div
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 80, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="fixed bottom-0 left-0 right-0 z-50 p-3 md:p-4"
+        >
+          <div className="max-w-xl mx-auto bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-white/10 px-5 py-4 flex items-center gap-4">
+            {/* Icon */}
+            <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-primary">
+                <path d="M4 12h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M4 7h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            {/* Copy */}
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-semibold text-sm leading-tight">Track your money like a pro</p>
+              <p className="text-white/60 text-xs mt-0.5">Join Penny Pal free — budgeting, insights & more.</p>
+            </div>
+            {/* Buttons */}
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                to="/"
+                className="text-xs font-medium text-white/70 hover:text-white transition-colors hidden sm:block"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/"
+                className="text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition-colors shadow-md"
+              >
+                Sign Up Free
+              </Link>
+            </div>
+            {/* Dismiss */}
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="shrink-0 text-white/40 hover:text-white/80 transition-colors ml-1"
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </motion.div>
+      )}
     </Layout>
   );
 };
