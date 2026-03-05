@@ -5,7 +5,7 @@ const TermsOfService = () => {
     return (
         <LegalLayout
             title="Terms of Service"
-            subtitle="Please read these terms carefully before using Penny-Pal."
+            subtitle="Please read these terms carefully before using Penny Pal."
             lastUpdated="March 1, 2026"
         >
             <section className="space-y-10 text-foreground/80 text-sm md:text-base leading-relaxed">
@@ -70,7 +70,7 @@ const TermsOfService = () => {
                     },
                     {
                         title: '11. Contact Us',
-                        body: `If you have any questions about these Terms, please contact us:\n\n📧 legal@penny-pal.com\n📍 Accra, Ghana`
+                        body: `If you have any questions about these Terms, please contact us:\n\n📧 hello@mypennypal.com\n📍 Accra, Ghana`
                     },
                 ].map(({ title, body, points }) => (
                     <div key={title} className="space-y-3">

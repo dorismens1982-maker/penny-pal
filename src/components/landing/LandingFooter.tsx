@@ -20,7 +20,7 @@ const footerLinks = {
     Company: [
         { label: 'About Us', href: '/about' },
         { label: 'Partners', href: '/#partners' },
-        { label: 'Contact', href: 'mailto:hello@penny-pal.com' },
+        { label: 'Contact', href: 'mailto:hello@mypennypal.com' },
     ],
     Legal: [
         { label: 'Terms of Service', href: '/terms' },
@@ -40,7 +40,7 @@ const socials = [
     { icon: Twitter, label: 'X / Twitter', href: 'https://twitter.com/pennypalgha' },
     { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com/company/penny-pal' },
     { icon: Github, label: 'GitHub', href: 'https://github.com/penny-pal' },
-    { icon: Mail, label: 'Email', href: 'mailto:hello@penny-pal.com' },
+    { icon: Mail, label: 'Email', href: 'mailto:hello@mypennypal.com' },
 ];
 
 const isExternal = (href: string) => href.startsWith('http') || href.startsWith('mailto:');
@@ -69,20 +69,8 @@ export const LandingFooter = () => {
 
                         <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
                             Ghana's personal finance platform. Track expenses, set budgets,
-                            and build wealth — in cedis, designed for you.
+                            and build wealth in cedis, designed for you.
                         </p>
-
-                        {/* Trust badges */}
-                        <div className="flex flex-wrap gap-2">
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground bg-muted/60 border border-border/50 px-3 py-1.5 rounded-full">
-                                <Shield className="w-3 h-3 text-green-500" />
-                                Bank-level Encryption
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground bg-muted/60 border border-border/50 px-3 py-1.5 rounded-full">
-                                <Sparkles className="w-3 h-3 text-primary" />
-                                GDPR Compliant
-                            </span>
-                        </div>
 
                         {/* Socials */}
                         <div className="flex items-center gap-2 pt-1">
@@ -134,9 +122,8 @@ export const LandingFooter = () => {
 
                 {/* Bottom bar */}
                 <div className="py-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3 h-3" />
-                        <span>Made with ❤️ in Accra, Ghana &nbsp;·&nbsp; © {year} {APP_NAME}. All rights reserved.</span>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                        <span>Built by SAM THE CREATOR &nbsp;·&nbsp; © {year} {APP_NAME}. All rights reserved.</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>

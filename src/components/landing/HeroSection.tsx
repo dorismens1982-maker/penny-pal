@@ -59,7 +59,7 @@ export const HeroSection = ({ onGetStarted, videoSrc, posterSrc }: HeroSectionPr
                                 <>
                                     <img
                                         src="/hero-image.png"
-                                        alt="Happy Ghanaian using Penny-Pal"
+                                        alt="Happy Ghanaian using Penny Pal"
                                         className="w-full h-auto object-cover max-h-[500px]"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
