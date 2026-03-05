@@ -28,6 +28,8 @@ interface AuthContextType {
   ) => Promise<{ error: any; profile?: Profile }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
+  signInWithGoogleToken: (idToken: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
 }
 
@@ -205,6 +207,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const redirectUrl = `${window.location.origin}/manage`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl,
+      },
+    });
+    return { error };
+  };
+
+  const signInWithGoogleToken = async (idToken: string) => {
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+    });
+    return { error };
+  };
+
   const value = {
     user,
     session,
@@ -213,6 +234,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshProfile,
     signUp,
     signIn,
+    signInWithGoogle,
+    signInWithGoogleToken,
     signOut,
     resetPassword,
     updatePassword,

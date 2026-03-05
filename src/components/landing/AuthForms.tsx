@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useToast } from '@/hooks/use-toast';
 import PrivacyPolicyModal from '@/components/PrivacyPolicyModal';
 import { CURRENCIES, DEFAULT_CURRENCY } from '@/utils/currencyConfig';
@@ -16,7 +17,7 @@ interface AuthFormsProps {
 }
 
 export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps) => {
-    const { signIn, signUp } = useAuth();
+    const { signIn, signUp, signInWithGoogleToken } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [currentView, setCurrentView] = useState<ViewState>(defaultView);
@@ -82,6 +83,31 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
         setLoading(false);
     };
 
+    const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+        if (credentialResponse.credential) {
+            setLoading(true);
+            const { error } = await signInWithGoogleToken(credentialResponse.credential);
+            if (error) {
+                toast({
+                    variant: "destructive",
+                    title: "Google Sign-In failed",
+                    description: error.message,
+                });
+                setLoading(false);
+            } else {
+                onSuccess();
+            }
+        }
+    };
+
+    const handleGoogleError = () => {
+        toast({
+            variant: "destructive",
+            title: "Google Sign-In failed",
+            description: "Could not connect to Google.",
+        });
+    };
+
     const renderWelcomeView = () => (
         <div className="text-center space-y-6 animate-fade-in py-8">
             <div className="space-y-2">
@@ -90,12 +116,31 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
             </div>
 
             <div className="space-y-4">
+                <div className="w-full flex justify-center">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        size="large"
+                        width="350"
+                        text="continue_with"
+                    />
+                </div>
+
+                <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                    </div>
+                </div>
+
                 <Button
                     onClick={() => setCurrentView('signup')}
                     size="lg"
                     className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary-dark text-primary-foreground"
                 >
-                    Create Account
+                    Create Account with Email
                     <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button
@@ -104,7 +149,7 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
                     size="lg"
                     className="w-full h-12 text-lg font-semibold"
                 >
-                    Sign In
+                    Sign In with Email
                 </Button>
             </div>
         </div>
@@ -124,6 +169,25 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
                 <div>
                     <h2 className="text-xl font-bold">Create Account</h2>
                     <p className="text-xs text-muted-foreground">Start tracking today</p>
+                </div>
+            </div>
+
+            <div className="w-full flex justify-center mb-6">
+                <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    size="large"
+                    width="350"
+                    text="signup_with"
+                />
+            </div>
+
+            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
                 </div>
             </div>
 
@@ -229,6 +293,25 @@ export const AuthForms = ({ onSuccess, defaultView = 'welcome' }: AuthFormsProps
                 <div>
                     <h2 className="text-xl font-bold">Welcome Back</h2>
                     <p className="text-xs text-muted-foreground">Sign in to continue</p>
+                </div>
+            </div>
+
+            <div className="w-full flex justify-center mb-6">
+                <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    size="large"
+                    width="350"
+                    text="signin_with"
+                />
+            </div>
+
+            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Or sign in with email</span>
                 </div>
             </div>
 
