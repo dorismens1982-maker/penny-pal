@@ -5,6 +5,10 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/insights/:slug",
+      "destination": "/api/og-injector"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

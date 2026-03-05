@@ -15,6 +15,7 @@ import { SEO } from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { X } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
+import DOMPurify from 'dompurify';
 
 const InsightsPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -251,7 +252,7 @@ const InsightsPost = () => {
                                     [&_.ql-align-right]:text-right
                                     [&_.ql-align-justify]:text-justify
                                 "
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
               />
 
               <div className="mt-8 mb-12">
@@ -339,11 +340,7 @@ const InsightsPost = () => {
           <div className="max-w-xl mx-auto bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-white/10 px-5 py-4 flex items-center gap-4">
             {/* Icon */}
             <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-primary">
-                <path d="M4 12h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M4 7h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
+              <img src="/logo.png" className="w-6 h-6 rounded-md object-cover" alt="Penny Pal" />
             </div>
             {/* Copy */}
             <div className="flex-1 min-w-0">
