@@ -12,7 +12,7 @@ const CookiePolicy = () => {
     return (
         <LegalLayout
             title="Cookie Policy"
-            subtitle="We use cookies to make Penny-Pal work and improve your experience."
+            subtitle="We use cookies to make Penny Pal work and improve your experience."
             lastUpdated="March 1, 2026"
         >
             <section className="space-y-10 text-foreground/80 text-sm md:text-base leading-relaxed">
@@ -65,7 +65,7 @@ const CookiePolicy = () => {
                     },
                     {
                         title: '9. Contact Us',
-                        body: `For any questions about how we use cookies:\n\n📧 privacy@penny-pal.com`
+                        body: `For any questions about how we use cookies:\n\n📧 hello@mypennypal.com`
                     }
                 ].map(({ title, body, points }: any) => (
                     <div key={title} className="space-y-3">

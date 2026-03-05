@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
 
         // CONFIGURATION
         // TODO: Replace with your custom domain email after verifying it in Resend
-        // Example: 'Penny Pal <hello@penny-pal.com>'
+        // Example: 'Penny Pal <hello@mypennypal.com>'
         const SENDER_EMAIL = 'Penny Pal <support@mypennypal.com>';
         const CATCH_UP_DATE = '2025-12-25T09:00:00Z'; // Users who signed up after this time
 

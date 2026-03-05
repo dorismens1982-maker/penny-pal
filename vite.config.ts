@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'logo.png'],
       manifest: {
-        name: 'Penny-Pal Finance',
-        short_name: 'Penny-Pal',
+        name: 'Penny Pal Finance',
+        short_name: 'Penny Pal',
         description: 'Your personal finance companion for tracking income, expenses, and savings.',
         theme_color: '#F59E0B',
         background_color: '#ffffff',

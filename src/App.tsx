@@ -12,6 +12,7 @@ import LandingPage from '@/pages/LandingPage';
 import AuthPage from '@/pages/AuthPage';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
+import { InstallPWA } from '@/components/InstallPWA';
 import Dashboard from '@/pages/Dashboard';
 import Manage from '@/pages/Manage';
 import Insights from '@/pages/Insights';
@@ -51,6 +52,7 @@ function App() {
           <ThemeProvider>
             <TransactionsProvider>
               <Router>
+                <InstallPWA />
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />

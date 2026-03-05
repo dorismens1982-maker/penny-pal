@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
+import { LandingInsights } from '@/components/landing/LandingInsights';
 import { PartnersSection } from '@/components/landing/PartnersSection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { APP_NAME } from '@/config/app';
@@ -46,6 +47,9 @@ const LandingPage = () => {
         onGetStarted={handleGetStarted}
         videoSrc="https://res.cloudinary.com/dopscbnty/video/upload/v1770858068/Create_a_smooth_202602112137_o9z9x_qwm381.mp4"
       />
+
+      {/* Insights Section */}
+      <LandingInsights />
 
       {/* Features Section */}
       <FeaturesSection />

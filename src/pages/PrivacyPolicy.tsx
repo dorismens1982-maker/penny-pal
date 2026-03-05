@@ -17,7 +17,7 @@ const PrivacyPolicy = () => {
                 {[
                     {
                         title: '1. Who We Are',
-                        body: `${APP_NAME} is operated by ${COMPANY_NAME}, a technology company based in Accra, Ghana. We build personal finance tools for individuals and businesses across Africa. You can reach us at privacy@penny-pal.com for any privacy-related concerns.`
+                        body: `${APP_NAME} is operated by ${COMPANY_NAME}, a technology company based in Accra, Ghana. We build personal finance tools for individuals and businesses across Africa. You can reach us at hello@mypennypal.com for any privacy-related concerns.`
                     },
                     {
                         title: '2. What Data We Collect',
@@ -85,7 +85,7 @@ const PrivacyPolicy = () => {
                     },
                     {
                         title: '10. Contact & Data Requests',
-                        body: `For all privacy-related enquiries, to exercise your rights, or to report a concern:\n\n📧 privacy@penny-pal.com\n📍 ${COMPANY_NAME}, Accra, Ghana\n\nWe aim to respond to all requests within 30 days.`
+                        body: `For all privacy-related enquiries, to exercise your rights, or to report a concern:\n\n📧 hello@mypennypal.com\n📍 ${COMPANY_NAME}, Accra, Ghana\n\nWe aim to respond to all requests within 30 days.`
                     }
                 ].map(({ title, body, points, sections }: any) => (
                     <div key={title} className="space-y-3">
