@@ -304,7 +304,7 @@ export const useBlogPosts = () => {
                     user: {
                         email: '', // Privacy: email hidden
                         user_metadata: {
-                            preferred_name: profile?.preferred_name || 'User',
+                            preferred_name: profile?.preferred_name || profile?.full_name || profile?.name || 'User',
                             avatar_url: null
                         }
                     }
@@ -346,7 +346,7 @@ export const useBlogPosts = () => {
                 user: {
                     email: user.email,
                     user_metadata: {
-                        preferred_name: user.user_metadata?.preferred_name || user.email?.split('@')[0],
+                        preferred_name: user.user_metadata?.preferred_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
                         avatar_url: user.user_metadata?.avatar_url
                     }
                 }

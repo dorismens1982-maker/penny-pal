@@ -64,24 +64,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       const sb: any = supabase as any;
+      const { data: userRes, error: userError } = await supabase.auth.getUser();
+      if (userError || !userRes.user) return;
+
+      const authUser = userRes.user;
+      // Get name from Google OAuth if available
+      const googleName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.user_metadata?.preferred_name;
+
       const { data, error } = await sb
         .from('profiles')
         .select('id, user_id, preferred_name, currency, created_at')
-        .eq('user_id', user.id)
+        .eq('user_id', authUser.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error; // ignore no rows error
+
       if (data) {
+        // If profile exists but name is null/empty and we have a Google name, update it!
+        if (!data.preferred_name && googleName) {
+          await sb.from('profiles').update({ preferred_name: googleName }).eq('user_id', authUser.id);
+          data.preferred_name = googleName;
+        }
         setProfile(data as Profile);
       } else {
-        const { data: userRes } = await supabase.auth.getUser();
-        const preferred = userRes.user?.user_metadata?.preferred_name ?? null;
-        setProfile({ user_id: user.id, preferred_name: preferred, id: undefined, created_at: null });
+        // Profile doesn't exist at all yet - we should insert it with the Google name
+        const newProfile = {
+          user_id: authUser.id,
+          preferred_name: googleName ?? null,
+        };
+
+        const { data: insertedData } = await sb.from('profiles').insert([newProfile]).select().single();
+
+        if (insertedData) {
+          setProfile(insertedData as Profile);
+        } else {
+          setProfile({ user_id: authUser.id, preferred_name: googleName ?? null, id: undefined, created_at: null });
+        }
       }
     } catch (err) {
+      console.error("Error refreshing profile:", err);
       // Fallback to auth metadata when table row not yet available
       const { data: userRes } = await supabase.auth.getUser();
-      const preferred = userRes.user?.user_metadata?.preferred_name ?? null;
+      const preferred = (userRes.user?.user_metadata?.full_name || userRes.user?.user_metadata?.name || userRes.user?.user_metadata?.preferred_name) ?? null;
       setProfile({ user_id: user!.id, preferred_name: preferred, id: undefined, created_at: null });
     }
   };
