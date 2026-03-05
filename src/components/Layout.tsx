@@ -53,13 +53,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
           <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
             {/* Logo */}
             <Link to="/insights" className="flex items-center gap-3 group">
-              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                  <path d="M4 12h16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M4 7h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M4 17h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
+              <img src="/logo.png" alt={APP_NAME} className="w-9 h-9 rounded-lg shadow-sm object-cover" />
               <div className="flex flex-col leading-tight">
                 <span className="text-sm font-semibold">{APP_NAME}</span>
                 <span className="text-xs text-muted-foreground -mt-0.5">Insights. Act. Grow.</span>
@@ -102,24 +96,11 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
         <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
           {/* Logo / Brand */}
           <div className="flex items-center gap-3">
-            <div
-              className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm"
-              aria-hidden
-            >
-              <span className="sr-only">{APP_NAME}</span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-white"
-              >
-                <path d="M4 12h16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <path d="M4 7h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <path d="M4 17h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
+            <img
+              src="/logo.png"
+              alt={APP_NAME}
+              className="w-9 h-9 rounded-lg shadow-sm object-cover"
+            />
 
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold">{APP_NAME}</span>

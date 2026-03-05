@@ -8,6 +8,7 @@ import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePageHeader } from '@/hooks/usePageHeader';
 import { SEO } from '@/components/SEO';
+import DOMPurify from 'dompurify';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -74,57 +75,8 @@ const BlogPost = () => {
     return colors[category] || 'bg-muted text-muted-foreground';
   };
 
-  // Convert simple markdown-style content to JSX
-  const renderContent = (content: string) =>
-    content.split('\n').map((line, index) => {
-      if (line.startsWith('# ')) {
-        return (
-          <h1 key={index} className="text-3xl font-poppins font-bold mt-8 mb-4 text-foreground">
-            {line.substring(2)}
-          </h1>
-        );
-      }
-      if (line.startsWith('## ')) {
-        return (
-          <h2 key={index} className="text-2xl font-poppins font-bold mt-6 mb-3 text-foreground">
-            {line.substring(3)}
-          </h2>
-        );
-      }
-      if (line.startsWith('### ')) {
-        return (
-          <h3 key={index} className="text-xl font-semibold mt-4 mb-2 text-foreground">
-            {line.substring(4)}
-          </h3>
-        );
-      }
-
-      // bold
-      const boldRegex = /\*\*(.*?)\*\*/g;
-      if (boldRegex.test(line)) {
-        const parts = line.split(boldRegex);
-        return (
-          <p key={index} className="mb-4 text-foreground leading-relaxed">
-            {parts.map((part, i) =>
-              i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-            )}
-          </p>
-        );
-      }
-
-      // list items
-      if (line.startsWith('- ')) {
-        return <li key={index} className="ml-6 mb-2 text-foreground">{line.substring(2)}</li>;
-      }
-
-      if (line.trim() === '') return <div key={index} className="h-2" />;
-
-      return (
-        <p key={index} className="mb-4 text-foreground leading-relaxed">
-          {line}
-        </p>
-      );
-    });
+  // HTML content safely sanitized
+  const sanitizedContent = DOMPurify.sanitize(post.content);
 
   // Pick hero image
   const heroImage =
@@ -190,7 +142,10 @@ const BlogPost = () => {
 
         {/* ✅ Article Body */}
         <article className="max-w-3xl mx-auto px-4 py-10">
-          <div className="prose prose-lg max-w-none">{renderContent(post.content)}</div>
+          <div
+            className="prose prose-lg max-w-none prose-headings:font-poppins prose-a:text-primary marker:text-primary"
+            dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+          />
 
           <div className="mt-12 pt-8 border-t border-border flex justify-center">
             <Button onClick={() => navigate('/blog')} variant="outline" size="lg">
