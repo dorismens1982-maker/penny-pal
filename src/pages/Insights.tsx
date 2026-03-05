@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
+import { AuthModal } from '@/components/AuthModal';
 
 const Insights = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Insights = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
+  const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -117,12 +119,12 @@ const Insights = () => {
                   <span className="hidden sm:inline">You're reading for free. </span>Sign up to track your finances too!
                 </p>
               </div>
-              <Link
-                to="/"
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signup' })}
                 className="shrink-0 text-sm font-bold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm"
               >
                 Get Started
-              </Link>
+              </button>
             </div>
           )}
 

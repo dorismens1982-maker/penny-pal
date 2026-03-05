@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdminEmail } from '@/utils/admin';
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/config/app';
+import { AuthModal } from '@/components/AuthModal';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -42,6 +43,8 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
   ];
 
   // ── Guest (public) layout ──────────────────────────────────────────────
+  const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -64,18 +67,29 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
             </Link>
             {/* Auth buttons */}
             <div className="flex items-center gap-2">
-              <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-md hover:bg-muted/50 transition-colors">
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signin' })}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-md hover:bg-muted/50 transition-colors"
+              >
                 Sign In
-              </Link>
-              <Link to="/" className="text-sm font-semibold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm">
+              </button>
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signup' })}
+                className="text-sm font-semibold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm"
+              >
                 Sign Up Free
-              </Link>
+              </button>
             </div>
           </div>
         </header>
         <main className="pt-[60px] flex-1">
           {children}
         </main>
+        <AuthModal
+          open={authModal.open}
+          onClose={() => setAuthModal(prev => ({ ...prev, open: false }))}
+          defaultView={authModal.view}
+        />
       </div>
     );
   }

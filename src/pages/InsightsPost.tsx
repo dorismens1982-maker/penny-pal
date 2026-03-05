@@ -14,6 +14,7 @@ import { CommentsSection } from '@/components/blog/CommentsSection';
 import { SEO } from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { X } from 'lucide-react';
+import { AuthModal } from '@/components/AuthModal';
 
 const InsightsPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +22,7 @@ const InsightsPost = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
   const [post, setPost] = useState<BlogPost | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -350,18 +352,18 @@ const InsightsPost = () => {
             </div>
             {/* Buttons */}
             <div className="flex items-center gap-2 shrink-0">
-              <Link
-                to="/"
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signin' })}
                 className="text-xs font-medium text-white/70 hover:text-white transition-colors hidden sm:block"
               >
                 Sign In
-              </Link>
-              <Link
-                to="/"
+              </button>
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signup' })}
                 className="text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition-colors shadow-md"
               >
                 Sign Up Free
-              </Link>
+              </button>
             </div>
             {/* Dismiss */}
             <button
@@ -374,6 +376,12 @@ const InsightsPost = () => {
           </div>
         </motion.div>
       )}
+
+      <AuthModal
+        open={authModal.open}
+        onClose={() => setAuthModal(prev => ({ ...prev, open: false }))}
+        defaultView={authModal.view}
+      />
     </Layout>
   );
 };
