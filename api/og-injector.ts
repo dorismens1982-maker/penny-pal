@@ -1,4 +1,4 @@
-import { getBlogPost } from "./shared/blogData";
+import { getBlogPost } from "./shared/blogData.js";
 
 export const config = {
     runtime: "edge",
