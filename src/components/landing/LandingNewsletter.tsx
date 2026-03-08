@@ -62,13 +62,13 @@ export const LandingNewsletter = () => {
     return (
         <section className="py-24 md:py-32 relative overflow-hidden group">
             {/* Premium Background Elements */}
-            <div className="absolute inset-0 bg-background" />
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 animate-pulse" />
-            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[140px] translate-y-1/2" />
+            <div className="absolute inset-0 bg-background pointer-events-none" />
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 animate-pulse pointer-events-none" />
+            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[140px] translate-y-1/2 pointer-events-none" />
 
             <div className="container px-4 md:px-6 relative z-10">
                 <div className="max-w-5xl mx-auto">
-                    <div className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden shadow-2xl">
+                    <div className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 md:p-16 relative z-20 overflow-hidden shadow-2xl">
                         {/* Inner Glow/Gradient */}
                         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
@@ -105,12 +105,12 @@ export const LandingNewsletter = () => {
                                 </div>
                             </div>
 
-                            <div className="relative">
+                            <div className="relative z-10">
                                 {/* Form Wrapper with glass effect */}
                                 <div className="bg-background/30 p-2 rounded-2xl border border-white/5 shadow-inner">
                                     <form onSubmit={handleSubscribe} className="relative flex flex-col gap-3">
                                         <div className="relative group/input">
-                                            <div className="absolute inset-0 bg-primary/20 blur-md opacity-0 group-focus-within/input:opacity-100 transition-opacity rounded-xl" />
+                                            <div className="absolute inset-0 bg-primary/20 blur-md opacity-0 group-focus-within/input:opacity-100 transition-opacity rounded-xl pointer-events-none" />
                                             <Input
                                                 type="email"
                                                 placeholder="Enter your email address"

@@ -34,6 +34,7 @@ import SuperAdminDashboard from '@/pages/superadmin/Dashboard';
 import UsersPage from '@/pages/superadmin/Users';
 import ContentPage from '@/pages/superadmin/Content';
 import SettingsPage from '@/pages/superadmin/Settings';
+import SubscribersPage from '@/pages/superadmin/Subscribers';
 
 import './App.css';
 
@@ -111,6 +112,16 @@ function App() {
                       <ProtectedRoute>
                         <SuperAdminLayout>
                           <UsersPage />
+                        </SuperAdminLayout>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/superadmin/subscribers"
+                    element={
+                      <ProtectedRoute>
+                        <SuperAdminLayout>
+                          <SubscribersPage />
                         </SuperAdminLayout>
                       </ProtectedRoute>
                     }

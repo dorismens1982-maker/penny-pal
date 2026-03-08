@@ -87,7 +87,7 @@ export const HeroSection = ({ onGetStarted, videoSrc, posterSrc }: HeroSectionPr
                         variant="outline"
                         size="lg"
                         className="w-full sm:w-auto min-w-[200px] h-14 text-lg"
-                        onClick={() => navigate('/guide')}
+                        onClick={() => navigate('/insights')}
                     >
                         Learn More
                     </Button>
