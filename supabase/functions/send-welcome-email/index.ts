@@ -52,49 +52,95 @@ Deno.serve(async (req) => {
       from: SENDER_EMAIL,
       to: [email],
       subject: 'Welcome to Penny Pal! 🚀',
-      text: `Welcome to Penny Pal!
+      text: `Welcome to Penny Pal & the Circle! 🚀
 
 Hi ${userName},
 
-We are thrilled to have you on board. Penny Pal is here to help you achieve financial wellness and freedom.
+We are thrilled to have you on board. Penny Pal is here to help you achieve financial wellness and freedom. By joining, you've officially taken a step towards smarter personal finance.
+
+What to expect:
+- Weekly financial insights delivered fresh
+- Exclusive tips for building wealth in cedis
+- Early access to new platform features
 
 If you have any questions, feel free to reply to this email.
+
+Ready to start your journey? Visit your Dashboard here: https://www.mypennypal.com/
+
+Follow the movement:
+X: https://x.com/pennypalhq
+Instagram: https://www.instagram.com/pennypalhq/
+TikTok: https://www.tiktok.com/@pennypalhq
 
 Happy tracking!
 The Penny Pal Team`,
       html: `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
-              <div style="background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <!-- Logo -->
-                <div style="text-align: center; padding: 20px 0; background-color: #ffffff;">
-                  <img src="https://res.cloudinary.com/dvyj0bgui/image/upload/f_auto,q_auto/v1765476493/penny_avatar_jffsr9.jpg" alt="Penny Pal" style="width: 50px; height: 50px; border-radius: 50%; display: inline-block;" />
-                </div>
-
-                <!-- Hero Image (optional, using logo for now or general vibe) -->
-                <div style="background-color: #eab308; padding: 40px 20px; text-align: center;">
-                    <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Penny Pal!</h1>
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
+              .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+              .header { padding: 40px 20px; text-align: center; background-color: #ffffff; }
+              .hero { position: relative; background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); padding: 60px 20px; text-align: center; color: #ffffff; }
+              .hero h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; }
+              .content { padding: 40px 32px; text-align: center; line-height: 1.6; }
+              .content p { font-size: 16px; color: #475569; margin-bottom: 24px; }
+              .button { display: inline-block; background-color: #eab308; color: #ffffff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 16px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(234, 179, 8, 0.3); }
+              .features { background-color: #fdfaf0; border-radius: 12px; padding: 24px; margin: 32px 0; text-align: left; }
+              .feature-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 14px; font-weight: 500; color: #854d0e; }
+              .feature-item span { margin-right: 12px; font-size: 18px; }
+              .socials { padding: 32px; text-align: center; background-color: #fafafa; border-top: 1px solid #f1f5f9; }
+              .social-link { display: inline-block; margin: 0 12px; text-decoration: none; opacity: 0.6; transition: opacity 0.2s; }
+              .footer { padding: 32px; text-align: center; font-size: 12px; color: #94a3b8; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <img src="https://res.cloudinary.com/dvyj0bgui/image/upload/f_auto,q_auto/v1765476493/penny_avatar_jffsr9.jpg" alt="Penny Pal" style="width: 56px; height: 56px; border-radius: 50%;" />
+              </div>
+              
+              <div class="hero">
+                <h1>Welcome to Penny Pal! <br/> You're in the Circle.</h1>
+              </div>
+              
+              <div class="content">
+                <p>Hi <strong>${userName}</strong>,</p>
+                <p>We are thrilled to have you on board. Penny Pal is here to help you achieve financial wellness and freedom. You've officially taken a step towards smarter personal finance.</p>
+                
+                <div class="features">
+                  <div class="feature-item"><span>🚀</span> Weekly financial insights delivered fresh</div>
+                  <div class="feature-item"><span>💡</span> Exclusive tips for building wealth in cedis</div>
+                  <div class="feature-item"><span>🔥</span> Early access to new platform features</div>
                 </div>
                 
-                <!-- Content -->
-                <div style="padding: 30px; text-align: center;">
-                  <p style="color: #374151; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
-                    Hi <strong>${userName}</strong>, <br/><br/>
-                    We are thrilled to have you on board. <br/>
-                    Penny Pal is here to help you achieve financial wellness and freedom.
-                  </p>
-                  
-                  <div style="margin: 30px 0;">
-                    <a href="https://www.mypennypal.com" style="background-color: #eab308; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Go to Dashboard</a>
-                  </div>
-
-                  <p style="color: #6b7280; font-size: 14px;">
-                    Happy tracking,<br/>
-                    The Penny Pal Team
-                  </p>
+                <p>Ready to start your journey?</p>
+                
+                <div style="margin: 40px 0;">
+                  <a href="https://www.mypennypal.com/dashboard" class="button">Go to Dashboard</a>
                 </div>
+                
+                <p style="font-size: 14px; color: #6b7280;">If you have any questions, feel free to reply to this email. Happy tracking!</p>
+              </div>
+              
+              <div class="socials">
+                <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">Follow the movement</p>
+                <a href="https://x.com/pennypalhq" class="social-link"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" width="20" height="20" alt="X" /></a>
+                <a href="https://www.instagram.com/pennypalhq/" class="social-link"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="20" height="20" alt="Instagram" /></a>
+                <a href="https://www.tiktok.com/@pennypalhq" class="social-link"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" width="20" height="20" alt="TikTok" /></a>
+              </div>
+              
+              <div class="footer">
+                <p>&copy; ${new Date().getFullYear()} Penny Pal. All rights reserved.</p>
+                <p>If you didn't create an account, you can safely ignore this email.</p>
               </div>
             </div>
-            `
+          </body>
+        </html>
+      `
     });
 
     if (error) {
