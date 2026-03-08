@@ -1,14 +1,37 @@
 import { Link } from 'react-router-dom';
 import { APP_NAME } from '@/config/app';
 import {
-    Twitter,
     Linkedin,
     Github,
     Mail,
     MapPin,
     Shield,
-    Sparkles
+    Sparkles,
+    Instagram,
+    Send
 } from 'lucide-react';
+
+const XIcon = ({ className }: { className?: string }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={className}
+    >
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+);
+
+const TikTokIcon = ({ className }: { className?: string }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={className}
+    >
+        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.23-1.45 4.39-3.56 5.3-2.31 1-5.11.66-7.07-.94-1.91-1.57-2.73-4.26-2.03-6.59.62-2.05 2.5-3.64 4.64-4.1 1.65-.35 3.39-.14 4.9.61v4.14c-1.04-.6-2.39-.68-3.48-.15-.99.49-1.59 1.58-1.54 2.68.04 1.11.83 2.08 1.88 2.41 1.48.46 3.19-.07 4.04-1.34.54-.8.78-1.78.76-2.73V.02h-2.55z" />
+    </svg>
+);
 
 const footerLinks = {
     Product: [
@@ -37,10 +60,9 @@ const footerLinks = {
 };
 
 const socials = [
-    { icon: Twitter, label: 'X / Twitter', href: 'https://twitter.com/pennypalgha' },
-    { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com/company/penny-pal' },
-    { icon: Github, label: 'GitHub', href: 'https://github.com/penny-pal' },
-    { icon: Mail, label: 'Email', href: 'mailto:hello@mypennypal.com' },
+    { icon: XIcon, label: 'X', href: 'https://x.com/pennypalhq' },
+    { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/pennypalhq/' },
+    { icon: TikTokIcon, label: 'TikTok', href: 'https://www.tiktok.com/@pennypalhq' },
 ];
 
 const isExternal = (href: string) => href.startsWith('http') || href.startsWith('mailto:');
