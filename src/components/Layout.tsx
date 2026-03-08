@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/config/app';
 import { AuthModal } from '@/components/AuthModal';
 import { MainHeader } from '@/components/MainHeader';
+import { LandingFooter } from '@/components/landing/LandingFooter';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -50,8 +51,13 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <MainHeader />
-        <main className="pt-[64px] flex-1">
-          {children}
+        <main className="pt-[64px] flex-1 flex flex-col">
+          <div className="flex-1">
+            {children}
+          </div>
+          <div className="mt-auto">
+            <LandingFooter />
+          </div>
         </main>
       </div>
     );
@@ -138,13 +144,22 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
 
       {/* ===================== MAIN CONTENT ===================== */}
       {/* CHANGED: remove mobile top padding; keep only md+ padding to sit under fixed header */}
-      <main className="pt-0 md:pt-[60px] pb-20 flex-1">
-        {children}
-        <div className="mt-12 mb-4 text-center pb-safe">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/30 font-semibold hover:text-primary/50 transition-colors cursor-default">
-            Made by samthecreatorr
-          </p>
+      <main className="pt-0 md:pt-[60px] pb-20 flex-1 flex flex-col">
+        <div className="flex-1">
+          {children}
         </div>
+
+        {!location.pathname.startsWith('/manage') && !location.pathname.startsWith('/superadmin') ? (
+          <div className="mt-auto pt-10">
+            <LandingFooter />
+          </div>
+        ) : (
+          <div className="mt-12 mb-4 text-center pb-safe">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground/30 font-semibold hover:text-primary/50 transition-colors cursor-default">
+              Made by samthecreatorr
+            </p>
+          </div>
+        )}
       </main>
 
       {/* ===================== FLOATING ADD BUTTON ===================== */}

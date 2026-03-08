@@ -11,7 +11,8 @@ import {
     LogOut,
     Shield,
     ArrowLeft,
-    Menu
+    Menu,
+    Mail
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { APP_NAME } from '@/config/app';
@@ -52,6 +53,7 @@ export const SuperAdminLayout: React.FC<SuperAdminLayoutProps> = ({ children }) 
     const navItems = [
         { path: '/superadmin', label: 'Overview', icon: LayoutDashboard },
         { path: '/superadmin/users', label: 'Users', icon: Users },
+        { path: '/superadmin/subscribers', label: 'Subscribers', icon: Mail },
         { path: '/superadmin/content', label: 'Changes', icon: FileText },
         { path: '/superadmin/settings', label: 'Settings', icon: Settings },
     ];
