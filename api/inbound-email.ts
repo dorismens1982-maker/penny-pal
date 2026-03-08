@@ -9,6 +9,17 @@ interface InboundEmailPayload {
     html?: string;
     text?: string;
     headers?: Record<string, string>;
+    // The actual structure sent by Resend is often nested or different.
+    // Based on Resend docs:
+    // https://resend.com/docs/dashboard/webhooks/webhook-events#email-received
+    // Actually, for Inbound routing it's often Form data or a specific JSON structure.
+    // Let's make it robust to handle both nested 'data' or flat payload.
+    // We'll also support the most common inbound payload keys.
+    From?: string;
+    To?: string;
+    Subject?: string;
+    HtmlBody?: string;
+    TextBody?: string;
 }
 
 export default async function handler(req: Request): Promise<Response> {
@@ -18,22 +29,27 @@ export default async function handler(req: Request): Promise<Response> {
     }
 
     try {
-        const payload: InboundEmailPayload = await req.json();
+        const payload: any = await req.json();
 
-        const { from, subject, html, text } = payload;
+        // Resend sends webhooks with a 'data' object usually, but also might be flat.
+        // Also the keys might be capitalized (From vs from) depending on the integration type.
+        const actualFrom = payload.From || payload.from || payload.data?.from || "Unknown Sender";
+        const actualSubject = payload.Subject || payload.subject || payload.data?.subject || "(no subject)";
+        const actualHtml = payload.HtmlBody || payload.html || payload.data?.html || "";
+        const actualText = payload.TextBody || payload.text || payload.data?.text || "";
 
         // Forward the email to your Gmail inbox
         const { error } = await resend.emails.send({
             from: "Penny Pal Forwarding <hello@mypennypal.com>",
             to: ["usemypennypal@gmail.com"],
-            subject: `[Forwarded] ${subject || "(no subject)"}`,
+            subject: `[Forwarded] ${actualSubject}`,
             html:
-                html ||
-                `<p><strong>From:</strong> ${from}</p><hr/><p>${text || "(no body)"}</p>`,
-            text: text
-                ? `From: ${from}\n\n${text}`
-                : `From: ${from}\n\n(no plain text body)`,
-            replyTo: from, // So you can reply directly to the original sender
+                actualHtml ||
+                `<p><strong>From:</strong> ${actualFrom}</p><hr/><p>${actualText || "(no body)"}</p>`,
+            text: actualText
+                ? `From: ${actualFrom}\n\n${actualText}`
+                : `From: ${actualFrom}\n\n(no plain text body)`,
+            replyTo: actualFrom !== "Unknown Sender" ? actualFrom : undefined, // So you can reply directly to the original sender
         });
 
         if (error) {

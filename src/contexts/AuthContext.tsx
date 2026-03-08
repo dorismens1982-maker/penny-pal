@@ -176,6 +176,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // TRIGGER WELCOME EMAIL if signup was successful
     if (!error && email) {
+      // Add user to newsletter_subscribers silently
+      supabase.from('newsletter_subscribers').insert([{ email }]).then(({ error: nlError }) => {
+        if (nlError && nlError.code !== '23505') { // Ignore unique violation if already subscribed
+          console.error("Failed to auto-subscribe new user to newsletter:", nlError);
+        }
+      });
+
       // We fire and forget (don't await) so we don't block the UI
       supabase.functions.invoke('send-welcome-email', {
         body: {
