@@ -39,18 +39,19 @@ export default async function handler(req: Request): Promise<Response> {
         let actualText = payload.TextBody || payload.text || payload.data?.text || payload.data?.text_body || "";
         const emailId = payload.email_id || payload.data?.email_id;
 
-        // If the body is missing but we have an email_id, fetch the full email from Resend API
+        // If the body is missing but we have an email_id, fetch the full email from Resend's Inbound API
+        // NOTE: Must use resend.emails.receiving.get(), NOT resend.emails.get() which is only for outbound emails.
         if (!actualHtml && !actualText && emailId) {
             try {
-                const { data: fetchedEmail, error: fetchError } = await resend.emails.get(emailId);
+                const { data: fetchedEmail, error: fetchError } = await resend.emails.receiving.get(emailId);
                 if (!fetchError && fetchedEmail) {
-                    actualHtml = fetchedEmail.html || "";
-                    actualText = fetchedEmail.text || "";
+                    actualHtml = (fetchedEmail as any).html || "";
+                    actualText = (fetchedEmail as any).text || "";
                 } else {
-                    console.error("Failed to fetch full email body from Resend:", fetchError);
+                    console.error("Failed to fetch full inbound email body from Resend:", fetchError);
                 }
             } catch (fetchEx) {
-                console.error("Exception fetching full email body:", fetchEx);
+                console.error("Exception fetching full inbound email body:", fetchEx);
             }
         }
 
