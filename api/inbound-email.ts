@@ -35,8 +35,28 @@ export default async function handler(req: Request): Promise<Response> {
         // Also the keys might be capitalized (From vs from) depending on the integration type.
         const actualFrom = payload.From || payload.from || payload.data?.from || "Unknown Sender";
         const actualSubject = payload.Subject || payload.subject || payload.data?.subject || "(no subject)";
-        const actualHtml = payload.HtmlBody || payload.html || payload.data?.html || "";
-        const actualText = payload.TextBody || payload.text || payload.data?.text || "";
+        let actualHtml = payload.HtmlBody || payload.html || payload.data?.html || "";
+        let actualText = payload.TextBody || payload.text || payload.data?.text || payload.data?.text_body || "";
+        const emailId = payload.email_id || payload.data?.email_id;
+
+        // If the body is missing but we have an email_id, fetch the full email from Resend API
+        if (!actualHtml && !actualText && emailId) {
+            try {
+                const { data: fetchedEmail, error: fetchError } = await resend.emails.get(emailId);
+                if (!fetchError && fetchedEmail) {
+                    actualHtml = fetchedEmail.html || "";
+                    actualText = fetchedEmail.text || "";
+                } else {
+                    console.error("Failed to fetch full email body from Resend:", fetchError);
+                }
+            } catch (fetchEx) {
+                console.error("Exception fetching full email body:", fetchEx);
+            }
+        }
+
+        // Final fallback if STILL empty after fetching
+        const finalHtml = actualHtml || (actualText ? "" : `<p><em>(Email body could not be fetched. Only metadata was received.)</em></p>`);
+        const finalText = actualText || (actualHtml ? "" : `(Email body could not be fetched. Only metadata was received.)`);
 
         // Forward the email to your Gmail inbox
         const { error } = await resend.emails.send({
@@ -44,10 +64,10 @@ export default async function handler(req: Request): Promise<Response> {
             to: ["usemypennypal@gmail.com"],
             subject: `[Forwarded] ${actualSubject}`,
             html:
-                actualHtml ||
-                `<p><strong>From:</strong> ${actualFrom}</p><hr/><p>${actualText || "(no body)"}</p><br/><hr/><p><strong>Raw Payload:</strong></p><pre>${JSON.stringify(payload, null, 2)}</pre>`,
-            text: actualText
-                ? `From: ${actualFrom}\n\n${actualText}\n\n---\nRaw Payload:\n${JSON.stringify(payload, null, 2)}`
+                finalHtml ||
+                `<p><strong>From:</strong> ${actualFrom}</p><hr/><p>${finalText}</p><br/><hr/><p><strong>Raw Payload:</strong></p><pre>${JSON.stringify(payload, null, 2)}</pre>`,
+            text: finalText
+                ? `From: ${actualFrom}\n\n${finalText}\n\n---\nRaw Payload:\n${JSON.stringify(payload, null, 2)}`
                 : `From: ${actualFrom}\n\n(no plain text body)\n\n---\nRaw Payload:\n${JSON.stringify(payload, null, 2)}`,
             replyTo: actualFrom !== "Unknown Sender" ? actualFrom : undefined, // So you can reply directly to the original sender
         });
