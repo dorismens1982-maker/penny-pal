@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/config/app';
 import { AuthModal } from '@/components/AuthModal';
+import { MainHeader } from '@/components/MainHeader';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -48,42 +49,10 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Public minimal header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b border-border">
-          <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
-            {/* Logo */}
-            <Link to="/insights" className="flex items-center gap-3 group">
-              <img src="/logo.png" alt={APP_NAME} className="w-9 h-9 rounded-lg shadow-sm object-cover" />
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold">{APP_NAME}</span>
-                <span className="text-xs text-muted-foreground -mt-0.5">Insights. Act. Grow.</span>
-              </div>
-            </Link>
-            {/* Auth buttons */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setAuthModal({ open: true, view: 'signin' })}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-md hover:bg-muted/50 transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => setAuthModal({ open: true, view: 'signup' })}
-                className="text-sm font-semibold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm"
-              >
-                Sign Up Free
-              </button>
-            </div>
-          </div>
-        </header>
-        <main className="pt-[60px] flex-1">
+        <MainHeader />
+        <main className="pt-[64px] flex-1">
           {children}
         </main>
-        <AuthModal
-          open={authModal.open}
-          onClose={() => setAuthModal(prev => ({ ...prev, open: false }))}
-          defaultView={authModal.view}
-        />
       </div>
     );
   }

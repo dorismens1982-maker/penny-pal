@@ -18,6 +18,74 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: 'manifesto-1',
+    slug: 'manifesto-african-fintech',
+    title: 'Welcome to Penny Pal: Our Mission & Vision for African Fintech',
+    excerpt: 'Discover why Penny Pal exists: our mission to simplify financial technology, help you discover trusted platforms, and build a community around digital finance in Africa.',
+    category: 'Stories',
+    date: new Date().toISOString().split('T')[0],
+    readTime: 6,
+    featured: true,
+    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200&fit=crop', // 🚀 Team/vision concept
+    content: `
+# Welcome to Penny Pal: Discover, Learn, and Grow with African Fintech
+
+Penny Pal is a digital platform focused on helping people discover, understand, and confidently use modern financial technology tools. 
+
+As the digital finance ecosystem in Africa continues to grow rapidly, many users are exposed to new payment systems, financial apps, and digital wallets without clear guidance on how these tools work or how to use them safely.
+
+We address this gap by providing accessible content, product insights, and community-driven discussions around fintech platforms operating in Ghana and across Africa. We serve as an educational and discovery hub where you can learn about financial apps, explore new money tools, and stay informed about trends shaping the future of digital finance.
+
+Through social media, educational content, and product analysis, Penny Pal aims to simplify financial technology for everyday users while also acting as a bridge between fintech companies and the communities they serve.
+
+## The African Fintech Opportunity
+
+Across Africa, financial technology adoption is accelerating at an unprecedented pace. Mobile money systems, digital wallets, payment platforms, remittance solutions, and blockchain-based financial services are transforming how people send, receive, save, and manage money.
+
+However, as more platforms enter the market, users often face several challenges:
+- Limited understanding of how fintech products work
+- Difficulty identifying reliable platforms
+- Lack of independent product insights or comparisons
+- Exposure to misinformation or risky financial schemes
+- Limited access to educational content about digital finance
+
+At the same time, fintech companies entering emerging markets frequently face the opposite challenge: reaching and educating the right users in a way that builds trust.
+
+**Penny Pal sits at the intersection of these two needs.** 
+
+By combining fintech education, product discovery, and community engagement, the platform helps users make informed financial decisions while providing fintech companies with a credible channel to reach informed digital audiences.
+
+## Our Mission
+To help Africans discover, understand, and confidently use digital financial tools.
+
+## Our Vision
+To become Africa’s most trusted platform for learning about and discovering fintech products, digital wallets, and modern money tools.
+
+## What Penny Pal Does
+
+We focus on three core areas to empower our users:
+
+### 1. Fintech Education
+We publish clear and accessible content that explains financial technology concepts in simple language. From mobile money infrastructure and remittance platforms, to financial safety and digital security, our goal is to make fintech understandable for everyday users.
+
+### 2. Fintech Product Discovery
+As new financial platforms enter markets like Ghana, we help you explore and understand these tools through independent product breakdowns and insights. We offer platform comparisons, feature breakdowns, and explain the benefits and limitations of different tools so you can make informed choices.
+
+### 3. Community and Conversation
+Beyond education, Penny Pal cultivates a growing community of individuals interested in digital finance, financial literacy, and emerging money technologies. Through our social channels, we create spaces where users can ask questions, discuss trends, and discover new opportunities.
+
+## A Builder’s Perspective
+
+Penny Pal is founded with a builder’s mindset. We are not only focused on discussing financial tools but also learning from and contributing to the ecosystem that is shaping the future of money.
+
+Financial technology is reshaping how money moves across the world, and Africa is one of the most dynamic regions in this transformation.
+
+Penny Pal exists to ensure that users are not left behind in this shift. By simplifying complex tools, highlighting trustworthy platforms, and fostering informed conversations, we are building a trusted gateway for understanding the next generation of financial services.
+
+Welcome to the community.
+    `
+  },
+  {
     id: '1',
     slug: 'track-daily-expenses',
     title: '5 Simple Ways to Track Your Daily Expenses',

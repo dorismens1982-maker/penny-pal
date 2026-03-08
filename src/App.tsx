@@ -25,7 +25,8 @@ import AboutPage from '@/pages/AboutPage';
 import TermsOfService from '@/pages/TermsOfService';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import CookiePolicy from '@/pages/CookiePolicy';
-import IndependenceDaySplash from '@/components/IndependenceDaySplash';
+import Community from '@/pages/Community';
+
 
 // Super Admin Imports
 import { SuperAdminLayout } from '@/layouts/SuperAdminLayout';
@@ -54,7 +55,6 @@ function App() {
             <TransactionsProvider>
               <Router>
                 <InstallPWA />
-                <IndependenceDaySplash />
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />
@@ -63,6 +63,7 @@ function App() {
                   <Route path="/guide" element={<Guide />} />
                   <Route path="/blog" element={<PublicBlog />} />
                   <Route path="/about" element={<AboutPage />} />
+                  <Route path="/community" element={<Community />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/cookies" element={<CookiePolicy />} />

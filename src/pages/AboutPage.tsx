@@ -67,14 +67,17 @@ const AboutPage = () => {
                 <div className="container px-4 md:px-6 max-w-6xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
                         <div className="lg:col-span-2 space-y-6 lg:pr-8">
-                            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Why we built {APP_NAME}</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">The African Fintech Opportunity</h2>
                             <div className="w-20 h-1 bg-primary rounded-full" />
                             <div className="space-y-4 text-muted-foreground text-lg leading-relaxed">
                                 <p>
-                                    Most financial tools rely on assumptions that don't apply to our daily realities. They ignore mobile money, informal markets, and local context.
+                                    Across Africa, financial technology adoption is accelerating. Mobile money systems, digital wallets, and new payment platforms are transforming how we manage money.
                                 </p>
                                 <p>
-                                    We designed an ecosystem that understands how you transact, embraces new technologies, and helps everyday people build wealth thoughtfully.
+                                    However, as more platforms enter the market, users often face a lack of clear guidance on how these tools work or how to use them safely.
+                                </p>
+                                <p className="font-medium text-foreground">
+                                    Penny Pal sits at the intersection of education and discovery, ensuring everyday users aren't left behind in this digital shift.
                                 </p>
                             </div>
                         </div>
@@ -89,6 +92,40 @@ const AboutPage = () => {
                                     <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Core Pillars Section */}
+            <section className="py-20 bg-background border-b border-border/50">
+                <div className="container px-4 md:px-6 max-w-4xl mx-auto space-y-12">
+                    <div className="text-center space-y-4">
+                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">What We Do</h2>
+                        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">We focus on three core areas to help you discover, understand, and confidently use digital financial tools.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-4 text-center">
+                            <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                                <span className="text-2xl">📚</span>
+                            </div>
+                            <h3 className="text-xl font-bold">1. Fintech Education</h3>
+                            <p className="text-muted-foreground text-sm">We publish clear content explaining complex financial technology concepts in simple language.</p>
+                        </div>
+                        <div className="space-y-4 text-center">
+                            <div className="w-16 h-16 mx-auto rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center">
+                                <span className="text-2xl">🔍</span>
+                            </div>
+                            <h3 className="text-xl font-bold">2. Product Discovery</h3>
+                            <p className="text-muted-foreground text-sm">We help you explore and understand new tools through independent product breakdowns and insights.</p>
+                        </div>
+                        <div className="space-y-4 text-center">
+                            <div className="w-16 h-16 mx-auto rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+                                <span className="text-2xl">💬</span>
+                            </div>
+                            <h3 className="text-xl font-bold">3. Community</h3>
+                            <p className="text-muted-foreground text-sm">We cultivate a growing space where users can discuss trends, ask questions, and discover opportunities.</p>
                         </div>
                     </div>
                 </div>

@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 import type { BlogPost } from '@/types/blog';
-import { Clock, Calendar, ArrowRight, Search, TrendingUp, Sparkles } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Clock, Calendar, Search, Sparkles, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCloudinaryUrl } from '@/utils/cloudinary';
+import { APP_NAME } from '@/config/app';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { AuthModal } from '@/components/AuthModal';
@@ -22,11 +22,10 @@ const Insights = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Scroll handling removed as the sticky header is gone
   }, []);
 
   // Extract unique categories
@@ -58,145 +57,136 @@ const Insights = () => {
     return colors[category || ''] || 'bg-slate-100 text-slate-600 border-slate-200';
   };
 
+  const getAuthorName = (post: BlogPost) => {
+    if (post.author_roles?.role === 'super_admin' || post.author_roles?.role === 'admin') {
+      return APP_NAME;
+    }
+    return post.author_profile?.full_name || 'Anonymous';
+  };
+
   return (
     <Layout>
       <SEO
         title="Insights | Penny Pal — Financial Tips & Money Guides"
         description="Explore expert financial tips, saving strategies, investment guides and money management articles from the Penny Pal blog."
       />
-      <div className="min-h-screen relative bg-slate-50 pb-20 md:-mt-[60px] md:pt-[60px]">
+      <div className="min-h-screen relative bg-slate-50 pb-20">
         {/* Animated Gradient Background */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden h-screen w-screen">
           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
           <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-income/5 rounded-full blur-[80px]" />
         </div>
 
-        {/* Sticky Header with Search & Filter */}
-        <div className={`sticky top-0 md:top-[60px] z-40 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20' : 'bg-transparent'}`}>
-          <div className="container max-w-7xl mx-auto px-4 pt-4 pb-2 md:pt-6 md:pb-4 space-y-4">
-            {/* Top Bar: Title & Search */}
-            <div className="flex items-center justify-between gap-4">
-              <h1 className={`font-poppins font-bold text-slate-900 transition-all ${scrolled ? 'text-lg' : 'text-2xl'}`}>
-                Insights
-              </h1>
-              <div className="relative flex-1 max-w-[300px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="container max-w-7xl mx-auto px-4 mt-6 space-y-8 relative z-10">
+
+          {/* The Latest & Top Reads Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+
+            {/* Left: The Latest */}
+            {posts.length > 0 && (
+              <div className="lg:col-span-2 space-y-4">
+                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-poppins">The Latest</h2>
+                <div
+                  className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all"
+                  onClick={() => navigate(`/insights/${posts[0].slug}`)}
+                >
+                  <div className="relative w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden mb-6">
+                    <img
+                      src={posts[0].image_url || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200'}
+                      alt={posts[0].title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors">
+                    {posts[0].title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+                    <span>{new Date(posts[0].created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    <span className="text-slate-300">|</span>
+                    <span className="text-primary font-medium">{getAuthorName(posts[0])}</span>
+                  </div>
+                  <p className="text-slate-600 leading-relaxed mb-6 line-clamp-3">
+                    {posts[0].excerpt || "Explore the latest insights and trends shaping the future of digital finance..."}
+                  </p>
+                  <span className="font-bold text-primary group-hover:underline decoration-2 underline-offset-4">Read more</span>
+                </div>
+              </div>
+            )}
+
+            {/* Right: Top Reads */}
+            {posts.length > 1 && (
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-poppins">Top Reads</h2>
+                <div className="flex flex-col gap-4">
+                  {posts.slice(1, 4).map((post) => (
+                    <div
+                      key={post.id}
+                      className="bg-white rounded-[1.5rem] p-3 flex gap-4 items-center shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all"
+                      onClick={() => navigate(`/insights/${post.slug}`)}
+                    >
+                      <div className="w-24 h-24 md:w-32 md:h-24 shrink-0 rounded-xl overflow-hidden relative">
+                        <img
+                          src={post.image_url || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=400'}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                      <div className="flex-1 py-1 pr-2">
+                        <h4 className="font-bold text-slate-900 leading-snug line-clamp-2 md:line-clamp-3 mb-2 group-hover:text-primary transition-colors text-sm md:text-base">
+                          {post.title}
+                        </h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-slate-500">
+                          <span className="shrink-0">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                          <span className="hidden sm:inline text-slate-300">|</span>
+                          <span className="text-primary font-medium truncate">{getAuthorName(post)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Browse Categories & Main Grid */}
+          <div className="pb-20">
+            {/* Header & Search */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-poppins">
+                Browse by categories
+              </h2>
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  placeholder="Discover..."
-                  className="pl-9 h-9 bg-white/50 border-white/20 rounded-full focus:bg-white transition-all text-sm"
+                  placeholder="Search blogs..."
+                  className="pl-10 h-11 bg-white border-slate-200 rounded-full focus:bg-white transition-all text-sm shadow-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
 
-            {/* Horizontal Scroll Categories */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mask-linear-fade">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedCategory === category
-                    ? 'bg-slate-900 text-white shadow-md scale-105'
-                    : 'bg-white/60 text-slate-600 hover:bg-white hover:scale-105 border border-transparent'
-                    }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="container max-w-7xl mx-auto px-4 mt-6 space-y-8 relative z-10">
-
-          {/* Guest CTA bar */}
-          {!user && (
-            <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-primary/10 to-income/10 border border-primary/20 rounded-2xl px-5 py-3">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">💡</span>
-                <p className="text-sm font-medium text-slate-700">
-                  <span className="hidden sm:inline">You're reading for free. </span>Sign up to track your finances too!
-                </p>
-              </div>
-              <button
-                onClick={() => setAuthModal({ open: true, view: 'signup' })}
-                className="shrink-0 text-sm font-bold bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:bg-primary/90 transition-colors shadow-sm"
-              >
-                Get Started
-              </button>
-            </div>
-          )}
-
-          {/* Visual Header */}
-
-          <div className="relative w-full h-32 md:h-40 rounded-xl overflow-hidden bg-muted shadow-sm group">
-            <img
-              src={getCloudinaryUrl('vibe_insights.png')}
-              alt="Insights"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-              <h2 className="text-white font-bold text-xl md:text-2xl">Financial Wisdom</h2>
-            </div>
-          </div>
-
-          {/* Featured Carousel (Mobile First Snap) */}
-          <AnimatePresence>
-            {showFeatured && featuredPosts.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, height: 0 }}
-                className="space-y-4"
-              >
-                <div className="flex items-center gap-2 px-1">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Trending Now</h2>
-                </div>
-
-                {/* Snap Scroll Container */}
-                <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-4 -mx-4 px-4">
-                  {featuredPosts.map((post) => (
-                    <div
-                      key={post.id}
-                      className="snap-center shrink-0 w-[85vw] md:w-[400px] first:pl-0"
-                      onClick={() => navigate(`/insights/${post.slug}`)}
+            {/* Category Switcher */}
+            <div className="flex items-center flex-wrap gap-2 md:gap-4 mb-10 pb-2">
+              {categories.map((category, index) => {
+                const isActive = selectedCategory === category;
+                return (
+                  <React.Fragment key={category}>
+                    <button
+                      onClick={() => setSelectedCategory(category)}
+                      className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all ${isActive
+                        ? 'bg-transparent text-primary border border-primary shadow-sm'
+                        : 'bg-transparent text-slate-500 hover:text-slate-900 border border-transparent'
+                        }`}
                     >
-                      <div className="relative h-[180px] md:h-[240px] rounded-[2rem] overflow-hidden shadow-lg group cursor-pointer">
-                        <img
-                          src={post.image_url || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=60'}
-                          alt={post.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                        <div className="absolute bottom-0 left-0 p-6 text-white w-full">
-                          <Badge className="bg-white/20 backdrop-blur-md border-none text-white hover:bg-white/30 mb-2">
-                            {post.category}
-                          </Badge>
-                          <h3 className="font-poppins font-bold text-xl leading-tight line-clamp-2 mb-2">
-                            {post.title}
-                          </h3>
-                          <div className="flex items-center gap-2 text-xs text-white/80">
-                            <Clock className="w-3 h-3" />
-                            <span>5 min read</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Main Feed List */}
-          <div className="pb-20">
-            <div className="flex items-center justify-between px-1 mb-4">
-              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                {selectedCategory === 'All' ? 'Latest Updates' : selectedCategory}
-              </h2>
+                      {category}
+                    </button>
+                    {!isActive && index < categories.length - 1 && selectedCategory !== categories[index + 1] && (
+                      <span className="text-slate-300 hidden md:inline">|</span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
 
             {filteredPosts.length === 0 ? (
@@ -204,7 +194,7 @@ const Insights = () => {
                 <p>No insights found matching your filters.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 {filteredPosts.map((post, idx) => (
                   <motion.div
                     key={post.id}
@@ -212,40 +202,43 @@ const Insights = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     onClick={() => navigate(`/insights/${post.slug}`)}
-                    className="h-full"
+                    className="h-full flex flex-col group cursor-pointer"
                   >
-                    <div className="group bg-white/70 backdrop-blur-sm hover:bg-white p-3 rounded-3xl shadow-sm border border-white/40 cursor-pointer transition-all hover:shadow-md hover:scale-[1.01] flex gap-4 items-center h-full">
-                      {/* Thumbnail */}
-                      <div className="w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-slate-100">
-                        <img
-                          src={post.image_url || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800&auto=format&fit=crop&q=60'}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
+                    <div className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0 pr-2">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getCategoryColor(post.category)}`}>
+                      {/* Thumbnail with nested category pills */}
+                      <div className="relative w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden mb-6 filter group-hover:brightness-105 transition-all">
+                        <img
+                          src={post.image_url || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800'}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                          <span className="bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full shadow-sm">
                             {post.category}
                           </span>
                         </div>
-                        <h3 className="font-poppins font-bold text-slate-900 text-sm md:text-base leading-tight line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+                      </div>
+
+                      {/* Content Details */}
+                      <div className="flex flex-col flex-1 px-1">
+                        <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
+                          <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+
+                        <h3 className="font-poppins font-bold text-slate-900 text-lg leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
                           {post.title}
                         </h3>
-                        <div className="flex items-center gap-3 text-xs text-slate-400">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                          <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                          <span>5 min</span>
+
+                        <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-6 flex-1">
+                          {post.excerpt || "It is a long established fact that a reader will be distracted by the readable content of a page from when looking at its layout..."}
+                        </p>
+
+                        <div className="mt-auto">
+                          <span className="text-sm font-bold text-primary group-hover:underline decoration-2 underline-offset-4">Read More</span>
                         </div>
                       </div>
-                      <div className="shrink-0 text-slate-300 group-hover:text-primary transition-colors">
-                        <ArrowRight className="w-5 h-5" />
-                      </div>
+
                     </div>
                   </motion.div>
                 ))}
@@ -255,6 +248,58 @@ const Insights = () => {
 
         </div>
       </div>
+
+      {/* ── Guest sticky sign-up banner ───────────────────────────────────── */}
+      {!user && !bannerDismissed && (
+        <motion.div
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 80, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="fixed bottom-0 left-0 right-0 z-50 p-3 md:p-4"
+        >
+          <div className="max-w-xl mx-auto bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-white/10 px-5 py-4 flex items-center gap-4">
+            {/* Icon */}
+            <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <img src="/logo.png" className="w-6 h-6 rounded-md object-cover" alt="Penny Pal" />
+            </div>
+            {/* Copy */}
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-semibold text-sm leading-tight">Track your money like a pro</p>
+              <p className="text-white/60 text-xs mt-0.5">Join Penny Pal free — budgeting, insights & more.</p>
+            </div>
+            {/* Buttons */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signin' })}
+                className="text-xs font-medium text-white/70 hover:text-white transition-colors hidden sm:block"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => setAuthModal({ open: true, view: 'signup' })}
+                className="text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition-colors shadow-md"
+              >
+                Sign Up Free
+              </button>
+            </div>
+            {/* Dismiss */}
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="shrink-0 text-white/40 hover:text-white/80 transition-colors ml-1"
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      <AuthModal
+        open={authModal.open}
+        onClose={() => setAuthModal(prev => ({ ...prev, open: false }))}
+        defaultView={authModal.view}
+      />
     </Layout>
   );
 };
