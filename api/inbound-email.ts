@@ -45,10 +45,10 @@ export default async function handler(req: Request): Promise<Response> {
             subject: `[Forwarded] ${actualSubject}`,
             html:
                 actualHtml ||
-                `<p><strong>From:</strong> ${actualFrom}</p><hr/><p>${actualText || "(no body)"}</p>`,
+                `<p><strong>From:</strong> ${actualFrom}</p><hr/><p>${actualText || "(no body)"}</p><br/><hr/><p><strong>Raw Payload:</strong></p><pre>${JSON.stringify(payload, null, 2)}</pre>`,
             text: actualText
-                ? `From: ${actualFrom}\n\n${actualText}`
-                : `From: ${actualFrom}\n\n(no plain text body)`,
+                ? `From: ${actualFrom}\n\n${actualText}\n\n---\nRaw Payload:\n${JSON.stringify(payload, null, 2)}`
+                : `From: ${actualFrom}\n\n(no plain text body)\n\n---\nRaw Payload:\n${JSON.stringify(payload, null, 2)}`,
             replyTo: actualFrom !== "Unknown Sender" ? actualFrom : undefined, // So you can reply directly to the original sender
         });
 
