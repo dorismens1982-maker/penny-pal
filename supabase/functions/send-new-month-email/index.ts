@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
         const SENDER_EMAIL = 'Penny Pal <support@mypennypal.com>';
 
         // Use the Cloudinary URL for the generated image
-        const IMG_URL = 'https://res.cloudinary.com/dopscbnty/image/upload/v1772391423/ghana_month_header_vkowr4.png';
+        const IMG_URL = 'https://www.mypennypal.com/email-assets/ghana_month_header.png';
 
         // 1. Fetch ALL users
         const { data: { users }, error: userError } = await supabaseClient.auth.admin.listUsers({
@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
                   
                   <!-- Logo -->
                   <div style="text-align: center; padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 20px;">
-                     <img src="https://res.cloudinary.com/dvyj0bgui/image/upload/f_auto,q_auto/v1765476493/penny_avatar_jffsr9.jpg" alt="Penny Pal" style="width: 40px; height: 40px; border-radius: 50%; display: inline-block;" />
+                     <img src="https://www.mypennypal.com/email-assets/penny_avatar.jpg" alt="Penny Pal" style="width: 40px; height: 40px; border-radius: 50%; display: inline-block;" />
                   </div>
                 </div>
               </div>

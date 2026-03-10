@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
 
         // CONFIGURATION
         const SENDER_EMAIL = 'Penny Pal <support@mypennypal.com>'; // Keeping consistent with existing functions
-        const IMG_URL = 'https://res.cloudinary.com/dvyj0bgui/image/upload/v1767237469/new-year-card_xh6evr.jpg';
+        const IMG_URL = 'https://www.mypennypal.com/email-assets/new_year_card.jpg';
 
         // 1. Fetch ALL users
         const { data: { users }, error: userError } = await supabaseClient.auth.admin.listUsers({
@@ -96,7 +96,7 @@ The Penny Pal Team`,
                 
                 <!-- Logo -->
                 <div style="text-align: center; padding: 20px 0; background-color: #ffffff;">
-                   <img src="https://res.cloudinary.com/dvyj0bgui/image/upload/f_auto,q_auto/v1765476493/penny_avatar_jffsr9.jpg" alt="Penny Pal" style="width: 50px; height: 50px; border-radius: 50%; display: inline-block;" />
+                   <img src="https://www.mypennypal.com/email-assets/penny_avatar.jpg" alt="Penny Pal" style="width: 50px; height: 50px; border-radius: 50%; display: inline-block;" />
                 </div>
 
                 <!-- Header Image -->
