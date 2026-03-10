@@ -61,19 +61,25 @@ Deno.serve(async (req) => {
 
     console.log(`Sending Newsletter Welcome Email to ${email}`);
 
-    // Helper for blog post HTML
+    // Blog post cards — table-based, works in all email clients including Gmail
     const blogHtml = latestPosts && latestPosts.length > 0
       ? latestPosts.map(post => `
-        <div style="margin-bottom: 24px; text-align: left; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 12px; overflow: hidden;">
-          <a href="https://www.mypennypal.com/insights/${post.slug}" style="text-decoration: none;">
-            <img src="${post.image_url}" alt="${post.title}" style="width: 100%; height: 160px; object-fit: cover; border-bottom: 1px solid #f1f5f9;" />
-            <div style="padding: 16px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #1e293b; line-height: 1.4;">${post.title}</h3>
-              <p style="margin: 0; font-size: 14px; color: #64748b; line-height: 1.5;">${post.excerpt.substring(0, 100)}...</p>
-              <div style="margin-top: 12px; font-size: 14px; font-weight: 600; color: #eab308;">Read more →</div>
-            </div>
-          </a>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px; border:1px solid #f1f5f9; border-radius:12px; overflow:hidden; background:#fafafa;">
+          <tr>
+            <td width="100" style="vertical-align:top; padding:0;">
+              <a href="https://www.mypennypal.com/insights/${post.slug}" style="text-decoration:none; display:block;">
+                <img src="${post.image_url}" alt="${post.title}" width="100" height="100" style="display:block; width:100px; height:100px; object-fit:cover;" />
+              </a>
+            </td>
+            <td style="vertical-align:top; padding:14px 16px;">
+              <a href="https://www.mypennypal.com/insights/${post.slug}" style="text-decoration:none;">
+                <div style="font-size:13px; font-weight:700; color:#1e293b; line-height:1.4; margin-bottom:6px;">${post.title}</div>
+                <div style="font-size:12px; color:#94a3b8; line-height:1.5; margin-bottom:8px;">${post.excerpt.substring(0, 80)}...</div>
+                <div style="font-size:12px; font-weight:700; color:#eab308;">Read more &#8594;</div>
+              </a>
+            </td>
+          </tr>
+        </table>
       `).join('')
       : '';
 
@@ -81,53 +87,110 @@ Deno.serve(async (req) => {
       from: SENDER_EMAIL,
       to: [email],
       subject: 'Welcome to the Penny Pal Newsletter! 🚀',
-      text: `Welcome to the Penny Pal Circle! 🚀`,
+      text: `You're on the list! Welcome to the Penny Pal Newsletter. Visit our hub: https://www.mypennypal.com/insights`,
       html: `
         <!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
-              .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-              .card { background-color: #ffffff; border-radius: 24px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-              .logo { display: block; width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 32px; }
-              .heading { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0 0 16px 0; text-align: center; line-height: 1.2; }
-              .text { font-size: 16px; color: #475569; line-height: 1.6; text-align: center; margin-bottom: 32px; }
-              .button { display: block; background-color: #1e293b; color: #ffffff; padding: 18px 32px; border-radius: 16px; text-decoration: none; font-weight: 600; font-size: 16px; text-align: center; margin-bottom: 40px; }
-              .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 24px; text-align: center; }
-              .footer { text-align: center; padding-top: 40px; border-top: 1px solid #f1f5f9; }
-              .social-link { display: inline-block; margin: 0 8px; opacity: 0.5; }
-            </style>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Welcome to the Penny Pal Newsletter</title>
           </head>
-          <body>
-            <div class="container">
-              <div class="card">
-                <img src="https://www.mypennypal.com/email-assets/penny_avatar.jpg" alt="Logo" class="logo" />
-                <h1 class="heading">You're on the list!</h1>
-                <p class="text">Welcome to the Penny Pal Newsletter. You'll now receive weekly insights, market updates, and wealth-building tips straight from our experts.</p>
-                
-                <a href="https://www.mypennypal.com/insights" class="button">Visit The Hub</a>
-                
-                ${latestPosts && latestPosts.length > 0 ? `
-                  <div class="section-title">Latest Financial Insights</div>
-                  ${blogHtml}
-                  <div style="text-align: center; margin-bottom: 40px;">
-                    <a href="https://www.mypennypal.com/insights" style="color: #64748b; font-size: 14px; text-decoration: none; font-weight: 500;">View all insights →</a>
-                  </div>
-                ` : ''}
-                
-                <div class="footer">
-                  <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">Follow the movement</p>
-                  <div style="margin-bottom: 24px;">
-                    <a href="https://x.com/pennypalhq" class="social-link"><img src="https://www.mypennypal.com/email-assets/x_icon.png" width="20" height="20" /></a>
-                    <a href="https://www.instagram.com/pennypalhq/" class="social-link"><img src="https://www.mypennypal.com/email-assets/insta_icon.png" width="20" height="20" /></a>
-                    <a href="https://www.tiktok.com/@pennypalhq" class="social-link"><img src="https://www.mypennypal.com/email-assets/tiktok_icon.png" width="20" height="20" /></a>
-                  </div>
-                  <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; ${new Date().getFullYear()} Penny Pal. All rights reserved.</p>
-                </div>
-              </div>
-            </div>
+          <body style="margin:0; padding:0; background-color:#f1f5f9; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1f5f9;">
+              <tr>
+                <td align="center" style="padding:40px 16px;">
+
+                  <!-- Main Card -->
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; background:#ffffff; border-radius:20px; overflow:hidden; border:1px solid #e2e8f0;">
+
+                    <!-- Logo -->
+                    <tr>
+                      <td align="center" style="padding:36px 40px 0;">
+                        <img src="https://www.mypennypal.com/email-assets/penny_avatar.jpg" alt="Penny Pal" width="64" height="64" style="display:block; border-radius:16px;" />
+                      </td>
+                    </tr>
+
+                    <!-- Heading -->
+                    <tr>
+                      <td align="center" style="padding:24px 40px 8px;">
+                        <h1 style="margin:0; font-size:26px; font-weight:800; color:#0f172a; line-height:1.25;">You're on the list!</h1>
+                      </td>
+                    </tr>
+
+                    <!-- Body text -->
+                    <tr>
+                      <td align="center" style="padding:8px 40px 32px;">
+                        <p style="margin:0; font-size:15px; color:#64748b; line-height:1.65;">Welcome to the Penny Pal Newsletter. You'll now receive weekly insights, market updates, and wealth-building tips straight from our experts.</p>
+                      </td>
+                    </tr>
+
+                    <!-- CTA Button -->
+                    <tr>
+                      <td align="center" style="padding:0 40px 40px;">
+                        <a href="https://www.mypennypal.com/insights" style="display:inline-block; background-color:#eab308; color:#ffffff; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:12px; letter-spacing:0.01em;">Visit The Hub</a>
+                      </td>
+                    </tr>
+
+                    ${latestPosts && latestPosts.length > 0 ? `
+                    <!-- Section divider -->
+                    <tr>
+                      <td style="padding:0 40px;">
+                        <div style="border-top:1px solid #f1f5f9;"></div>
+                      </td>
+                    </tr>
+
+                    <!-- Insights Section Title -->
+                    <tr>
+                      <td align="center" style="padding:28px 40px 16px;">
+                        <div style="font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:0.1em; text-transform:uppercase;">Latest Financial Insights</div>
+                      </td>
+                    </tr>
+
+                    <!-- Blog Cards -->
+                    <tr>
+                      <td style="padding:0 32px;">
+                        ${blogHtml}
+                      </td>
+                    </tr>
+
+                    <!-- View all link -->
+                    <tr>
+                      <td align="center" style="padding:12px 40px 36px;">
+                        <a href="https://www.mypennypal.com/insights" style="font-size:12px; color:#94a3b8; text-decoration:none; font-weight:500; letter-spacing:0.03em;">View all insights &#8594;</a>
+                      </td>
+                    </tr>
+                    ` : ''}
+
+                    <!-- Footer -->
+                    <tr>
+                      <td style="background-color:#f8fafc; border-top:1px solid #f1f5f9; padding:28px 40px; border-radius:0 0 20px 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td align="center" style="padding-bottom:16px;">
+                              <span style="font-size:13px; color:#94a3b8;">Follow the movement</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td align="center" style="padding-bottom:20px;">
+                              <a href="https://x.com/pennypalhq" style="display:inline-block; margin:0 6px; background:#1e293b; color:#ffffff; font-size:11px; font-weight:700; text-decoration:none; padding:7px 14px; border-radius:20px; letter-spacing:0.03em;">&#119831; X</a>
+                              <a href="https://www.instagram.com/pennypalhq/" style="display:inline-block; margin:0 6px; background:#e1306c; color:#ffffff; font-size:11px; font-weight:700; text-decoration:none; padding:7px 14px; border-radius:20px; letter-spacing:0.03em;">&#128247; Instagram</a>
+                              <a href="https://www.tiktok.com/@pennypalhq" style="display:inline-block; margin:0 6px; background:#010101; color:#ffffff; font-size:11px; font-weight:700; text-decoration:none; padding:7px 14px; border-radius:20px; letter-spacing:0.03em;">&#127926; TikTok</a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td align="center">
+                              <p style="margin:0; font-size:11px; color:#cbd5e1;">&copy; ${new Date().getFullYear()} Penny Pal. All rights reserved.</p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+
+                  </table>
+                </td>
+              </tr>
+            </table>
           </body>
         </html>
       `
