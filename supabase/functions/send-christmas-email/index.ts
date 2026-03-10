@@ -104,11 +104,11 @@ The Penny Pal Team`,
               <div style="background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                 <!-- Logo -->
                 <div style="text-align: center; padding: 20px 0; background-color: #ffffff;">
-                  <img src="https://res.cloudinary.com/dvyj0bgui/image/upload/f_auto,q_auto/v1765476493/penny_avatar_jffsr9.jpg" alt="Penny Pal" style="width: 50px; height: 50px; border-radius: 50%; display: inline-block;" />
+                  <img src="https://www.mypennypal.com/email-assets/penny_avatar.jpg" alt="Penny Pal" style="width: 50px; height: 50px; border-radius: 50%; display: inline-block;" />
                 </div>
 
                 <!-- Header Image -->
-                <img src="https://res.cloudinary.com/dvyj0bgui/image/upload/v1766620025/christmas-card-simple_hokyoe.jpg" alt="Merry Christmas" style="width: 100%; height: auto; display: block;" />
+                <img src="https://www.mypennypal.com/email-assets/christmas_card.jpg" alt="Merry Christmas" style="width: 100%; height: auto; display: block;" />
                 
                 <!-- Content -->
                 <div style="padding: 30px; text-align: center;">
