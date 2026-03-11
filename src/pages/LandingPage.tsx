@@ -8,6 +8,7 @@ import { LandingNewsletter } from '@/components/landing/LandingNewsletter';
 import { LandingInsights } from '@/components/landing/LandingInsights';
 import { PartnersSection } from '@/components/landing/PartnersSection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
+import { GuestBanner } from '@/components/landing/GuestBanner';
 
 const LandingPage = () => {
   const { user } = useAuth();
@@ -46,6 +47,7 @@ const LandingPage = () => {
       <PartnersSection />
 
       <LandingFooter />
+      <GuestBanner />
     </div>
   );
 };

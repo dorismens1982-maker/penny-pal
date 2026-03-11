@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
                         <table width="100%" cellpadding="0" cellspacing="0" border="0">
                           <tr>
                             <td align="center" style="padding-bottom:16px;">
-                              <span style="font-size:14px; font-weight:600; color:#475569;">Follow the movement</span>
+                              <span style="font-size:14px; font-weight:600; color:#475569;">Follow the community</span>
                             </td>
                           </tr>
                           <tr>
