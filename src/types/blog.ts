@@ -12,6 +12,12 @@ export interface BlogPost {
     published_at?: string;
     created_at: string;
     updated_at: string;
+    author_roles?: {
+        role: string;
+    };
+    author_profile?: {
+        full_name: string | null;
+    };
 }
 
 export interface BlogCategory {

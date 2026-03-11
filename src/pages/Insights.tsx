@@ -13,6 +13,7 @@ import { APP_NAME } from '@/config/app';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { AuthModal } from '@/components/AuthModal';
+import { GuestBanner } from '@/components/landing/GuestBanner';
 
 const Insights = () => {
   const navigate = useNavigate();
@@ -21,8 +22,6 @@ const Insights = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
-  const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
-  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   useEffect(() => {
     // Scroll handling removed as the sticky header is gone
@@ -249,57 +248,7 @@ const Insights = () => {
         </div>
       </div>
 
-      {/* ── Guest sticky sign-up banner ───────────────────────────────────── */}
-      {!user && !bannerDismissed && (
-        <motion.div
-          initial={{ y: 80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 80, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-0 left-0 right-0 z-50 p-3 md:p-4"
-        >
-          <div className="max-w-xl mx-auto bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-white/10 px-5 py-4 flex items-center gap-4">
-            {/* Icon */}
-            <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <img src="/logo.png" className="w-6 h-6 rounded-md object-cover" alt="Penny Pal" />
-            </div>
-            {/* Copy */}
-            <div className="flex-1 min-w-0">
-              <p className="text-white font-semibold text-sm leading-tight">Track your money like a pro</p>
-              <p className="text-white/60 text-xs mt-0.5">Join Penny Pal free — budgeting, insights & more.</p>
-            </div>
-            {/* Buttons */}
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => setAuthModal({ open: true, view: 'signin' })}
-                className="text-xs font-medium text-white/70 hover:text-white transition-colors hidden sm:block"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => setAuthModal({ open: true, view: 'signup' })}
-                className="text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition-colors shadow-md"
-              >
-                Sign Up Free
-              </button>
-            </div>
-            {/* Dismiss */}
-            <button
-              onClick={() => setBannerDismissed(true)}
-              className="shrink-0 text-white/40 hover:text-white/80 transition-colors ml-1"
-              aria-label="Dismiss"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </motion.div>
-      )}
-
-      <AuthModal
-        open={authModal.open}
-        onClose={() => setAuthModal(prev => ({ ...prev, open: false }))}
-        defaultView={authModal.view}
-      />
+      <GuestBanner />
     </Layout>
   );
 };
