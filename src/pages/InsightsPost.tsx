@@ -158,7 +158,7 @@ const InsightsPost = () => {
                   initial={{ scale: 1.1 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.8 }}
-                  src={getOptimizedImageUrl(post.image_url)}
+                  src={getOptimizedImageUrl(post.image_url) || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200'}
                   alt={post.title}
                   className="w-full h-full object-cover"
                 />
