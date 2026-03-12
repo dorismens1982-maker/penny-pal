@@ -6,7 +6,7 @@
     },
     {
       "source": "/insights/:slug",
-      "destination": "/api/og-injector"
+      "destination": "/api/og-injector?slug=:slug"
     },
     {
       "source": "/(.*)",
