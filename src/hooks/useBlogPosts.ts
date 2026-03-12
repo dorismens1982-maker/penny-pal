@@ -168,9 +168,10 @@ export const useBlogPosts = () => {
     // Other actions (unchanged logic but could be refactored further)
     const uploadImage = async (file: File): Promise<string | null> => {
         try {
+            console.log('Attempting Cloudinary upload with preset:', 'Penny Pal Blogs');
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', 'Penny Pal Blogs'); // Matching the name from the screenshot
+            formData.append('upload_preset', 'Penny Pal Blogs'); 
             formData.append('cloud_name', 'dv8x0tidi');
 
             const response = await fetch(
@@ -183,11 +184,12 @@ export const useBlogPosts = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error('Cloudinary API Error:', errorData);
                 throw new Error(errorData.error?.message || 'Upload failed');
             }
 
             const data = await response.json();
-            // Using secure_url to ensure HTTPS and the full URL for sharing
+            console.log('Cloudinary Upload Success:', data.secure_url);
             return data.secure_url;
         } catch (error: any) {
             console.error('Cloudinary Upload Error:', error);

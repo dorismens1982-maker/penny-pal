@@ -88,7 +88,7 @@ const Insights = () => {
                 >
                   <div className="relative w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden mb-6">
                     <img
-                      src={getOptimizedImageUrl(posts[0].image_url)}
+                      src={getOptimizedImageUrl(posts[0].image_url) || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200'}
                       alt={posts[0].title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
@@ -122,7 +122,7 @@ const Insights = () => {
                     >
                       <div className="w-24 h-24 md:w-32 md:h-24 shrink-0 rounded-xl overflow-hidden relative">
                         <img
-                          src={getOptimizedImageUrl(post.image_url, 400)}
+                          src={getOptimizedImageUrl(post.image_url, 400) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=400'}
                           alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -205,7 +205,7 @@ const Insights = () => {
                       {/* Thumbnail with nested category pills */}
                       <div className="relative w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden mb-6 filter group-hover:brightness-105 transition-all">
                         <img
-                          src={getOptimizedImageUrl(post.image_url, 800)}
+                          src={getOptimizedImageUrl(post.image_url, 800) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800'}
                           alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />

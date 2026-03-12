@@ -6,10 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getOptimizedImageUrl(url: string | null | undefined, width = 1200) {
-  if (!url) return '';
+  if (!url) return url;
+  
+  const urlString = String(url);
   
   // If it's a Cloudinary URL, add auto optimization and resizing
-  if (url.includes('cloudinary.com')) {
+  if (urlString.includes('cloudinary.com')) {
     // Insert optimization parameters after /upload/
     const parts = url.split('/upload/');
     if (parts.length === 2) {
