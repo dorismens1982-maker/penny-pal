@@ -205,7 +205,7 @@ const InsightsPost = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-4xl md:text-5xl lg:text-6xl font-poppins font-bold text-slate-900 leading-tight tracking-tight"
+                  className="text-4xl md:text-5xl lg:text-7xl font-poppins font-bold text-slate-900 leading-[1.1] tracking-tight"
                 >
                   {post.title}
                 </motion.h1>
@@ -214,12 +214,16 @@ const InsightsPost = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="flex flex-wrap items-center gap-4 text-sm text-slate-500 font-medium md:justify-start justify-center"
+                  className="flex flex-wrap items-center gap-4 text-sm md:text-base text-slate-500 font-medium md:justify-start justify-center"
                 >
+                  <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
+                    <span>By {post.author_name || 'Anonymous'}</span>
+                  </div>
+                  <div className="w-1 h-1 bg-slate-300 rounded-full" />
                   <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
                     <Calendar className="w-4 h-4" />
                     <span>
-                      {new Date(post.created_at).toLocaleDateString('en-US', {
+                      {new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -229,7 +233,7 @@ const InsightsPost = () => {
                   <div className="w-1 h-1 bg-slate-300 rounded-full" />
                   <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
                     <Clock className="w-4 h-4" />
-                    <span>5 min read</span>
+                    <span>{post.readTime || '5'} min read</span>
                   </div>
                 </motion.div>
               </div>

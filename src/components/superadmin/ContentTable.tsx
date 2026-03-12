@@ -62,6 +62,7 @@ export const ContentTable = ({ refreshTrigger, onEdit }: ContentTableProps) => {
                 <TableHeader>
                     <TableRow>
                         <TableHead className="w-[400px]">Title</TableHead>
+                        <TableHead>Author</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
@@ -84,13 +85,16 @@ export const ContentTable = ({ refreshTrigger, onEdit }: ContentTableProps) => {
                                 </div>
                             </TableCell>
                             <TableCell>
+                                <span className="text-sm font-medium">{post.author_name || 'Anonymous'}</span>
+                            </TableCell>
+                            <TableCell>
                                 {post.published ? (
                                     <Badge variant="default" className="bg-green-600 hover:bg-green-700">Published</Badge>
                                 ) : (
                                     <Badge variant="secondary">Draft</Badge>
                                 )}
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="text-sm text-muted-foreground text-nowrap">
                                 {new Date(post.created_at).toLocaleDateString()}
                             </TableCell>
                             <TableCell className="text-right">

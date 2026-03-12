@@ -57,6 +57,7 @@ const Insights = () => {
   };
 
   const getAuthorName = (post: BlogPost) => {
+    if (post.author_name) return post.author_name;
     if (post.author_roles?.role === 'super_admin' || post.author_roles?.role === 'admin') {
       return APP_NAME;
     }

@@ -25,6 +25,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
     const [title, setTitle] = useState(post?.title || '');
     const [slug, setSlug] = useState(post?.slug || '');
+    const [authorName, setAuthorName] = useState(post?.author_name || '');
     const [excerpt, setExcerpt] = useState(post?.excerpt || '');
     const [content, setContent] = useState(post?.content || '');
     const [imageUrl, setImageUrl] = useState(post?.image_url || '');
@@ -32,6 +33,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     const [published, setPublished] = useState(post?.published || false);
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [isPreviewMode, setIsPreviewMode] = useState(false);
 
     // Auto-generate slug from title
     useEffect(() => {
@@ -60,6 +62,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
         const postData: CreateBlogPostData = {
             title,
             slug,
+            author_name: authorName,
             excerpt,
             content,
             image_url: imageUrl,
@@ -89,10 +92,17 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
 
     const modules = {
         toolbar: [
-            [{ header: [1, 2, 3, false] }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ font: [] }],
+            [{ size: ['small', false, 'large', 'huge'] }],
             ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ script: 'sub' }, { script: 'super' }],
             [{ list: 'ordered' }, { list: 'bullet' }],
-            ['link'],
+            [{ indent: '-1' }, { indent: '+1' }],
+            [{ align: [] }],
+            ['link', 'image', 'video'],
+            ['blockquote', 'code-block'],
             ['clean'],
         ],
     };
@@ -102,27 +112,86 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-200">
-                    <h2 className="text-xl font-bold text-slate-900">
-                        {post ? 'Edit Post' : 'New Post'}
-                    </h2>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-xl font-bold text-slate-900">
+                            {post ? 'Edit Post' : 'New Post'}
+                        </h2>
+                        <div className="flex bg-slate-100 p-1 rounded-md">
+                            <button
+                                onClick={() => setIsPreviewMode(false)}
+                                className={`px-3 py-1 text-sm font-medium rounded ${!isPreviewMode ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Editor
+                            </button>
+                            <button
+                                onClick={() => setIsPreviewMode(true)}
+                                className={`px-3 py-1 text-sm font-medium rounded ${isPreviewMode ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Preview
+                            </button>
+                        </div>
+                    </div>
                     <Button variant="ghost" size="sm" onClick={onClose}>
                         <X className="w-4 h-4" />
                     </Button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {/* Title */}
-                    <div className="space-y-2">
-                        <Label htmlFor="title">Title *</Label>
-                        <Input
-                            id="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter post title"
-                            className="text-lg font-medium"
-                        />
-                    </div>
+                <div className="flex-1 overflow-y-auto p-6">
+                    {isPreviewMode ? (
+                        <div className="max-w-3xl mx-auto space-y-8">
+                            {imageUrl && (
+                                <div className="w-full h-64 overflow-hidden rounded-xl">
+                                    <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                                </div>
+                            )}
+                            <div className="space-y-4">
+                                <h1 className="text-4xl md:text-5xl font-poppins font-bold tracking-tight text-slate-900 leading-tight">
+                                    {title || 'Untitled Post'}
+                                </h1>
+                                <div className="flex items-center gap-4 text-sm text-slate-500">
+                                    <span>By {authorName || 'Anonymous'}</span>
+                                    <span>•</span>
+                                    <span>{new Date().toLocaleDateString()}</span>
+                                    {category && (
+                                        <>
+                                            <span>•</span>
+                                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-semibold">
+                                                {category}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            <div 
+                                className="prose prose-lg max-w-none ql-editor"
+                                dangerouslySetInnerHTML={{ __html: content }}
+                            />
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* Title */}
+                            <div className="space-y-2">
+                                <Label htmlFor="title">Title *</Label>
+                                <Input
+                                    id="title"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Enter post title"
+                                    className="text-lg font-medium"
+                                />
+                            </div>
+
+                            {/* Author */}
+                            <div className="space-y-2">
+                                <Label htmlFor="authorName">Author Name</Label>
+                                <Input
+                                    id="authorName"
+                                    value={authorName}
+                                    onChange={(e) => setAuthorName(e.target.value)}
+                                    placeholder="Enter publisher name (leave empty for Anonymous)"
+                                />
+                            </div>
 
                     {/* Slug */}
                     <div className="space-y-2">
@@ -182,6 +251,8 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                             />
                         </div>
                     </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}
