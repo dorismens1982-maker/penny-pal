@@ -44,10 +44,16 @@ export const SEO = ({ title, description, image, type = 'website' }: SEOProps) =
             if (ogImage) ogImage.setAttribute('content', image);
             const twitterImage = document.querySelector('meta[name="twitter:image"]');
             if (twitterImage) twitterImage.setAttribute('content', image);
+
+            // Update dimensions
+            let ogWidth = document.querySelector('meta[property="og:image:width"]');
+            if (ogWidth) ogWidth.setAttribute('content', '1200');
+            let ogHeight = document.querySelector('meta[property="og:image:height"]');
+            if (ogHeight) ogHeight.setAttribute('content', '630');
         } else {
-            // Fallback to default sharing image if one exists in public folder
+            // Fallback to default sharing image
             const ogImage = document.querySelector('meta[property="og:image"]');
-            if (ogImage) ogImage.setAttribute('content', 'https://www.mypennypal.com/sharing.jpeg');
+            if (ogImage) ogImage.setAttribute('content', 'https://www.mypennypal.com/logo.jpg');
         }
 
         const ogType = document.querySelector('meta[property="og:type"]');
