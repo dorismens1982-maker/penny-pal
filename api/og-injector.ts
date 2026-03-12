@@ -42,54 +42,49 @@ export default async function handler(request: Request) {
                     const post = posts[0];
                     const title = `${post.title} | Penny Pal`;
                     const description = post.excerpt || "Read this insight on Penny Pal.";
-                    const image = post.image_url || "https://www.mypennypal.com/logo.png";
-                    const postUrl = `https://www.mypennypal.com/insights/${slug}`;
-                    const image = post.image_url || "https://www.mypennypal.com/logo.jpg";
+                    const rawImage = post.image_url || "https://www.mypennypal.com/logo.jpg";
+                    const postUrl = `${url.origin}/insights/${slug}`;
                     
                     // Optimization: If it's a Cloudinary URL, ensure it has optimized parameters for social sharing
-                    let optimizedImage = image;
-                    if (optimizedImage.includes('cloudinary.com')) {
-                        // Ensure we have standard social sharing parameters
-                        if (optimizedImage.includes('/upload/')) {
-                            optimizedImage = optimizedImage.replace('/upload/', '/upload/q_auto,f_auto,w_1200,h_630,c_fill/');
-                        }
+                    let optimizedImage = rawImage;
+                    if (optimizedImage.includes('cloudinary.com') && optimizedImage.includes('/upload/')) {
+                        optimizedImage = optimizedImage.replace('/upload/', '/upload/q_auto,f_auto,w_1200,h_630,c_fill/');
                     }
 
+                    // Improved Regex to be more resilient to spaces and self-closing tags
                     html = html
                         .replace(
                             /<title>.*?<\/title>/,
                             `<title>${title}</title>`
                         )
                         .replace(
-                            /<meta name="description" content=".*?"\/>|<meta name="description" content=".*?"[\s]*>|<meta name="description"[\s]*content=".*?"[\s]*>/,
-                            `<meta name="description" content="${description}">`
+                            /<meta name="description"[\s\n]*content=".*?"[\s]*\/?>|<meta property="og:description"[\s\n]*content=".*?"[\s]*\/?>/g,
+                            (match) => match.includes('og:description') 
+                                ? `<meta property="og:description" content="${description}">`
+                                : `<meta name="description" content="${description}">`
                         )
                         .replace(
-                            /<meta property="og:title" content=".*?" \/>|<meta property="og:title" content=".*?"[\s]*>|<meta property="og:title"[\s]*content=".*?"[\s]*>/,
+                            /<meta property="og:title"[\s\n]*content=".*?"[\s]*\/?>/g,
                             `<meta property="og:title" content="${title}">`
                         )
                         .replace(
-                            /<meta property="og:description"[\s\n]*content=".*?" \/>|<meta property="og:description" content=".*?"[\s]*>|<meta property="og:description"[\s]*content=".*?"[\s]*>/,
-                            `<meta property="og:description" content="${description}">`
+                            /<meta property="og:image"[\s\n]*content=".*?"[\s]*\/?>/g,
+                            `<meta property="og:image" content="${optimizedImage}">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">\n    <meta property="og:image:type" content="image/jpeg">`
                         )
                         .replace(
-                            /<meta property="og:image" content=".*?" \/>|<meta property="og:image" content=".*?"[\s]*>|<meta property="og:image"[\s]*content=".*?"[\s]*>/,
-                            `<meta property="og:image" content="${optimizedImage}">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">`
-                        )
-                        .replace(
-                            /<meta property="og:url" content=".*?" \/>|<meta property="og:url" content=".*?"[\s]*>|<meta property="og:url"[\s]*content=".*?"[\s]*>/,
+                            /<meta property="og:url"[\s\n]*content=".*?"[\s]*\/?>/g,
                             `<meta property="og:url" content="${postUrl}">`
                         )
                         .replace(
-                            /<meta name="twitter:title" content=".*?" \/>|<meta name="twitter:title" content=".*?"[\s]*>|<meta name="twitter:title"[\s]*content=".*?"[\s]*>/,
+                            /<meta name="twitter:title"[\s\n]*content=".*?"[\s]*\/?>/g,
                             `<meta name="twitter:title" content="${title}">`
                         )
                         .replace(
-                            /<meta name="twitter:description"[\s\n]*content=".*?" \/>|<meta name="twitter:description" content=".*?"[\s]*>|<meta name="twitter:description"[\s]*content=".*?"[\s]*>/,
+                            /<meta name="twitter:description"[\s\n]*content=".*?"[\s]*\/?>/g,
                             `<meta name="twitter:description" content="${description}">`
                         )
                         .replace(
-                            /<meta name="twitter:image" content=".*?" \/>|<meta name="twitter:image" content=".*?"[\s]*>|<meta name="twitter:image"[\s]*content=".*?"[\s]*>/,
+                            /<meta name="twitter:image"[\s\n]*content=".*?"[\s]*\/?>/g,
                             `<meta name="twitter:image" content="${optimizedImage}">`
                         );
                 }
