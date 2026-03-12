@@ -5,14 +5,22 @@ export const config = {
 export default async function handler(request: Request) {
     const url = new URL(request.url);
     const pathParts = url.pathname.split("/").filter(Boolean);
-
-    // We only care about /insights/[slug]
-    if (pathParts[0] !== "insights" || !pathParts[1]) {
-        // Fallback pass-through if something routes here incorrectly
-        return fetch(new URL("/", request.url));
+    
+    // Prioritize slug from query param (passed by vercel.json rewrite)
+    let slug = url.searchParams.get("slug");
+    
+    // Fallback to path parts if query param is missing
+    if (!slug) {
+        if (pathParts[0] === "insights" && pathParts[1]) {
+            slug = pathParts[1];
+        }
     }
 
-    const slug = pathParts[1];
+    if (!slug) {
+        console.warn(`Could not determine slug for URL: ${url.href}`);
+        // Fallback pass-through
+        return fetch(new URL("/", request.url));
+    }
 
     // Fetch the actual index.html that Vite built.
     // We use the origin so it works in both dev (localhost) and prod (Vercel)
@@ -38,6 +46,8 @@ export default async function handler(request: Request) {
 
             if (apiRes.ok) {
                 const posts = await apiRes.json();
+                console.log(`Supabase found ${posts?.length} posts for slug: ${slug}`);
+                
                 if (posts && posts.length > 0) {
                     const post = posts[0];
                     const title = `${post.title} | Penny Pal`;
@@ -50,45 +60,39 @@ export default async function handler(request: Request) {
                     if (optimizedImage.includes('cloudinary.com') && optimizedImage.includes('/upload/')) {
                         optimizedImage = optimizedImage.replace('/upload/', '/upload/q_auto,f_auto,w_1200,h_630,c_fill/');
                     }
+                    
+                    console.log(`Injecting image for "${post.title}": ${optimizedImage}`);
 
-                    // Improved Regex to be more resilient to spaces and self-closing tags
-                    html = html
-                        .replace(
-                            /<title>.*?<\/title>/,
-                            `<title>${title}</title>`
-                        )
-                        .replace(
-                            /<meta name="description"[\s\n]*content=".*?"[\s]*\/?>|<meta property="og:description"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            (match) => match.includes('og:description') 
-                                ? `<meta property="og:description" content="${description}">`
-                                : `<meta name="description" content="${description}">`
-                        )
-                        .replace(
-                            /<meta property="og:title"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            `<meta property="og:title" content="${title}">`
-                        )
-                        .replace(
-                            /<meta property="og:image"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            `<meta property="og:image" content="${optimizedImage}">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">\n    <meta property="og:image:type" content="image/jpeg">`
-                        )
-                        .replace(
-                            /<meta property="og:url"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            `<meta property="og:url" content="${postUrl}">`
-                        )
-                        .replace(
-                            /<meta name="twitter:title"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            `<meta name="twitter:title" content="${title}">`
-                        )
-                        .replace(
-                            /<meta name="twitter:description"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            `<meta name="twitter:description" content="${description}">`
-                        )
-                        .replace(
-                            /<meta name="twitter:image"[\s\n]*content=".*?"[\s]*\/?>/g,
-                            `<meta name="twitter:image" content="${optimizedImage}">`
-                        );
+                    // Use a more robust attribute-agnostic regex
+                    const replaceMeta = (html: string, identifier: string, content: string, extraTags: string = "") => {
+                        // Regex pattern to match meta tag with specific attribute (name or property)
+                        // It matches even if content/name order is swapped
+                        const pattern = new RegExp(`<meta[^>]*(?:name|property)=["']${identifier}["'][^>]*>`, "gi");
+                        return html.replace(pattern, `<meta property="${identifier.startsWith('og:') ? identifier : identifier}" content="${content}">` + (extraTags ? "\n    " + extraTags : ""));
+                    };
+
+                    html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+                    html = replaceMeta(html, "description", description);
+                    html = replaceMeta(html, "og:title", title);
+                    html = replaceMeta(html, "og:description", description);
+                    html = replaceMeta(html, "og:url", postUrl);
+                    html = replaceMeta(html, "twitter:title", title);
+                    html = replaceMeta(html, "twitter:description", description);
+                    
+                    // Specialized handling for image to add dimensions
+                    const imageDimensions = `<meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">\n    <meta property="og:image:type" content="image/jpeg">`;
+                    html = replaceMeta(html, "og:image", optimizedImage, imageDimensions);
+                    html = replaceMeta(html, "twitter:image", optimizedImage);
+                    
+                    console.log("Meta tags successfully injected.");
+                } else {
+                    console.warn(`No post found in DB for slug: ${slug}`);
                 }
+            } else {
+                console.error(`Supabase API error: ${apiRes.status} ${apiRes.statusText}`);
             }
+        } else {
+            console.error("Missing Supabase environment variables in Edge function");
         }
     } catch (e) {
         console.error("Failed to inject OG tags from Supabase", e);
