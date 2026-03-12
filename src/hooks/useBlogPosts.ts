@@ -168,13 +168,29 @@ export const useBlogPosts = () => {
     // Other actions (unchanged logic but could be refactored further)
     const uploadImage = async (file: File): Promise<string | null> => {
         try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-            const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, file);
-            if (uploadError) throw uploadError;
-            const { data } = supabase.storage.from('blog-images').getPublicUrl(fileName);
-            return data.publicUrl;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'Penny Pal Blogs'); // Matching the name from the screenshot
+            formData.append('cloud_name', 'dv8x0tidi');
+
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/dv8x0tidi/image/upload`,
+                {
+                    method: 'POST',
+                    body: formData,
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Upload failed');
+            }
+
+            const data = await response.json();
+            // Using secure_url to ensure HTTPS and the full URL for sharing
+            return data.secure_url;
         } catch (error: any) {
+            console.error('Cloudinary Upload Error:', error);
             toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
             return null;
         }

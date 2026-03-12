@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
@@ -129,22 +129,57 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
         }
     };
 
-    const modules = {
-        toolbar: [
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ font: [] }],
-            [{ size: ['small', false, 'large', 'huge'] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ color: [] }, { background: [] }],
-            [{ script: 'sub' }, { script: 'super' }],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            [{ indent: '-1' }, { indent: '+1' }],
-            [{ align: [] }],
-            ['link', 'image', 'video'],
-            ['blockquote', 'code-block'],
-            ['clean'],
-        ],
+    const quillRef = useRef<ReactQuill>(null);
+
+    const imageHandler = () => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files?.[0];
+            if (file) {
+                setLoading(true);
+                try {
+                    const url = await uploadImage(file);
+                    if (url) {
+                        const quill = quillRef.current?.getEditor();
+                        if (quill) {
+                            const range = quill.getSelection();
+                            if (range) {
+                                quill.insertEmbed(range.index, 'image', url);
+                            }
+                        }
+                    }
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
     };
+
+    const modules = useMemo(() => ({
+        toolbar: {
+            container: [
+                [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                [{ font: [] }],
+                [{ size: ['small', false, 'large', 'huge'] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ color: [] }, { background: [] }],
+                [{ script: 'sub' }, { script: 'super' }],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                [{ indent: '-1' }, { indent: '+1' }],
+                [{ align: [] }],
+                ['link', 'image', 'video'],
+                ['blockquote', 'code-block'],
+                ['clean'],
+            ],
+            handlers: {
+                image: imageHandler,
+            },
+        },
+    }), [uploadImage]);
 
     const hasLargeImages = content.includes('data:image/');
 
@@ -306,6 +341,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                         </div>
                         <div className="border border-input rounded-md overflow-hidden bg-background">
                             <ReactQuill
+                                ref={quillRef}
                                 theme="snow"
                                 value={content}
                                 onChange={setContent}
