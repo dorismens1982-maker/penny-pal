@@ -28,74 +28,80 @@ export default async function handler(request: Request) {
     const response = await fetch(indexUrl);
     let html = await response.text();
 
+    let debugInfo = "";
+
     try {
         const supabaseUrl = process.env.VITE_SUPABASE_URL;
-        const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+        // The user's Vercel settings show "VITE_SUPABASE_PUBLISHABLE_KEY"
+        const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
-        if (supabaseUrl && supabaseAnonKey) {
-            // Fetch directly from Supabase REST API to avoid edge runtime issues with heavy SDKs
-            const apiRes = await fetch(
-                `${supabaseUrl}/rest/v1/blog_posts?slug=eq.${slug}&select=title,excerpt,image_url`,
-                {
-                    headers: {
-                        "apikey": supabaseAnonKey,
-                        "Authorization": `Bearer ${supabaseAnonKey}`,
-                    },
-                }
-            );
-
-            if (apiRes.ok) {
-                const posts = await apiRes.json();
-                console.log(`Supabase found ${posts?.length} posts for slug: ${slug}`);
-                
-                if (posts && posts.length > 0) {
-                    const post = posts[0];
-                    const title = `${post.title} | Penny Pal`;
-                    const description = post.excerpt || "Read this insight on Penny Pal.";
-                    const rawImage = post.image_url || "https://www.mypennypal.com/logo.jpg";
-                    const postUrl = `${url.origin}/insights/${slug}`;
-                    
-                    // Optimization: If it's a Cloudinary URL, ensure it has optimized parameters for social sharing
-                    let optimizedImage = rawImage;
-                    if (optimizedImage.includes('cloudinary.com') && optimizedImage.includes('/upload/')) {
-                        optimizedImage = optimizedImage.replace('/upload/', '/upload/q_auto,f_auto,w_1200,h_630,c_fill/');
-                    }
-                    
-                    console.log(`Injecting image for "${post.title}": ${optimizedImage}`);
-
-                    // Use a more robust attribute-agnostic regex
-                    const replaceMeta = (html: string, identifier: string, content: string, extraTags: string = "") => {
-                        // Regex pattern to match meta tag with specific attribute (name or property)
-                        // It matches even if content/name order is swapped
-                        const pattern = new RegExp(`<meta[^>]*(?:name|property)=["']${identifier}["'][^>]*>`, "gi");
-                        return html.replace(pattern, `<meta property="${identifier.startsWith('og:') ? identifier : identifier}" content="${content}">` + (extraTags ? "\n    " + extraTags : ""));
-                    };
-
-                    html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
-                    html = replaceMeta(html, "description", description);
-                    html = replaceMeta(html, "og:title", title);
-                    html = replaceMeta(html, "og:description", description);
-                    html = replaceMeta(html, "og:url", postUrl);
-                    html = replaceMeta(html, "twitter:title", title);
-                    html = replaceMeta(html, "twitter:description", description);
-                    
-                    // Specialized handling for image to add dimensions
-                    const imageDimensions = `<meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">\n    <meta property="og:image:type" content="image/jpeg">`;
-                    html = replaceMeta(html, "og:image", optimizedImage, imageDimensions);
-                    html = replaceMeta(html, "twitter:image", optimizedImage);
-                    
-                    console.log("Meta tags successfully injected.");
-                } else {
-                    console.warn(`No post found in DB for slug: ${slug}`);
-                }
-            } else {
-                console.error(`Supabase API error: ${apiRes.status} ${apiRes.statusText}`);
-            }
-        } else {
-            console.error("Missing Supabase environment variables in Edge function");
+        if (!supabaseUrl || !supabaseKey) {
+            throw new Error("Missing Supabase configuration");
         }
-    } catch (e) {
-        console.error("Failed to inject OG tags from Supabase", e);
+
+        const apiRes = await fetch(
+            `${supabaseUrl}/rest/v1/blog_posts?slug=eq.${slug}&select=title,excerpt,image_url`,
+            {
+                headers: {
+                    "apikey": supabaseKey,
+                    "Authorization": `Bearer ${supabaseKey}`,
+                },
+            }
+        );
+
+        if (!apiRes.ok) {
+            throw new Error(`Supabase error: ${apiRes.status}`);
+        }
+
+        const posts = await apiRes.json();
+        debugInfo = `Posts found: ${posts?.length}`;
+        
+        if (posts && posts.length > 0) {
+            const post = posts[0];
+            const title = `${post.title} | Penny Pal`;
+            const description = post.excerpt || "Read this insight on Penny Pal.";
+            const rawImage = post.image_url || "/logo.jpg";
+            
+            // Ensure image URL is absolute
+            let finalImage = rawImage.startsWith('http') ? rawImage : `${url.origin}${rawImage.startsWith('/') ? '' : '/'}${rawImage}`;
+            
+            // Optimization: Apply Cloudinary transformations if applicable
+            if (finalImage.includes('cloudinary.com') && finalImage.includes('/upload/')) {
+                finalImage = finalImage.replace('/upload/', '/upload/q_auto,f_auto,w_1200,h_630,c_fill/');
+            }
+            
+            const postUrl = `${url.origin}/insights/${slug}`;
+
+            // 🛡️ Bulletproof Strip & Inject
+            // 1. Strip all existing potential conflicts (case-insensitive)
+            html = html
+                .replace(/<title>[\s\S]*?<\/title>/gi, '')
+                .replace(/<meta[^>]*(?:name|property)=["'](?:description|og:|twitter:)[^>]*["'][^>]*\/?>/gi, '');
+
+            // 2. Build the fresh metadata block
+            const metaBlock = `
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:url" content="${postUrl}">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="${finalImage}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="${finalImage}">
+    <meta name="debug-slug" content="${slug}">
+            `;
+
+            // 3. Inject before </head> (resilient to case and spacing)
+            html = html.replace(/<\/head>/i, `${metaBlock}\n</head>`);
+        }
+    } catch (e: any) {
+        html = html.replace(/<\/head>/i, `<!-- OG Injection Error: ${e.message} ${debugInfo} -->\n</head>`);
     }
 
     return new Response(html, {
