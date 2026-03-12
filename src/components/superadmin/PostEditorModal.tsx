@@ -34,11 +34,13 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
     // Form States
     const [title, setTitle] = useState('');
     const [slug, setSlug] = useState('');
+    const [authorName, setAuthorName] = useState('');
     const [excerpt, setExcerpt] = useState('');
     const [content, setContent] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [category, setCategory] = useState('');
     const [published, setPublished] = useState(false);
+    const [isPreviewMode, setIsPreviewMode] = useState(false);
 
     // Initialize form when opening
     useEffect(() => {
@@ -46,6 +48,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
             if (post) {
                 setTitle(post.title);
                 setSlug(post.slug);
+                setAuthorName(post.author_name || '');
                 setExcerpt(post.excerpt || '');
                 setContent(post.content);
                 setImageUrl(post.image_url || '');
@@ -56,6 +59,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                 // Reset for new post
                 setTitle('');
                 setSlug('');
+                setAuthorName('');
                 setExcerpt('');
                 setContent('');
                 setImageUrl('');
@@ -96,6 +100,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
         const postData: CreateBlogPostData = {
             title,
             slug,
+            author_name: authorName,
             excerpt,
             content,
             image_url: imageUrl,
@@ -122,13 +127,18 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
 
     const modules = {
         toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'align': [] }],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ font: [] }],
+            [{ size: ['small', false, 'large', 'huge'] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ script: 'sub' }, { script: 'super' }],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            [{ indent: '-1' }, { indent: '+1' }],
+            [{ align: [] }],
             ['link', 'image', 'video'],
-            ['clean']
+            ['blockquote', 'code-block'],
+            ['clean'],
         ],
     };
 
@@ -136,23 +146,81 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-0 gap-0">
                 <DialogHeader className="p-6 pb-2 border-b">
-                    <DialogTitle>{post ? 'Edit Post' : 'Create New Post'}</DialogTitle>
+                    <div className="flex items-center justify-between w-full">
+                        <DialogTitle>{post ? 'Edit Post' : 'Create New Post'}</DialogTitle>
+                        <div className="flex bg-slate-100 p-1 rounded-md mr-8">
+                            <button
+                                onClick={() => setIsPreviewMode(false)}
+                                className={`px-3 py-1 text-sm font-medium rounded ${!isPreviewMode ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Editor
+                            </button>
+                            <button
+                                onClick={() => setIsPreviewMode(true)}
+                                className={`px-3 py-1 text-sm font-medium rounded ${isPreviewMode ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Preview
+                            </button>
+                        </div>
+                    </div>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {/* Main Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="title">Title *</Label>
-                                <Input
-                                    id="title"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Enter your post title"
-                                    className="text-lg font-medium"
-                                />
+                <div className="flex-1 overflow-y-auto p-6">
+                    {isPreviewMode ? (
+                        <div className="max-w-3xl mx-auto space-y-8 py-4">
+                            {imageUrl && (
+                                <div className="w-full h-64 overflow-hidden rounded-xl">
+                                    <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                                </div>
+                            )}
+                            <div className="space-y-4">
+                                <h1 className="text-4xl md:text-5xl font-poppins font-bold tracking-tight text-slate-900 leading-tight">
+                                    {title || 'Untitled Post'}
+                                </h1>
+                                <div className="flex items-center gap-4 text-sm text-slate-500">
+                                    <span>By {authorName || 'Anonymous'}</span>
+                                    <span>•</span>
+                                    <span>{new Date().toLocaleDateString()}</span>
+                                    {category && (
+                                        <>
+                                            <span>•</span>
+                                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-semibold">
+                                                {category}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
                             </div>
+                            <div 
+                                className="prose prose-lg max-w-none ql-editor"
+                                dangerouslySetInnerHTML={{ __html: content }}
+                            />
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* Main Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="title">Title *</Label>
+                                        <Input
+                                            id="title"
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            placeholder="Enter your post title"
+                                            className="text-lg font-medium"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="authorName">Author Name</Label>
+                                        <Input
+                                            id="authorName"
+                                            value={authorName}
+                                            onChange={(e) => setAuthorName(e.target.value)}
+                                            placeholder="Enter publisher name (leave empty for Anonymous)"
+                                        />
+                                    </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="slug">Slug (URL)</Label>
@@ -222,6 +290,8 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                             />
                         </div>
                     </div>
+                        </div>
+                    )}
                 </div>
 
                 <DialogFooter className="p-6 pt-2 border-t bg-slate-50">

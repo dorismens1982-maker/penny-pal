@@ -3,19 +3,50 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getBlogPost } from '@/data/blogPosts';
 import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { usePageHeader } from '@/hooks/usePageHeader';
 import { SEO } from '@/components/SEO';
 import DOMPurify from 'dompurify';
+import { useBlogPosts } from '@/hooks/useBlogPosts';
+import type { BlogPost as BlogPostType } from '@/types/blog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const post = slug ? getBlogPost(slug) : undefined;
+  const { fetchPostBySlug } = useBlogPosts();
   const { header } = usePageHeader('blog-post');
+  
+  const [post, setPost] = React.useState<BlogPostType | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const loadPost = async () => {
+      if (!slug) return;
+      setLoading(true);
+      const data = await fetchPostBySlug(slug);
+      setPost(data);
+      setLoading(false);
+    };
+    loadPost();
+  }, [slug, fetchPostBySlug]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background p-4 md:p-10 space-y-8">
+            <Skeleton className="w-full h-80 rounded-xl" />
+            <div className="max-w-3xl mx-auto space-y-4">
+                <Skeleton className="w-3/4 h-12" />
+                <Skeleton className="w-1/2 h-6" />
+                <Skeleton className="w-full h-64 mt-8" />
+            </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!post) {
     return (
@@ -106,15 +137,20 @@ const BlogPost = () => {
             <Badge className={`${getCategoryColor(post.category)} mb-2`}>
               {post.category}
             </Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold mb-2">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-4 tracking-tight leading-[1.1] max-w-4xl">
               {post.title}
             </h1>
-            <div className="flex items-center gap-4 text-sm opacity-90">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> {post.date}
+            <div className="flex flex-wrap items-center gap-4 text-sm md:text-base opacity-95 font-medium">
+              <span className="flex items-center gap-2">
+                By {post.author_name || 'Anonymous'}
               </span>
+              <span className="opacity-60">•</span>
               <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4" /> {post.readTime} min read
+                <Calendar className="w-4 h-4" /> {post.date || new Date(post.published_at || '').toLocaleDateString()}
+              </span>
+              <span className="opacity-60">•</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-4 h-4" /> {post.readTime || '5'} min read
               </span>
             </div>
             <div className="flex gap-3 mt-4">
