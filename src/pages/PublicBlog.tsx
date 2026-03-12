@@ -6,6 +6,7 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { Clock, Calendar, ArrowRight, ArrowLeft, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { getOptimizedImageUrl } from '@/lib/utils';
 
 const CATEGORIES = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking'];
 
@@ -111,7 +112,7 @@ const PublicBlog = () => {
                         {featured.image && (
                             <div className="h-64 md:h-80 overflow-hidden">
                                 <img
-                                    src={featured.image}
+                                    src={getOptimizedImageUrl(featured.image, 1200)}
                                     alt={featured.title}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                 />
@@ -150,7 +151,7 @@ const PublicBlog = () => {
                             >
                                 {post.image && (
                                     <div className="h-44 overflow-hidden">
-                                        <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <img src={getOptimizedImageUrl(post.image, 800)} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 )}
                                 <div className="p-5 space-y-3 flex-1 flex flex-col">

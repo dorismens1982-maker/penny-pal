@@ -42,6 +42,12 @@ export const SEO = ({ title, description, image, type = 'website' }: SEOProps) =
         if (image) {
             const ogImage = document.querySelector('meta[property="og:image"]');
             if (ogImage) ogImage.setAttribute('content', image);
+            const twitterImage = document.querySelector('meta[name="twitter:image"]');
+            if (twitterImage) twitterImage.setAttribute('content', image);
+        } else {
+            // Fallback to default sharing image if one exists in public folder
+            const ogImage = document.querySelector('meta[property="og:image"]');
+            if (ogImage) ogImage.setAttribute('content', 'https://www.mypennypal.com/sharing.jpeg');
         }
 
         const ogType = document.querySelector('meta[property="og:type"]');

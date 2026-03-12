@@ -11,6 +11,7 @@ import { useBlogPosts } from '@/hooks/useBlogPosts';
 import type { BlogPost as BlogPostType } from '@/types/blog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { getOptimizedImageUrl } from '@/lib/utils';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -102,10 +103,12 @@ const BlogPost = () => {
   const sanitizedContent = DOMPurify.sanitize(post.content);
 
   // Pick hero image
-  const heroImage =
+  const rawImage =
     post.image_url ||
     header?.image_url ||
     'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&fit=crop';
+  
+  const heroImage = getOptimizedImageUrl(rawImage, 1200);
 
   return (
     <Layout>

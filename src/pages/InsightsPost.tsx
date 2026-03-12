@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { X } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import DOMPurify from 'dompurify';
+import { getOptimizedImageUrl } from '@/lib/utils';
 
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 
@@ -113,7 +114,7 @@ const InsightsPost = () => {
         <SEO
           title={post.title}
           description={post.excerpt}
-          image={post.image_url || undefined}
+          image={getOptimizedImageUrl(post.image_url, 1200)}
           type="article"
         />
 
@@ -157,7 +158,7 @@ const InsightsPost = () => {
                   initial={{ scale: 1.1 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.8 }}
-                  src={post.image_url}
+                  src={getOptimizedImageUrl(post.image_url)}
                   alt={post.title}
                   className="w-full h-full object-cover"
                 />
