@@ -16,22 +16,14 @@ const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { fetchPostBySlug } = useBlogPosts();
+  const { useBlogPost } = useBlogPosts();
   const { header } = usePageHeader('blog-post');
   
-  const [post, setPost] = React.useState<BlogPostType | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const { data: post, isLoading: loading } = useBlogPost(slug || '');
 
   React.useEffect(() => {
-    const loadPost = async () => {
-      if (!slug) return;
-      setLoading(true);
-      const data = await fetchPostBySlug(slug);
-      setPost(data);
-      setLoading(false);
-    };
-    loadPost();
-  }, [slug, fetchPostBySlug]);
+    window.scrollTo(0, 0);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -111,7 +103,7 @@ const BlogPost = () => {
 
   // Pick hero image
   const heroImage =
-    post.image ||
+    post.image_url ||
     header?.image_url ||
     'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&fit=crop';
 
@@ -134,7 +126,7 @@ const BlogPost = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
           <div className="absolute bottom-6 left-4 right-4 text-white">
-            <Badge className={`${getCategoryColor(post.category)} mb-2`}>
+            <Badge className={`${getCategoryColor(post.category || '')} mb-2`}>
               {post.category}
             </Badge>
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-4 tracking-tight leading-[1.1] max-w-4xl">
@@ -146,11 +138,11 @@ const BlogPost = () => {
               </span>
               <span className="opacity-60">•</span>
               <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> {post.date || new Date(post.published_at || '').toLocaleDateString()}
+                <Calendar className="w-4 h-4" /> {new Date(post.published_at || post.created_at).toLocaleDateString()}
               </span>
               <span className="opacity-60">•</span>
               <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4" /> {post.readTime || '5'} min read
+                <Clock className="w-4 h-4" /> {post.read_time || '5'} min read
               </span>
             </div>
             <div className="flex gap-3 mt-4">
@@ -179,7 +171,7 @@ const BlogPost = () => {
         {/* ✅ Article Body */}
         <article className="max-w-3xl mx-auto px-4 py-10">
           <div
-            className="prose prose-lg max-w-none prose-headings:font-poppins prose-a:text-primary marker:text-primary"
+            className="prose prose-lg max-w-none prose-headings:font-poppins prose-a:text-primary marker:text-primary ql-editor"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
 

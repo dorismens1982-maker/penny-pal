@@ -1,59 +1,44 @@
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import type { BlogPost, CreateBlogPostData, UpdateBlogPostData } from '@/types/blog';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useBlogPosts = () => {
     const { user } = useAuth();
     const { toast } = useToast();
-    const [posts, setPosts] = useState<BlogPost[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    // Fetch all posts (for admin - includes drafts)
-    const fetchAllPosts = async () => {
-        try {
-            setLoading(true);
-            const { data, error } = await (supabase as any)
-                .from('blog_posts')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            setPosts(data || []);
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error fetching posts',
-                description: error.message,
-            });
-        } finally {
-            setLoading(false);
-        }
+    // Query Keys
+    const BLOG_KEYS = {
+        all: ['blog_posts'] as const,
+        lists: () => [...BLOG_KEYS.all, 'list'] as const,
+        list: (filter: string) => [...BLOG_KEYS.lists(), filter] as const,
+        details: () => [...BLOG_KEYS.all, 'detail'] as const,
+        detail: (slug: string) => [...BLOG_KEYS.details(), slug] as const,
+        analytics: ['blog_analytics'] as const,
+        interactions: (postId: string) => [...BLOG_KEYS.all, 'interactions', postId] as const,
     };
 
-    // Fetch published posts only (for public view)
-    const fetchPublishedPosts = async () => {
-        try {
-            setLoading(true);
-            const { data, error } = await (supabase as any)
-                .from('blog_posts')
-                .select('*')
-                .eq('published', true)
-                .order('published_at', { ascending: false });
+    // --- Queries ---
 
+    // Fetch posts (All for admin, Published for public)
+    const { data: posts = [], isLoading: loading } = useQuery({
+        queryKey: BLOG_KEYS.list(user ? 'all' : 'published'),
+        queryFn: async () => {
+            let query = (supabase as any).from('blog_posts').select('*');
+            
+            if (!user) {
+                query = query.eq('published', true).order('published_at', { ascending: false });
+            } else {
+                query = query.order('created_at', { ascending: false });
+            }
+
+            const { data, error } = await query;
             if (error) throw error;
-            setPosts(data || []);
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error fetching posts',
-                description: error.message,
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
+            return data as BlogPost[];
+        },
+    });
 
     // Fetch single post by slug
     const fetchPostBySlug = async (slug: string): Promise<BlogPost | null> => {
@@ -62,376 +47,235 @@ export const useBlogPosts = () => {
                 .from('blog_posts')
                 .select('*')
                 .eq('slug', slug)
-                .single();
+                .maybeSingle();
 
             if (error) throw error;
             return data;
         } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error fetching post',
-                description: error.message,
-            });
+            console.error('Error fetching post by slug:', error);
             return null;
         }
     };
 
-    // Create new post
-    const createPost = async (postData: CreateBlogPostData): Promise<BlogPost | null> => {
-        try {
+    // --- Specialized Hooks for Pages ---
+    const useBlogPost = (slug: string) => useQuery({
+        queryKey: BLOG_KEYS.detail(slug),
+        queryFn: () => fetchPostBySlug(slug),
+        enabled: !!slug,
+    });
+
+    const useRelatedPosts = (category: string, excludeId: string) => useQuery({
+        queryKey: [...BLOG_KEYS.all, 'related', category, excludeId],
+        queryFn: async () => {
+            if (!category) return [];
+            const { data, error } = await (supabase as any)
+                .from('blog_posts')
+                .select('*')
+                .eq('category', category)
+                .eq('published', true)
+                .neq('id', excludeId)
+                .limit(3);
+            if (error) throw error;
+            return data as BlogPost[];
+        },
+        enabled: !!category && !!excludeId,
+    });
+
+    // Global Analytics Query
+    const analyticsQuery = useQuery({
+        queryKey: BLOG_KEYS.analytics,
+        queryFn: async () => {
+            const [postsRes, likesRes, commentsRes] = await Promise.all([
+                (supabase as any).from('blog_posts').select('*', { count: 'exact', head: true }),
+                (supabase as any).from('blog_post_likes').select('id', { count: 'exact', head: true }),
+                (supabase as any).from('blog_post_comments').select('id', { count: 'exact', head: true }),
+            ]);
+
+            return {
+                totalPosts: postsRes.count || 0,
+                totalLikes: likesRes.count || 0,
+                totalComments: commentsRes.count || 0
+            };
+        },
+    });
+
+    // --- Mutations ---
+
+    const invalidateAll = () => {
+        queryClient.invalidateQueries({ queryKey: BLOG_KEYS.all });
+        queryClient.invalidateQueries({ queryKey: BLOG_KEYS.analytics });
+    };
+
+    // Create
+    const createPostMutation = useMutation({
+        mutationFn: async (postData: CreateBlogPostData) => {
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
                 .insert([postData])
-                .select()
-                .single();
+                .select('id, slug'); // Minimum fields to avoid timeout
+            if (error) {
+                console.error('Create Post Error:', error);
+                throw error;
+            }
+            return data?.[0] as BlogPost;
+        },
+        onSuccess: () => {
+            toast({ title: 'Post created', description: 'Your blog post has been created.' });
+            invalidateAll();
+        },
+        onError: (error: any) => {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        },
+    });
 
-            if (error) throw error;
-
-            toast({
-                title: 'Post created',
-                description: 'Your blog post has been created successfully.',
-            });
-
-            // Refresh posts list
-            await fetchAllPosts();
-            return data;
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error creating post',
-                description: error.message,
-            });
-            return null;
-        }
-    };
-
-    // Update existing post
-    const updatePost = async (postData: UpdateBlogPostData): Promise<BlogPost | null> => {
-        try {
+    // Update
+    const updatePostMutation = useMutation({
+        mutationFn: async (postData: UpdateBlogPostData) => {
             const { id, ...updates } = postData;
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
                 .update(updates)
                 .eq('id', id)
-                .select()
-                .single();
+                .select('id, slug'); // Minimum fields to avoid timeout
+            if (error) {
+                console.error('Update Post Error:', error);
+                throw error;
+            }
+            return data?.[0] as BlogPost;
+        },
+        onSuccess: (data) => {
+            toast({ title: 'Post updated', description: 'Your blog post has been updated.' });
+            invalidateAll();
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.detail(data.slug) });
+        },
+        onError: (error: any) => {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        },
+    });
 
+    // Delete
+    const deletePostMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await (supabase as any).from('blog_posts').delete().eq('id', id);
             if (error) throw error;
+        },
+        onSuccess: () => {
+            toast({ title: 'Post deleted', description: 'Post removed successfully.' });
+            invalidateAll();
+        },
+    });
 
-            toast({
-                title: 'Post updated',
-                description: 'Your blog post has been updated successfully.',
-            });
-
-            // Refresh posts list
-            await fetchAllPosts();
-            return data;
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error updating post',
-                description: error.message,
-            });
-            return null;
-        }
-    };
-
-    // Delete post
-    const deletePost = async (id: string): Promise<boolean> => {
-        try {
-            const { error } = await (supabase as any)
-                .from('blog_posts')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-
-            toast({
-                title: 'Post deleted',
-                description: 'Your blog post has been deleted successfully.',
-            });
-
-            // Refresh posts list
-            await fetchAllPosts();
-            return true;
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error deleting post',
-                description: error.message,
-            });
-            return false;
-        }
-    };
-
-    // Upload image to Supabase Storage
+    // Other actions (unchanged logic but could be refactored further)
     const uploadImage = async (file: File): Promise<string | null> => {
         try {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('blog-images')
-                .upload(filePath, file);
-
+            const { error: uploadError } = await supabase.storage.from('blog-images').upload(fileName, file);
             if (uploadError) throw uploadError;
-
-            // Get public URL
-            const { data } = supabase.storage
-                .from('blog-images')
-                .getPublicUrl(filePath);
-
+            const { data } = supabase.storage.from('blog-images').getPublicUrl(fileName);
             return data.publicUrl;
         } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error uploading image',
-                description: error.message,
-            });
+            toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
             return null;
         }
     };
 
-    // Generate slug from title
-    const generateSlug = (title: string): string => {
-        return title
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
-    };
-
-    // Toggle Like
-    const toggleLike = async (postId: string): Promise<boolean> => {
-        if (!user) {
-            toast({
-                title: 'Sign in required',
-                description: 'Please sign in to like posts.',
-            });
-            return false;
-        }
-
+    const toggleLike = async (postId: string) => {
+        if (!user) return false;
         try {
-            // Check if already liked
             const { data: existingLike } = await (supabase as any)
                 .from('blog_post_likes')
                 .select('id')
                 .eq('post_id', postId)
                 .eq('user_id', user.id)
-                .single();
+                .maybeSingle();
 
             if (existingLike) {
-                // Unlike
-                const { error } = await (supabase as any)
-                    .from('blog_post_likes')
-                    .delete()
-                    .eq('id', existingLike.id);
-                if (error) throw error;
-                return false; // Not liked anymore
+                await (supabase as any).from('blog_post_likes').delete().eq('id', existingLike.id);
             } else {
-                // Like
-                const { error } = await (supabase as any)
-                    .from('blog_post_likes')
-                    .insert([{ post_id: postId, user_id: user.id }]);
-                if (error) throw error;
-                return true; // Liked
+                await (supabase as any).from('blog_post_likes').insert([{ post_id: postId, user_id: user.id }]);
             }
-        } catch (error: any) {
-            console.error('Error toggling like:', error);
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Could not update like status.',
-            });
-            throw error;
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.interactions(postId) });
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.analytics });
+            return !existingLike;
+        } catch (err) {
+            console.error('Error toggling like:', err);
+            throw err;
         }
     };
 
-    // Get Interactions
     const getPostInteractions = async (postId: string) => {
         try {
-            // Get Likes Count
-            const { count: likesCount, error: likesError } = await (supabase as any)
-                .from('blog_post_likes')
-                .select('id', { count: 'exact', head: true })
-                .eq('post_id', postId);
+            const [likesRes, userLikeRes, commentsRes] = await Promise.all([
+                (supabase as any).from('blog_post_likes').select('id', { count: 'exact', head: true }).eq('post_id', postId),
+                user ? (supabase as any).from('blog_post_likes').select('id').eq('post_id', postId).eq('user_id', user.id).maybeSingle() : Promise.resolve({ data: null }),
+                (supabase as any).from('blog_post_comments').select('*').eq('post_id', postId).order('created_at', { ascending: false })
+            ]);
+            
+            const likesCount = likesRes.count || 0;
+            const isLiked = !!userLikeRes.data;
+            const commentsData = commentsRes.data || [];
 
-            if (likesError) throw likesError;
-
-            // Check if user liked
-            let isLiked = false;
-            if (user) {
-                const { data: userLike } = await (supabase as any)
-                    .from('blog_post_likes')
-                    .select('id')
-                    .eq('post_id', postId)
-                    .eq('user_id', user.id)
-                    .single();
-                isLiked = !!userLike;
-            }
-
-            // Get Comments (Raw)
-            const { data: commentsData, error: commentsError } = await (supabase as any)
-                .from('blog_post_comments')
-                .select('*')
-                .eq('post_id', postId)
-                .order('created_at', { ascending: false });
-
-            if (commentsError) throw commentsError;
-
-            // Manual join with profiles to get user names
-            const userIds = [...new Set((commentsData || []).map((c: any) => c.user_id))];
+            // Fast profile mapping
+            const userIds = [...new Set(commentsData.map((c: any) => c.user_id))];
             let profilesMap: Record<string, any> = {};
-
             if (userIds.length > 0) {
-                const { data: profiles, error: profilesError } = await (supabase as any)
-                    .from('profiles')
-                    .select('user_id, preferred_name') // dependent on schema, usually it's user_id or id
-                    .in('user_id', userIds);
-
-                if (!profilesError && profiles) {
-                    profiles.forEach((p: any) => {
-                        profilesMap[p.user_id] = p;
-                    });
-                }
+                const { data: profiles } = await (supabase as any).from('profiles').select('user_id, preferred_name').in('user_id', userIds);
+                profiles?.forEach((p: any) => { profilesMap[p.user_id] = p; });
             }
 
-            // Map comments to include user data structure expected by UI
-            const comments = (commentsData || []).map((comment: any) => {
-                const profile = profilesMap[comment.user_id];
-                return {
-                    ...comment,
-                    user: {
-                        email: '', // Privacy: email hidden
-                        user_metadata: {
-                            preferred_name: profile?.preferred_name || profile?.full_name || profile?.name || 'User',
-                            avatar_url: null
-                        }
+            const comments = commentsData.map((comment: any) => ({
+                ...comment,
+                user: {
+                    user_metadata: {
+                        preferred_name: profilesMap[comment.user_id]?.preferred_name || 'User'
                     }
-                };
-            });
+                }
+            }));
 
-            return {
-                likesCount: likesCount || 0,
-                isLiked,
-                comments: comments || []
-            };
-        } catch (error: any) {
-            console.error('Error fetching interactions:', error);
+            return { likesCount, isLiked, comments };
+        } catch (err) {
+            console.error('Error fetching interactions:', err);
             return { likesCount: 0, isLiked: false, comments: [] };
         }
     };
 
-    // Add Comment
     const addComment = async (postId: string, content: string) => {
         if (!user) return null;
         try {
-            // 1. Insert Comment
-            const { data: commentData, error } = await (supabase as any)
+            const { data, error } = await (supabase as any)
                 .from('blog_post_comments')
-                .insert([{
-                    post_id: postId,
-                    user_id: user.id,
-                    content
-                }])
+                .insert([{ post_id: postId, user_id: user.id, content }])
                 .select()
                 .single();
-
             if (error) throw error;
-
-            // 2. Mock return structure (since we know the current user)
-            // We can fetch profile if we want to be 100% sure, but using auth context is faster for UI
-            return {
-                ...commentData,
-                user: {
-                    email: user.email,
-                    user_metadata: {
-                        preferred_name: user.user_metadata?.preferred_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
-                        avatar_url: user.user_metadata?.avatar_url
-                    }
-                }
-            };
-        } catch (error: any) {
-            console.error('Error adding comment:', error);
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Could not post comment.',
-            });
-            return null;
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.interactions(postId) });
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.analytics });
+            return { ...data, user: { user_metadata: { preferred_name: user.user_metadata?.preferred_name || user.email?.split('@')[0] } } };
+        } catch (err) { 
+            console.error('Error adding comment:', err);
+            return null; 
         }
     };
-
-    // Global Analytics
-    const fetchAnalytics = async () => {
-        try {
-            const { count: postsCount } = await (supabase as any)
-                .from('blog_posts')
-                .select('*', { count: 'exact', head: true });
-
-            const { count: likesCount } = await (supabase as any)
-                .from('blog_post_likes')
-                .select('*', { count: 'exact', head: true });
-
-            const { count: commentsCount } = await (supabase as any)
-                .from('blog_post_comments')
-                .select('*', { count: 'exact', head: true });
-
-            return {
-                totalPosts: postsCount || 0,
-                totalLikes: likesCount || 0,
-                totalComments: commentsCount || 0
-            };
-        } catch (error) {
-            console.error('Error fetching analytics:', error);
-            return { totalPosts: 0, totalLikes: 0, totalComments: 0 };
-        }
-    };
-
-    // Delete Comment
-    const deleteComment = async (commentId: string) => {
-        try {
-            const { error } = await (supabase as any)
-                .from('blog_post_comments')
-                .delete()
-                .eq('id', commentId);
-
-            if (error) throw error;
-            return true;
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Could not delete comment.',
-            });
-            return false;
-        }
-    };
-
-    // Auto-fetch posts on mount (if user is authenticated, fetch all; otherwise fetch published)
-    useEffect(() => {
-        if (user) {
-            fetchAllPosts();
-        } else {
-            fetchPublishedPosts();
-        }
-    }, [user]);
 
     return {
         posts,
         loading,
-        fetchAllPosts,
-        fetchPublishedPosts,
         fetchPostBySlug,
-        createPost,
-        updatePost,
-        deletePost,
+        createPost: createPostMutation.mutateAsync,
+        updatePost: updatePostMutation.mutateAsync,
+        deletePost: deletePostMutation.mutateAsync,
         uploadImage,
-        generateSlug,
+        generateSlug: (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         toggleLike,
         getPostInteractions,
         addComment,
-        deleteComment,
-        fetchAnalytics
+        fetchAnalytics: async () => analyticsQuery.data || { totalPosts: 0, totalLikes: 0, totalComments: 0 },
+        useBlogPost,
+        useRelatedPosts,
+        // Add refetch for convenience
+        refetchPosts: () => queryClient.invalidateQueries({ queryKey: BLOG_KEYS.lists() }),
+        fetchAllPosts: () => queryClient.invalidateQueries({ queryKey: BLOG_KEYS.list('all') }),
+        fetchPublishedPosts: () => queryClient.invalidateQueries({ queryKey: BLOG_KEYS.list('published') }),
     };
 };

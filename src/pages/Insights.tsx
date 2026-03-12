@@ -21,11 +21,6 @@ const Insights = () => {
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    // Scroll handling removed as the sticky header is gone
-  }, []);
 
   // Extract unique categories
   const categories = ['All', ...Array.from(new Set(posts.map(p => p.category).filter(Boolean)))];
@@ -222,8 +217,12 @@ const Insights = () => {
 
                       {/* Content Details */}
                       <div className="flex flex-col flex-1 px-1">
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
+                        <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
                           <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {post.read_time || '5'} min
+                          </span>
                         </div>
 
                         <h3 className="font-poppins font-bold text-slate-900 text-lg leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
