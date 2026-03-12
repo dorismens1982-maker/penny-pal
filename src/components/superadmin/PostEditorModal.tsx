@@ -39,6 +39,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
     const [content, setContent] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [category, setCategory] = useState('');
+    const [readTime, setReadTime] = useState('5');
     const [published, setPublished] = useState(false);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
 
@@ -53,6 +54,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                 setContent(post.content);
                 setImageUrl(post.image_url || '');
                 setCategory(post.category || '');
+                setReadTime(post.read_time || '5');
                 setPublished(post.published);
                 setSlugLocked(true);
             } else {
@@ -64,6 +66,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                 setContent('');
                 setImageUrl('');
                 setCategory('');
+                setReadTime('5');
                 setPublished(false);
                 setSlugLocked(true);
             }
@@ -105,6 +108,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
             content,
             image_url: imageUrl,
             category,
+            read_time: readTime,
             published: shouldPublish,
             published_at: shouldPublish ? new Date().toISOString() : undefined,
         };
@@ -141,6 +145,8 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
             ['clean'],
         ],
     };
+
+    const hasLargeImages = content.includes('data:image/');
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -179,6 +185,8 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                                 </h1>
                                 <div className="flex items-center gap-4 text-sm text-slate-500">
                                     <span>By {authorName || 'Anonymous'}</span>
+                                    <span>•</span>
+                                    <span>{readTime || '5'} min read</span>
                                     <span>•</span>
                                     <span>{new Date().toLocaleDateString()}</span>
                                     {category && (
@@ -222,49 +230,58 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                                         />
                                     </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="slug">Slug (URL)</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        id="slug"
-                                        value={slug}
-                                        onChange={(e) => setSlug(e.target.value)}
-                                        readOnly={slugLocked}
-                                        className={slugLocked ? "bg-muted text-muted-foreground" : ""}
-                                        placeholder="post-url-slug"
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="category">Category</Label>
+                                            <Input
+                                                id="category"
+                                                value={category}
+                                                onChange={(e) => setCategory(e.target.value)}
+                                                placeholder="e.g. Budgeting, Tips"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="readTime">Read Time (min)</Label>
+                                            <Input
+                                                id="readTime"
+                                                value={readTime}
+                                                onChange={(e) => setReadTime(e.target.value)}
+                                                placeholder="e.g. 5"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <Label>Slug & Featured Image</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            id="slug"
+                                            value={slug}
+                                            onChange={(e) => setSlug(e.target.value)}
+                                            readOnly={slugLocked}
+                                            className={slugLocked ? "bg-muted text-muted-foreground" : ""}
+                                            placeholder="post-url-slug"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={() => setSlugLocked(!slugLocked)}
+                                            title={slugLocked ? "Unlock slug" : "Lock slug"}
+                                        >
+                                            {slugLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                                        </Button>
+                                    </div>
+
+                                    <ImageUploader
+                                        currentImage={imageUrl}
+                                        onImageSelect={handleImageSelect}
+                                        onRemoveImage={() => setImageUrl('')}
+                                        uploading={uploading}
                                     />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setSlugLocked(!slugLocked)}
-                                        title={slugLocked ? "Unlock slug editing" : "Lock slug"}
-                                    >
-                                        {slugLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                                    </Button>
                                 </div>
                             </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
-                                <Input
-                                    id="category"
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    placeholder="e.g. Budgeting, Tips, News"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <ImageUploader
-                                currentImage={imageUrl}
-                                onImageSelect={handleImageSelect}
-                                onRemoveImage={() => setImageUrl('')}
-                                uploading={uploading}
-                            />
-                        </div>
-                    </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="excerpt">Excerpt</Label>
@@ -279,7 +296,14 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
 
                     {/* Rich Text Editor */}
                     <div className="space-y-2">
-                        <Label>Content *</Label>
+                        <div className="flex items-center justify-between">
+                            <Label>Content *</Label>
+                            {hasLargeImages && (
+                                <span className="text-[10px] text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-100 animate-pulse">
+                                    ⚠️ Base64 Images Detected (May cause slow saving)
+                                </span>
+                            )}
+                        </div>
                         <div className="border border-input rounded-md overflow-hidden bg-background">
                             <ReactQuill
                                 theme="snow"

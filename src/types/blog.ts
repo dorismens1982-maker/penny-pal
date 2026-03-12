@@ -7,6 +7,7 @@ export interface BlogPost {
     image_url?: string;
     author: string;
     author_name?: string;
+    read_time?: string;
     category?: string;
     tags?: string[];
     published: boolean;
@@ -37,6 +38,7 @@ export interface CreateBlogPostData {
     image_url?: string;
     author?: string;
     author_name?: string;
+    read_time?: string;
     category?: string;
     tags?: string[];
     published?: boolean;

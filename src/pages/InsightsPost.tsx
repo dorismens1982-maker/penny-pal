@@ -17,88 +17,62 @@ import { X } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import DOMPurify from 'dompurify';
 
+import { useBlogPosts } from '@/hooks/useBlogPosts';
+
 const InsightsPost = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const [bannerDismissed, setBannerDismissed] = useState(false);
-  const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+    const { slug } = useParams<{ slug: string }>();
+    const navigate = useNavigate();
+    const { toast } = useToast();
+    const { user } = useAuth();
+    const { useBlogPost, useRelatedPosts } = useBlogPosts();
+    
+    const [bannerDismissed, setBannerDismissed] = useState(false);
+    const [authModal, setAuthModal] = useState<{ open: boolean; view: 'signin' | 'signup' | 'welcome' }>({ open: false, view: 'signup' });
+    
+    // Use React Query hooks
+    const { data: post, isLoading: loading } = useBlogPost(slug || '');
+    const { data: relatedPosts = [] } = useRelatedPosts(post?.category || '', post?.id || '');
 
-  useEffect(() => {
-    const loadPost = async () => {
-      if (!slug) return;
-
-      setLoading(true);
-      try {
-        const { data, error } = await (supabase as any)
-          .from('blog_posts')
-          .select('*')
-          .eq('slug', slug)
-          .eq('published', true)
-          .single();
-
-        if (error) throw error;
-        setPost(data);
-
-        if (data?.category) {
-          const { data: related } = await (supabase as any)
-            .from('blog_posts')
-            .select('*')
-            .eq('category', data.category)
-            .eq('published', true)
-            .neq('id', data.id)
-            .limit(3);
-
-          setRelatedPosts(related || []);
+    useEffect(() => {
+        if (!loading && !post && slug) {
+            // Optional: log or handle if slug is clearly wrong
         }
-      } catch (error: any) {
-        console.error('Error fetching post:', error);
-        setPost(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+        window.scrollTo(0, 0);
+    }, [slug, post, loading]);
 
-    loadPost();
-  }, [slug]);
+    if (loading) {
+        return (
+            <Layout>
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex flex-col items-center gap-4"
+                    >
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                        <p className="text-muted-foreground font-medium">Loading article...</p>
+                    </motion.div>
+                </div>
+            </Layout>
+        );
+    }
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center gap-4"
-          >
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-muted-foreground font-medium">Loading article...</p>
-          </motion.div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!post) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold text-foreground">Article Not Found</h1>
-            <p className="text-muted-foreground">The article you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate('/insights')} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Insights
-            </Button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+    if (!post) {
+        return (
+            <Layout>
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+                    <div className="text-center space-y-4">
+                        <h1 className="text-2xl font-bold text-foreground">Article Not Found</h1>
+                        <p className="text-muted-foreground">The article you're looking for doesn't exist or is still a draft.</p>
+                        <Button onClick={() => navigate('/insights')} className="gap-2">
+                            <ArrowLeft className="w-4 h-4" />
+                            Back to Insights
+                        </Button>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -198,7 +172,7 @@ const InsightsPost = () => {
               </div>
             )}
 
-            <div className="p-6 md:p-12 lg:p-16 max-w-2xl mx-auto">
+            <div className="p-6 md:p-12 lg:p-16 max-w-5xl mx-auto">
               {/* Header Info */}
               <div className="space-y-6 mb-10 text-center md:text-left">
                 <motion.h1
@@ -233,7 +207,7 @@ const InsightsPost = () => {
                   <div className="w-1 h-1 bg-slate-300 rounded-full" />
                   <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
                     <Clock className="w-4 h-4" />
-                    <span>{post.readTime || '5'} min read</span>
+                    <span>{post.read_time || '5'} min read</span>
                   </div>
                 </motion.div>
               </div>
@@ -246,7 +220,7 @@ const InsightsPost = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="prose prose-lg md:prose-xl max-w-none text-slate-700
+                className="prose prose-lg md:prose-xl max-w-none text-slate-700 ql-editor
                                     prose-headings:font-poppins prose-headings:font-bold prose-headings:text-slate-900
                                     prose-p:leading-relaxed prose-p:text-slate-600
                                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline
