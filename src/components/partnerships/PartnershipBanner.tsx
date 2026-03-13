@@ -57,7 +57,7 @@ export const PartnershipBanner: React.FC<PartnershipBannerProps> = ({
                                 </div>
                             )}
 
-                            <h3 className="text-xl sm:text-2xl font-bold font-poppins mb-2">
+                            <h3 className="text-xl sm:text-2xl font-bold font-merriweather mb-2">
                                 {isPlaceholder ? 'Reach thousands of focused investors' : partnerName}
                             </h3>
                             <p className="opacity-80 max-w-lg text-sm sm:text-base leading-relaxed">

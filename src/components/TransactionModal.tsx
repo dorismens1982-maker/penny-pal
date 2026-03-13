@@ -31,7 +31,7 @@ export const TransactionModal = ({ open, onOpenChange, transactionType = 'expens
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent className="w-[90vw] max-w-md sm:w-full">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-poppins">{title}</DialogTitle>
+                        <DialogTitle className="text-xl font-merriweather">{title}</DialogTitle>
                     </DialogHeader>
                     <TransactionForm
                         onClose={() => onOpenChange(false)}

@@ -258,7 +258,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                                 </div>
                             )}
                             <div className="space-y-4">
-                                <h1 className="text-4xl md:text-5xl font-poppins font-bold tracking-tight text-slate-900 leading-tight">
+                                <h1 className="text-4xl md:text-5xl font-merriweather font-bold tracking-tight text-slate-900 leading-tight">
                                     {title || 'Untitled Post'}
                                 </h1>
                                 <div className="flex items-center gap-4 text-sm text-slate-500">
@@ -408,7 +408,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
             <style>{`
                 .ql-font-inter { font-family: 'Inter', sans-serif; }
                 .ql-font-roboto { font-family: 'Roboto', sans-serif; }
-                .ql-font-poppins { font-family: 'Poppins', sans-serif; }
+                .ql-font-merriweather { font-family: 'Merriweather', serif; }
                 .ql-font-lato { font-family: 'Lato', sans-serif; }
                 .ql-font-montserrat { font-family: 'Montserrat', sans-serif; }
                 .ql-font-playfair-display { font-family: 'Playfair Display', serif; }

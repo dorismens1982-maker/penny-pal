@@ -117,7 +117,7 @@ const Settings = () => {
     <div className="p-4 space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-poppins font-bold text-foreground">Settings</h1>
+        <h1 className="text-2xl font-merriweather font-bold text-foreground">Settings</h1>
         <p className="text-muted-foreground">Manage your account and preferences</p>
       </div>
 
@@ -236,7 +236,7 @@ const Settings = () => {
         <CardContent>
           <div className="grid grid-cols-2 gap-6">
             <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <p className="text-2xl font-poppins font-bold text-primary">
+              <p className="text-2xl font-merriweather font-bold text-primary">
                 {transactions.length}
               </p>
               <p className="text-sm text-muted-foreground">Total Transactions</p>

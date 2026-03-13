@@ -234,7 +234,7 @@ const InsightsPost = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 className="blog-content prose prose-lg max-w-none text-slate-700 ql-editor
-                                    prose-headings:font-poppins prose-headings:font-bold prose-headings:text-slate-900
+                                    prose-headings:font-merriweather prose-headings:font-bold prose-headings:text-slate-900
                                     prose-p:leading-relaxed prose-p:text-slate-600
                                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                                     prose-img:rounded-xl prose-img:shadow-sm prose-img:mx-auto prose-img:w-full prose-img:h-auto prose-img:my-8
@@ -271,7 +271,7 @@ const InsightsPost = () => {
               {/* Footer Call to Action */}
               <div className="mt-8 pt-10 border-t border-slate-100">
                 <div className="bg-slate-50 rounded-2xl p-8 text-center space-y-4">
-                  <h3 className="text-xl font-bold font-poppins text-slate-900">Enjoyed this article?</h3>
+                  <h3 className="text-xl font-bold font-merriweather text-slate-900">Enjoyed this article?</h3>
                   <p className="text-slate-600 max-w-md mx-auto">
                     Check out more financial wisdom and tips to grow your wealth with Penny Pal.
                   </p>
@@ -291,7 +291,7 @@ const InsightsPost = () => {
           {/* Related Posts (Optional - using similar glass effect) */}
           {relatedPosts.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-2xl font-poppins font-bold text-slate-900 mb-8 pl-4 border-l-4 border-primary">
+              <h2 className="text-2xl font-merriweather font-bold text-slate-900 mb-8 pl-4 border-l-4 border-primary">
                 Keep Reading
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

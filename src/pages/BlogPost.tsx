@@ -45,7 +45,7 @@ const BlogPost = () => {
     return (
       <Layout>
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
-          <h1 className="text-2xl font-poppins font-bold mb-4">Article Not Found</h1>
+          <h1 className="text-2xl font-merriweather font-bold mb-4">Article Not Found</h1>
           <p className="text-muted-foreground mb-6">
             The article you're looking for doesn't exist.
           </p>
@@ -132,7 +132,7 @@ const BlogPost = () => {
             <Badge className={`${getCategoryColor(post.category || '')} mb-2`}>
               {post.category}
             </Badge>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-poppins font-bold mb-4 tracking-tight leading-[1.1] max-w-4xl">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-merriweather font-bold mb-4 tracking-tight leading-[1.1] max-w-4xl">
               {post.title}
             </h1>
             <div className="flex flex-wrap items-center gap-4 text-sm md:text-base opacity-95 font-medium">
@@ -174,7 +174,7 @@ const BlogPost = () => {
         {/* ✅ Article Body */}
         <article className="max-w-3xl mx-auto px-4 py-10">
           <div
-            className="prose prose-lg max-w-none prose-headings:font-poppins prose-a:text-primary marker:text-primary ql-editor"
+            className="prose prose-lg max-w-none prose-headings:font-merriweather prose-a:text-primary marker:text-primary ql-editor"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
 

@@ -47,7 +47,7 @@ export const OverviewTab = ({
                         </div>
                         <div className="overflow-hidden">
                             <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground truncate">Income</p>
-                            <p className="text-sm md:text-xl font-poppins font-bold text-income truncate">
+                            <p className="text-sm md:text-xl font-merriweather font-bold text-income truncate">
                                 {formatCurrency(totals.income, currency)}
                             </p>
                         </div>
@@ -63,7 +63,7 @@ export const OverviewTab = ({
                         </div>
                         <div className="overflow-hidden">
                             <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground truncate">Expenses</p>
-                            <p className="text-sm md:text-xl font-poppins font-bold text-expense truncate">
+                            <p className="text-sm md:text-xl font-merriweather font-bold text-expense truncate">
                                 {formatCurrency(totals.expenses, currency)}
                             </p>
                         </div>
@@ -76,7 +76,7 @@ export const OverviewTab = ({
                         </div>
                         <div>
                             <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Net Balance</p>
-                            <p className={`text-base md:text-xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
+                            <p className={`text-base md:text-xl font-merriweather font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
                                 {formatCurrency(balance, currency)}
                             </p>
                         </div>
@@ -166,7 +166,7 @@ export const OverviewTab = ({
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex items-center p-6 md:p-8">
                     <div>
-                        <h3 className="text-white font-poppins font-bold text-lg md:text-2xl mb-1">Every Move Counts</h3>
+                        <h3 className="text-white font-merriweather font-bold text-lg md:text-2xl mb-1">Every Move Counts</h3>
                         <p className="text-white/80 text-xs md:text-sm max-w-[200px] md:max-w-none">Review your recent moves below.</p>
                     </div>
                 </div>

@@ -150,7 +150,7 @@ All colors MUST be HSL.
   h4,
   h5,
   h6 {
-    @apply font-poppins;
+    @apply font-merriweather;
   }
 
   /* Custom animations */

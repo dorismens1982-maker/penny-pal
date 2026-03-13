@@ -35,7 +35,7 @@ export const TransactionRow = memo(({ t, onDelete, onEdit, currency }: Transacti
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                         <p className="font-semibold truncate">{t.category}</p>
-                        <p className={`font-poppins font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                        <p className={`font-merriweather font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
                             {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount, currency)}
                         </p>
                     </div>

@@ -122,7 +122,7 @@ const Dashboard = () => {
         <div className="text-center space-y-4">
           <div>
             <p className="text-sm text-muted-foreground mb-2">My Balance</p>
-            <p className={`text-6xl font-poppins font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
+            <p className={`text-6xl font-merriweather font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
               {formatCurrencyUtil(balance, userCurrency)}
             </p>
           </div>

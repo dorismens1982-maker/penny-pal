@@ -96,7 +96,7 @@ export const MonthlyRecapModal = ({ open, onClose, data }: MonthlyRecapModalProp
                             {/* Title Section */}
                             <div className="text-center mb-6">
                                 <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">📅 {monthName} {data.year} Report</p>
-                                <h2 className={`text-2xl font-bold font-poppins mb-2 ${moodColor}`}>{moodHeadline}</h2>
+                                <h2 className={`text-2xl font-bold font-merriweather mb-2 ${moodColor}`}>{moodHeadline}</h2>
                                 <p className="text-sm text-slate-500">{moodSubhead}</p>
                             </div>
 
