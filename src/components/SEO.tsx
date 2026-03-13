@@ -16,48 +16,62 @@ export const SEO = ({ title, description, image, type = 'website' }: SEOProps) =
         const fullTitle = `${title} | Penny Pal`;
         document.title = fullTitle;
 
+        // Utility to get or create meta tag
+        const getOrCreateMeta = (selector: string, attr: string, value: string, contentAttr: string = 'content') => {
+            let el = document.querySelector(selector);
+            if (!el) {
+                el = document.createElement('meta');
+                el.setAttribute(attr, value);
+                document.head.appendChild(el);
+            }
+            return el;
+        };
+
         // 2. Update Meta Description
         if (description) {
-            let metaDesc = document.querySelector('meta[name="description"]');
-            if (!metaDesc) {
-                metaDesc = document.createElement('meta');
-                metaDesc.setAttribute('name', 'description');
-                document.head.appendChild(metaDesc);
-            }
+            const metaDesc = getOrCreateMeta('meta[name="description"]', 'name', 'description');
             metaDesc.setAttribute('content', description);
         }
 
         // 3. Update Open Graph Tags
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        if (ogTitle) ogTitle.setAttribute('content', fullTitle);
+        const ogTitle = getOrCreateMeta('meta[property="og:title"]', 'property', 'og:title');
+        ogTitle.setAttribute('content', fullTitle);
 
-        const ogUrl = document.querySelector('meta[property="og:url"]');
-        if (ogUrl) ogUrl.setAttribute('content', `https://www.mypennypal.com${location.pathname}`);
+        const ogUrl = getOrCreateMeta('meta[property="og:url"]', 'property', 'og:url');
+        ogUrl.setAttribute('content', `https://www.mypennypal.com${location.pathname}`);
 
         if (description) {
-            const ogDesc = document.querySelector('meta[property="og:description"]');
-            if (ogDesc) ogDesc.setAttribute('content', description);
+            const ogDesc = getOrCreateMeta('meta[property="og:description"]', 'property', 'og:description');
+            ogDesc.setAttribute('content', description);
         }
 
-        if (image) {
-            const ogImage = document.querySelector('meta[property="og:image"]');
-            if (ogImage) ogImage.setAttribute('content', image);
-            const twitterImage = document.querySelector('meta[name="twitter:image"]');
-            if (twitterImage) twitterImage.setAttribute('content', image);
+        const sharingImage = image || 'https://www.mypennypal.com/logo.jpg';
+        const ogImage = getOrCreateMeta('meta[property="og:image"]', 'property', 'og:image');
+        ogImage.setAttribute('content', sharingImage);
 
-            // Update dimensions
-            let ogWidth = document.querySelector('meta[property="og:image:width"]');
-            if (ogWidth) ogWidth.setAttribute('content', '1200');
-            let ogHeight = document.querySelector('meta[property="og:image:height"]');
-            if (ogHeight) ogHeight.setAttribute('content', '630');
-        } else {
-            // Fallback to default sharing image
-            const ogImage = document.querySelector('meta[property="og:image"]');
-            if (ogImage) ogImage.setAttribute('content', 'https://www.mypennypal.com/logo.jpg');
+        const twitterImage = getOrCreateMeta('meta[name="twitter:image"]', 'name', 'twitter:image');
+        twitterImage.setAttribute('content', sharingImage);
+
+        // Update dimensions
+        const ogWidth = getOrCreateMeta('meta[property="og:image:width"]', 'property', 'og:image:width');
+        ogWidth.setAttribute('content', '1200');
+        const ogHeight = getOrCreateMeta('meta[property="og:image:height"]', 'property', 'og:image:height');
+        ogHeight.setAttribute('content', '630');
+
+        const ogType = getOrCreateMeta('meta[property="og:type"]', 'property', 'og:type');
+        ogType.setAttribute('content', type);
+
+        // Twitter Card
+        const twitterCard = getOrCreateMeta('meta[name="twitter:card"]', 'name', 'twitter:card');
+        twitterCard.setAttribute('content', 'summary_large_image');
+
+        const twitterTitle = getOrCreateMeta('meta[name="twitter:title"]', 'name', 'twitter:title');
+        twitterTitle.setAttribute('content', fullTitle);
+
+        if (description) {
+            const twitterDesc = getOrCreateMeta('meta[name="twitter:description"]', 'name', 'twitter:description');
+            twitterDesc.setAttribute('content', description);
         }
-
-        const ogType = document.querySelector('meta[property="og:type"]');
-        if (ogType) ogType.setAttribute('content', type);
 
     }, [title, description, image, location.pathname, type]);
 

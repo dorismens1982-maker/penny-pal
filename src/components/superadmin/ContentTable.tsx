@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { BlogPost } from '@/types/blog';
-import { MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import { MoreHorizontal, Trash2, Edit, EyeOff, Eye } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,7 +27,7 @@ interface ContentTableProps {
 }
 
 export const ContentTable = ({ refreshTrigger, onEdit }: ContentTableProps) => {
-    const { posts, loading, deletePost, fetchAllPosts } = useBlogPosts();
+    const { posts, loading, deletePost, togglePublish, fetchAllPosts } = useBlogPosts();
 
     // Refetch when trigger changes
     React.useEffect(() => {
@@ -37,6 +37,13 @@ export const ContentTable = ({ refreshTrigger, onEdit }: ContentTableProps) => {
     const handleDelete = async (id: string, title: string) => {
         if (confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) {
             await deletePost(id);
+        }
+    };
+
+    const handleTogglePublish = async (id: string, currentlyPublished: boolean, title: string) => {
+        const action = currentlyPublished ? 'unpublish' : 'publish';
+        if (confirm(`Are you sure you want to ${action} "${title}"?`)) {
+            await togglePublish({ id, published: !currentlyPublished });
         }
     };
 
@@ -113,6 +120,19 @@ export const ContentTable = ({ refreshTrigger, onEdit }: ContentTableProps) => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => window.open(`/insights/${post.slug}`, '_blank')}>
                                             View Live
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            onClick={() => handleTogglePublish(post.id, post.published, post.title)}
+                                            className={post.published
+                                                ? 'text-amber-600 focus:text-amber-600'
+                                                : 'text-green-600 focus:text-green-600'
+                                            }
+                                        >
+                                            {post.published
+                                                ? <><EyeOff className="mr-2 h-4 w-4" /> Unpublish</>  
+                                                : <><Eye className="mr-2 h-4 w-4" /> Publish</>
+                                            }
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => handleDelete(post.id, post.title)}>

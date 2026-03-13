@@ -14,8 +14,9 @@ export const LandingInsights = () => {
 
     useEffect(() => {
         if (posts && posts.length > 0) {
-            // Get the 3 most recent posts
-            setRecentPosts(posts.slice(0, 3));
+            // Only show published posts, even if an admin is viewing the landing page
+            const published = posts.filter((p) => p.published);
+            setRecentPosts(published.slice(0, 3));
         }
     }, [posts]);
 

@@ -18,6 +18,18 @@ import { AuthModal } from '@/components/AuthModal';
 import DOMPurify from 'dompurify';
 import { getOptimizedImageUrl } from '@/lib/utils';
 
+// Ensure Google Fonts used by Quill are available on the public post page
+if (typeof document !== 'undefined') {
+    const FONT_LINK_ID = 'quill-google-fonts';
+    if (!document.getElementById(FONT_LINK_ID)) {
+        const link = document.createElement('link');
+        link.id = FONT_LINK_ID;
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400;700&family=Source+Code+Pro:wght@400;600&display=swap';
+        document.head.appendChild(link);
+    }
+}
+
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 
 const InsightsPost = () => {
@@ -173,14 +185,14 @@ const InsightsPost = () => {
               </div>
             )}
 
-            <div className="p-6 md:p-12 lg:p-16 max-w-5xl mx-auto">
+            <div className="p-6 md:p-8 lg:p-10 max-w-5xl mx-auto">
               {/* Header Info */}
-              <div className="space-y-6 mb-10 text-center md:text-left">
+              <div className="space-y-3 mb-5 text-center md:text-left">
                 <motion.h1
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-4xl md:text-5xl lg:text-7xl font-poppins font-bold text-slate-900 leading-[1.1] tracking-tight"
+                  className="text-3xl md:text-4xl lg:text-5xl font-merriweather font-bold text-slate-900 leading-[1.15] tracking-tight"
                 >
                   {post.title}
                 </motion.h1>
@@ -221,17 +233,32 @@ const InsightsPost = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="prose prose-lg md:prose-xl max-w-none text-slate-700 ql-editor
+                className="blog-content prose prose-lg max-w-none text-slate-700 ql-editor
                                     prose-headings:font-poppins prose-headings:font-bold prose-headings:text-slate-900
                                     prose-p:leading-relaxed prose-p:text-slate-600
                                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                                     prose-img:rounded-xl prose-img:shadow-sm prose-img:mx-auto prose-img:w-full prose-img:h-auto prose-img:my-8
                                     prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
-                                    [&_.ql-align-center]:text-center
-                                    [&_.ql-align-right]:text-right
-                                    [&_.ql-align-justify]:text-justify
                                 "
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+                dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(post.content, {
+                        // Allow class and style attributes so Quill font/color/align classes are preserved
+                        ADD_ATTR: ['class', 'style'],
+                        ALLOWED_TAGS: [
+                            'p', 'br', 'span', 'div', 'a', 'strong', 'em', 'u', 's', 'del',
+                            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                            'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
+                            'img', 'video', 'source',
+                            'table', 'thead', 'tbody', 'tr', 'th', 'td',
+                            'sup', 'sub',
+                        ],
+                        ALLOWED_ATTR: [
+                            'href', 'src', 'alt', 'title', 'class', 'style',
+                            'target', 'rel', 'width', 'height', 'controls',
+                            'data-value', 'spellcheck', 'contenteditable',
+                        ],
+                    })
+                }}
               />
 
               <div className="mt-8 mb-12">
