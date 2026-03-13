@@ -56,7 +56,7 @@ export const AnalyticsTab = ({
                 <CardContent className="p-5 flex justify-between items-center">
                     <div>
                         <p className="text-xs text-muted-foreground">Total Balance (selected range)</p>
-                        <p className={`text-3xl font-poppins font-bold ${kpis.net >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        <p className={`text-3xl font-merriweather font-bold ${kpis.net >= 0 ? 'text-success' : 'text-destructive'}`}>
                             {formatCurrencyIntl(kpis.net, currency)}
                         </p>
                     </div>

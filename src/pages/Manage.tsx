@@ -266,7 +266,7 @@ const Manage = () => {
               <CardContent className="p-4 md:p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h1 className="text-lg md:text-2xl font-poppins font-bold text-foreground">
+                    <h1 className="text-lg md:text-2xl font-merriweather font-bold text-foreground">
                       {preferred ? `${greeting}, ${preferred}!` : 'Your Financial Hub'}
                     </h1>
                     <p className="text-xs md:text-sm text-muted-foreground mt-0.5">

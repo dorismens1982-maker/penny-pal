@@ -54,7 +54,7 @@ export const PageHeader = ({
 
       <div className="absolute inset-0 flex flex-col justify-center items-center px-4 text-center">
         <h1
-          className={`text-2xl sm:text-3xl md:text-4xl font-poppins font-bold ${textColorClass} drop-shadow-lg`}
+          className={`text-2xl sm:text-3xl md:text-4xl font-merriweather font-bold ${textColorClass} drop-shadow-lg`}
         >
           {title}
         </h1>

@@ -140,7 +140,7 @@ export default function Analytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Total Balance (selected range)</p>
-                <p className={`text-2xl sm:text-3xl font-poppins font-bold ${kpis.net >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <p className={`text-2xl sm:text-3xl font-merriweather font-bold ${kpis.net >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {format.format(kpis.net)}
                 </p>
               </div>
@@ -311,7 +311,7 @@ function KpiCard({
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
-            <p className="text-xl font-poppins font-bold leading-tight">{value}</p>
+            <p className="text-xl font-merriweather font-bold leading-tight">{value}</p>
           </div>
         </div>
       </CardContent>

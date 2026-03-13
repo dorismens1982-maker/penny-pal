@@ -46,7 +46,7 @@ const TransactionRow = memo(({ t, onDelete, onEdit }: { t: any; onDelete: (id: s
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <p className="font-semibold truncate">{t.category}</p>
-            <p className={`font-poppins font-bold shrink-0 ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+            <p className={`font-merriweather font-bold shrink-0 ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
               {t.type === 'income' ? '+' : '-'}{fmtAmt(t.amount)}
             </p>
           </div>
