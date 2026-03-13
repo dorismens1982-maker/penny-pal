@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, ArrowLeft, Pencil, Trash2, Shield } from 'lucide-react';
+import { Plus, ArrowLeft, Pencil, Trash2, Shield, EyeOff, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BlogPostEditor } from '@/components/blog/BlogPostEditor';
 import type { BlogPost } from '@/types/blog';
@@ -11,7 +11,7 @@ import { isAdminEmail } from '@/utils/admin';
 export const BlogAdmin = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { posts, loading, deletePost, fetchAllPosts } = useBlogPosts();
+    const { posts, loading, deletePost, togglePublish, fetchAllPosts } = useBlogPosts();
     const [showEditor, setShowEditor] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | undefined>();
 
@@ -55,8 +55,15 @@ export const BlogAdmin = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this post?')) {
+        if (confirm('Are you sure you want to delete this post? This cannot be undone.')) {
             await deletePost(id);
+        }
+    };
+
+    const handleTogglePublish = async (id: string, currentlyPublished: boolean) => {
+        const action = currentlyPublished ? 'unpublish' : 'publish';
+        if (confirm(`Are you sure you want to ${action} this post?`)) {
+            await togglePublish({ id, published: !currentlyPublished });
         }
     };
 
@@ -169,14 +176,31 @@ export const BlogAdmin = () => {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => handleEdit(post)}
+                                                        title="Edit post"
                                                     >
                                                         <Pencil className="w-4 h-4" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
+                                                        onClick={() => handleTogglePublish(post.id, post.published)}
+                                                        title={post.published ? 'Unpublish (hide from readers)' : 'Publish (make live)'}
+                                                        className={post.published
+                                                            ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50'
+                                                            : 'text-green-600 hover:text-green-700 hover:bg-green-50'
+                                                        }
+                                                    >
+                                                        {post.published
+                                                            ? <EyeOff className="w-4 h-4" />
+                                                            : <Eye className="w-4 h-4" />
+                                                        }
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
                                                         onClick={() => handleDelete(post.id)}
                                                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                        title="Delete permanently"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </Button>

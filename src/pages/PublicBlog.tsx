@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { blogPosts, BlogPost } from '@/data/blogPosts';
+import { useBlogPosts } from '@/hooks/useBlogPosts';
+import type { BlogPost } from '@/types/blog';
 import { APP_NAME } from '@/config/app';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { Clock, Calendar, ArrowRight, ArrowLeft, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getOptimizedImageUrl } from '@/lib/utils';
+import { SEO } from '@/components/SEO';
 
 const CATEGORIES = ['All', 'Saving Tips', 'Investment Guide', 'Currency Updates', 'Expense Tracking'];
 
@@ -19,27 +21,43 @@ const categoryColors: Record<string, string> = {
 
 const PublicBlog = () => {
     const navigate = useNavigate();
+    const { posts: allPosts, loading } = useBlogPosts();
     const [category, setCategory] = useState('All');
     const [search, setSearch] = useState('');
+
+    // Non-admins only see published posts
+    const blogPosts = allPosts.filter(p => p.published);
 
     const filtered = blogPosts.filter(p => {
         const matchCat = category === 'All' || p.category === category;
         const matchSearch = search === '' ||
             p.title.toLowerCase().includes(search.toLowerCase()) ||
-            p.excerpt.toLowerCase().includes(search.toLowerCase());
+            (p.excerpt && p.excerpt.toLowerCase().includes(search.toLowerCase()));
         return matchCat && matchSearch;
     });
 
     const featured = filtered[0];
     const rest = filtered.slice(1);
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
+            <SEO 
+                title={`${APP_NAME} Blog - Financial Insights for Ghana`}
+                description="Expert financial tips, saving strategies, and investment guides tailored for the Ghanaian market."
+            />
             {/* Navbar */}
             <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="gap-1.5">
+                        <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="gap-1.5" type="button">
                             <ArrowLeft className="w-4 h-4" />
                             <span className="hidden sm:inline">Home</span>
                         </Button>
@@ -51,7 +69,7 @@ const PublicBlog = () => {
                             <span className="font-bold text-lg tracking-tight hidden sm:block">{APP_NAME}</span>
                         </Link>
                     </div>
-                    <Button size="sm" onClick={() => navigate('/')}>Get Started</Button>
+                    <Button size="sm" onClick={() => navigate('/')} type="button">Get Started</Button>
                 </div>
             </nav>
 
@@ -62,7 +80,7 @@ const PublicBlog = () => {
                     <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary/80 bg-primary/10 px-3 py-1 rounded-full">
                         Financial Education
                     </span>
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-merriweather">
                         The <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{APP_NAME}</span> Blog
                     </h1>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto">
@@ -89,6 +107,7 @@ const PublicBlog = () => {
                     {CATEGORIES.map(cat => (
                         <button
                             key={cat}
+                            type="button"
                             onClick={() => setCategory(cat)}
                             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${category === cat
                                     ? 'bg-primary text-primary-foreground border-primary shadow-sm'
@@ -106,13 +125,13 @@ const PublicBlog = () => {
                 {/* Featured Article */}
                 {featured && (
                     <div
-                        className="group cursor-pointer rounded-2xl overflow-hidden bg-card border border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-300"
-                        onClick={() => navigate(`/blog/${featured.slug}`)}
+                        className="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-300"
+                        onClick={() => navigate(`/insights/${featured.slug}`)}
                     >
-                        {featured.image && (
+                        {featured.image_url && (
                             <div className="h-64 md:h-80 overflow-hidden">
                                 <img
-                                    src={getOptimizedImageUrl(featured.image, 1200)}
+                                    src={getOptimizedImageUrl(featured.image_url, 1200)}
                                     alt={featured.title}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                 />
@@ -120,17 +139,17 @@ const PublicBlog = () => {
                         )}
                         <div className="p-6 md:p-8 space-y-4">
                             <div className="flex items-center gap-3 flex-wrap">
-                                <span className={`px-3 py-1 rounded-full text-[11px] font-semibold border ${categoryColors[featured.category] || 'bg-muted text-muted-foreground border-border'}`}>
+                                <span className={`px-3 py-1 rounded-full text-[11px] font-semibold border ${categoryColors[featured.category || ''] || 'bg-muted text-muted-foreground border-border'}`}>
                                     {featured.category}
                                 </span>
                                 <span className="text-xs text-primary font-semibold uppercase tracking-wider">Featured</span>
                             </div>
-                            <h2 className="text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors">{featured.title}</h2>
-                            <p className="text-muted-foreground leading-relaxed">{featured.excerpt}</p>
+                            <h2 className="text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors font-merriweather">{featured.title}</h2>
+                            <p className="text-muted-foreground leading-relaxed line-clamp-2">{featured.excerpt}</p>
                             <div className="flex items-center justify-between pt-2">
                                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(featured.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{featured.readTime} min read</span>
+                                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(featured.published_at || featured.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{featured.read_time || '5'} min read</span>
                                 </div>
                                 <span className="flex items-center gap-1.5 text-sm text-primary font-medium group-hover:gap-3 transition-all">
                                     Read article <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -146,22 +165,22 @@ const PublicBlog = () => {
                         {rest.map((post: BlogPost) => (
                             <div
                                 key={post.id}
-                                className="group cursor-pointer rounded-2xl overflow-hidden bg-card border border-border/50 hover:border-primary/40 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col"
-                                onClick={() => navigate(`/blog/${post.slug}`)}
+                                className="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-border/50 hover:border-primary/40 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col"
+                                onClick={() => navigate(`/insights/${post.slug}`)}
                             >
-                                {post.image && (
+                                {post.image_url && (
                                     <div className="h-44 overflow-hidden">
-                                        <img src={getOptimizedImageUrl(post.image, 800)} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <img src={getOptimizedImageUrl(post.image_url, 800)} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 )}
                                 <div className="p-5 space-y-3 flex-1 flex flex-col">
-                                    <span className={`self-start px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${categoryColors[post.category] || 'bg-muted text-muted-foreground border-border'}`}>
+                                    <span className={`self-start px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${categoryColors[post.category || ''] || 'bg-muted text-muted-foreground border-border'}`}>
                                         {post.category}
                                     </span>
-                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors leading-snug">{post.title}</h3>
+                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors leading-snug line-clamp-2 font-merriweather">{post.title}</h3>
                                     <p className="text-muted-foreground text-sm leading-relaxed flex-1 line-clamp-3">{post.excerpt}</p>
                                     <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
-                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.readTime} min</span>
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.read_time || '5'} min</span>
                                         <span className="flex items-center gap-1 text-primary font-medium">
                                             Read <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                                         </span>
@@ -176,7 +195,7 @@ const PublicBlog = () => {
                     <div className="text-center py-20 space-y-3">
                         <p className="text-4xl">📭</p>
                         <p className="text-muted-foreground text-lg">No articles found.</p>
-                        <Button variant="outline" onClick={() => { setCategory('All'); setSearch(''); }}>Clear filters</Button>
+                        <Button variant="outline" onClick={() => { setCategory('All'); setSearch(''); }} type="button">Clear filters</Button>
                     </div>
                 )}
             </main>
@@ -187,3 +206,4 @@ const PublicBlog = () => {
 };
 
 export default PublicBlog;
+

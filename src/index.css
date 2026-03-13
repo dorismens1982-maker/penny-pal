@@ -237,3 +237,35 @@ All colors MUST be HSL.
     /* Firefox */
   }
 }
+
+/* ── Quill Font Classes (global – must be available on InsightsPost, not just in editor) ── */
+/* These classes are output by Quill as <span class="ql-font-X"> in saved HTML content. */
+/* Without these rules, fonts set in the editor are silently ignored on the public page.  */
+.ql-font-inter          { font-family: 'Inter', sans-serif !important; }
+.ql-font-roboto         { font-family: 'Roboto', sans-serif !important; }
+.ql-font-poppins        { font-family: 'Poppins', sans-serif !important; }
+.ql-font-lato           { font-family: 'Lato', sans-serif !important; }
+.ql-font-montserrat     { font-family: 'Montserrat', sans-serif !important; }
+.ql-font-playfair-display { font-family: 'Playfair Display', serif !important; }
+.ql-font-merriweather   { font-family: 'Merriweather', serif !important; }
+.ql-font-source-code-pro{ font-family: 'Source Code Pro', monospace !important; }
+.ql-font-serif          { font-family: Georgia, 'Times New Roman', serif !important; }
+.ql-font-monospace      { font-family: 'Courier New', Courier, monospace !important; }
+
+/* ── Blog post content heading sizes ────────────────────────────────────────── */
+/* The global h1/h2/h3 rule + prose-xl makes h1 from Quill content enormous.    */
+/* These constrained sizes apply specifically inside blog post content divs.     */
+.blog-content h1 { font-size: 1.875rem !important; line-height: 1.2 !important; margin-bottom: 0.75rem !important; }
+.blog-content h2 { font-size: 1.5rem   !important; line-height: 1.3 !important; margin-bottom: 0.5rem  !important; }
+.blog-content h3 { font-size: 1.25rem  !important; line-height: 1.4 !important; margin-bottom: 0.5rem  !important; }
+
+/* ── Quill alignment classes (for published rendering) ───────────────────────── */
+.ql-align-center  { text-align: center !important; }
+.ql-align-right   { text-align: right  !important; }
+.ql-align-justify { text-align: justify !important; }
+
+/* ── Quill indent classes ────────────────────────────────────────────────────── */
+.ql-indent-1 { padding-left: 3em  !important; }
+.ql-indent-2 { padding-left: 6em  !important; }
+.ql-indent-3 { padding-left: 9em  !important; }
+.ql-indent-4 { padding-left: 12em !important; }

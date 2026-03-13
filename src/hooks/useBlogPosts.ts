@@ -3,11 +3,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import type { BlogPost, CreateBlogPostData, UpdateBlogPostData } from '@/types/blog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { isAdminEmail } from '@/utils/admin';
 
 export const useBlogPosts = () => {
     const { user } = useAuth();
     const { toast } = useToast();
     const queryClient = useQueryClient();
+    const isAdmin = isAdminEmail(user?.email);
 
     // Query Keys
     const BLOG_KEYS = {
@@ -22,16 +24,19 @@ export const useBlogPosts = () => {
 
     // --- Queries ---
 
-    // Fetch posts (All for admin, Published for public)
+    // Fetch posts:
+    //  - Super-admins see ALL posts (including drafts) so the blog admin table is complete.
+    //  - Everyone else (guests AND regular logged-in users) only sees published=true.
+    const queryFilter = isAdmin ? 'all' : 'published';
     const { data: posts = [], isLoading: loading } = useQuery({
-        queryKey: BLOG_KEYS.list(user ? 'all' : 'published'),
+        queryKey: BLOG_KEYS.list(queryFilter),
         queryFn: async () => {
             let query = (supabase as any).from('blog_posts').select('*');
-            
-            if (!user) {
-                query = query.eq('published', true).order('published_at', { ascending: false });
-            } else {
+
+            if (isAdmin) {
                 query = query.order('created_at', { ascending: false });
+            } else {
+                query = query.eq('published', true).order('published_at', { ascending: false });
             }
 
             const { data, error } = await query;
@@ -165,6 +170,34 @@ export const useBlogPosts = () => {
         },
     });
 
+    // Toggle published status (Publish / Unpublish)
+    const togglePublishMutation = useMutation({
+        mutationFn: async ({ id, published }: { id: string; published: boolean }) => {
+            const updates: Record<string, any> = { published };
+            if (published) {
+                updates.published_at = new Date().toISOString();
+            }
+            const { error } = await (supabase as any)
+                .from('blog_posts')
+                .update(updates)
+                .eq('id', id);
+            if (error) throw error;
+            return { id, published };
+        },
+        onSuccess: (_, { published }) => {
+            toast({
+                title: published ? 'Post published' : 'Post unpublished',
+                description: published
+                    ? 'The post is now live.'
+                    : 'The post has been unpublished and hidden from readers.',
+            });
+            invalidateAll();
+        },
+        onError: (error: any) => {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        },
+    });
+
     // Other actions (unchanged logic but could be refactored further)
     const uploadImage = async (file: File): Promise<string | null> => {
         try {
@@ -279,10 +312,12 @@ export const useBlogPosts = () => {
     return {
         posts,
         loading,
+        isAdmin,
         fetchPostBySlug,
         createPost: createPostMutation.mutateAsync,
         updatePost: updatePostMutation.mutateAsync,
         deletePost: deletePostMutation.mutateAsync,
+        togglePublish: togglePublishMutation.mutateAsync,
         uploadImage,
         generateSlug: (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         toggleLike,

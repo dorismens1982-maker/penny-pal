@@ -15,11 +15,16 @@ import { SEO } from '@/components/SEO';
 import { AuthModal } from '@/components/AuthModal';
 import { GuestBanner } from '@/components/landing/GuestBanner';
 import { getOptimizedImageUrl } from '@/lib/utils';
+import { isAdminEmail } from '@/utils/admin';
 
 const Insights = () => {
   const navigate = useNavigate();
-  const { posts, loading } = useBlogPosts();
+  const { posts: allPosts, loading } = useBlogPosts();
   const { user } = useAuth();
+  const isAdmin = isAdminEmail(user?.email);
+
+  // Non-admins should only ever see published posts (double guard in case of cache edge cases)
+  const posts = isAdmin ? allPosts : allPosts.filter(p => p.published);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -81,7 +86,7 @@ const Insights = () => {
             {/* Left: The Latest */}
             {posts.length > 0 && (
               <div className="lg:col-span-2 space-y-4">
-                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-poppins">The Latest</h2>
+                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-merriweather">The Latest</h2>
                 <div
                   className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all"
                   onClick={() => navigate(`/insights/${posts[0].slug}`)}
@@ -93,7 +98,7 @@ const Insights = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors font-merriweather">
                     {posts[0].title}
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
@@ -112,7 +117,7 @@ const Insights = () => {
             {/* Right: Top Reads */}
             {posts.length > 1 && (
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-poppins">Top Reads</h2>
+                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-merriweather">Top Reads</h2>
                 <div className="flex flex-col gap-4">
                   {posts.slice(1, 4).map((post) => (
                     <div
@@ -128,7 +133,7 @@ const Insights = () => {
                         />
                       </div>
                       <div className="flex-1 py-1 pr-2">
-                        <h4 className="font-bold text-slate-900 leading-snug line-clamp-2 md:line-clamp-3 mb-2 group-hover:text-primary transition-colors text-sm md:text-base">
+                        <h4 className="font-bold text-slate-900 leading-snug line-clamp-2 md:line-clamp-3 mb-2 group-hover:text-primary transition-colors text-sm md:text-base font-merriweather">
                           {post.title}
                         </h4>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-slate-500">
@@ -148,7 +153,7 @@ const Insights = () => {
           <div className="pb-20">
             {/* Header & Search */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-              <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-poppins">
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-merriweather">
                 Browse by categories
               </h2>
               <div className="relative w-full md:w-64">
@@ -226,7 +231,7 @@ const Insights = () => {
                           </span>
                         </div>
 
-                        <h3 className="font-poppins font-bold text-slate-900 text-lg leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                        <h3 className="font-merriweather font-bold text-slate-900 text-lg leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
                           {post.title}
                         </h3>
 
