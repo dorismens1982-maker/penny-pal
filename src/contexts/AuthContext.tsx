@@ -98,35 +98,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (insertedData) {
           setProfile(insertedData as Profile);
 
-          // NEW: Trigger WELCOME EMAIL and Newsletter subscription for ANY new profile creation
-          // This covers both traditional signup AND first-time Google sign-in
+          // ✅ Webhook (Database → Webhooks) now handles welcome email automatically on profile INSERT.
+          // Newsletter auto-subscribe is kept here.
           const userEmail = authUser.email;
           if (userEmail) {
-            // Auto-subscribe to newsletter silently
             sb.from('newsletter_subscribers').insert([{ email: userEmail }]).then(({ error: nlError }) => {
               if (nlError && nlError.code !== '23505') {
                 console.error("Failed to auto-subscribe new user to newsletter:", nlError);
               }
             });
-
-            // Only invoke welcome email if profile is successfully created
-            console.log('[Auth] Profile created, sending welcome email...');
-            fetch('https://ypouwhelcyzyhjrcldfl.supabase.co/functions/v1/send-welcome-email', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwb3V3aGVsY3l6eWhqcmNsZGZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODc3NDIsImV4cCI6MjA3MzI2Mzc0Mn0.L6gF8wD5aufj3iACmGwXwAArxt5hcYmPjd-NZYlaofs'
-              },
-              body: JSON.stringify({
-                email: userEmail,
-                name: insertedData.preferred_name || null
-              })
-            })
-            .then(async (res) => {
-              const result = await res.json().catch(() => ({}));
-              console.log('[Auth] Welcome email result:', result);
-            })
-            .catch(err => console.error('[Auth] Welcome email fetch failure:', err));
           }
         } else {
           setProfile({ user_id: authUser.id, preferred_name: googleName ?? null, id: undefined, created_at: null });
@@ -209,33 +189,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     console.log('[SignUp] Result:', { error: error?.message, userId: data?.user?.id });
 
-    // ✅ TRIGGER WELCOME EMAIL immediately on successful sign-up.
-    if (!error && email) {
-      console.log('[SignUp] Email successful, now sending welcome email...');
-      
-      // Using direct fetch to match the successful console test - most reliable method
-      fetch('https://ypouwhelcyzyhjrcldfl.supabase.co/functions/v1/send-welcome-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwb3V3aGVsY3l6eWhqcmNsZGZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODc3NDIsImV4cCI6MjA3MzI2Mzc0Mn0.L6gF8wD5aufj3iACmGwXwAArxt5hcYmPjd-NZYlaofs'
-        },
-        body: JSON.stringify({
-          email: email,
-          name: preferredName || null
-        })
-      })
-      .then(async (res) => {
-        const result = await res.json();
-        console.log('[SignUp] Welcome email response:', result);
-      })
-      .catch((err) => {
-        console.error('[SignUp] Failed to send welcome email:', err);
-      });
-
-    } else if (error) {
-      console.warn('[SignUp] Welcome email skipped because of sign-up error:', error.message);
-    }
+    // ✅ Welcome email is now handled by the Supabase database webhook on profile INSERT.
+    // No need to call the edge function from the frontend.
 
     return { error };
   };

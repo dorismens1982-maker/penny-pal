@@ -43,7 +43,29 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, name } = await req.json();
+    const body = await req.json();
+
+    // Support both:
+    // 1. Direct call: { email, name }
+    // 2. Supabase DB Webhook payload: { type: 'INSERT', record: { user_id, preferred_name, ... } }
+    let email = body.email;
+    let name = body.name;
+
+    if (!email && body.record?.user_id) {
+      // Called from a Supabase database webhook - look up the email from auth.users
+      const supabaseUrl = Deno.env.get('SUPABASE_URL');
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+      const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: userData, error: userError } = await adminClient.auth.admin.getUserById(body.record.user_id);
+      if (userError || !userData?.user?.email) {
+        return new Response(JSON.stringify({ error: 'Could not find user email' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      email = userData.user.email;
+      name = body.record.preferred_name || userData.user.user_metadata?.full_name || null;
+    }
 
     if (!email) {
       return new Response(
