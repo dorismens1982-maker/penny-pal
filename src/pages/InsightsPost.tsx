@@ -128,6 +128,8 @@ const InsightsPost = () => {
           description={post.excerpt}
           image={getOptimizedImageUrl(post.image_url, 1200)}
           type="article"
+          author={post.author_name}
+          datePublished={post.published_at || post.created_at}
         />
 
         <div className="relative z-10 container max-w-5xl mx-auto px-4 py-8 md:py-12">
