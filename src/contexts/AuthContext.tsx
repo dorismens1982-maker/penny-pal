@@ -194,12 +194,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // TRIGGER WELCOME EMAIL if signup was successful
+    // ✅ TRIGGER WELCOME EMAIL immediately on successful sign-up.
+    // We call the edge function here (before the session exists) because the
+    // Supabase client automatically sends the anon key in the 'apikey' header,
+    // which our updated edge function now accepts as a valid auth method.
     if (!error && email) {
-      // NOTE: We no longer trigger the welcome email directly here.
-      // It is now handled in refreshProfile when the database profile row is first created.
-      // This ensures consistency across Email and Google sign-in flows.
+      supabase.functions.invoke('send-welcome-email', {
+        body: {
+          email,
+          name: preferredName || null,
+        }
+      }).catch(err => console.error('Error sending welcome email on sign-up:', err));
     }
+
     return { error };
   };
 
