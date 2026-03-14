@@ -109,13 +109,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
             });
 
-            // Invoke welcome email function
-            supabase.functions.invoke('send-welcome-email', {
-              body: {
+            // Only invoke welcome email if profile is successfully created
+            console.log('[Auth] Profile created, sending welcome email...');
+            fetch('https://ypouwhelcyzyhjrcldfl.supabase.co/functions/v1/send-welcome-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwb3V3aGVsY3l6eWhqcmNsZGZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODc3NDIsImV4cCI6MjA3MzI2Mzc0Mn0.L6gF8wD5aufj3iACmGwXwAArxt5hcYmPjd-NZYlaofs'
+              },
+              body: JSON.stringify({
                 email: userEmail,
                 name: insertedData.preferred_name || null
-              }
-            });
+              })
+            })
+            .then(async (res) => {
+              const result = await res.json().catch(() => ({}));
+              console.log('[Auth] Welcome email result:', result);
+            })
+            .catch(err => console.error('[Auth] Welcome email fetch failure:', err));
           }
         } else {
           setProfile({ user_id: authUser.id, preferred_name: googleName ?? null, id: undefined, created_at: null });
@@ -182,7 +193,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
+    console.log('[SignUp] Attempting sign-up for:', email);
+
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -194,17 +207,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
+    console.log('[SignUp] Result:', { error: error?.message, userId: data?.user?.id });
+
     // ✅ TRIGGER WELCOME EMAIL immediately on successful sign-up.
-    // We call the edge function here (before the session exists) because the
-    // Supabase client automatically sends the anon key in the 'apikey' header,
-    // which our updated edge function now accepts as a valid auth method.
     if (!error && email) {
-      supabase.functions.invoke('send-welcome-email', {
-        body: {
-          email,
-          name: preferredName || null,
-        }
-      }).catch(err => console.error('Error sending welcome email on sign-up:', err));
+      console.log('[SignUp] Email successful, now sending welcome email...');
+      
+      // Using direct fetch to match the successful console test - most reliable method
+      fetch('https://ypouwhelcyzyhjrcldfl.supabase.co/functions/v1/send-welcome-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwb3V3aGVsY3l6eWhqcmNsZGZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODc3NDIsImV4cCI6MjA3MzI2Mzc0Mn0.L6gF8wD5aufj3iACmGwXwAArxt5hcYmPjd-NZYlaofs'
+        },
+        body: JSON.stringify({
+          email: email,
+          name: preferredName || null
+        })
+      })
+      .then(async (res) => {
+        const result = await res.json();
+        console.log('[SignUp] Welcome email response:', result);
+      })
+      .catch((err) => {
+        console.error('[SignUp] Failed to send welcome email:', err);
+      });
+
+    } else if (error) {
+      console.warn('[SignUp] Welcome email skipped because of sign-up error:', error.message);
     }
 
     return { error };
