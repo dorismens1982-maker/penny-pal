@@ -49,6 +49,7 @@ const Manage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
+  const [prefilledData, setPrefilledData] = useState<any>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'category'>('date');
@@ -179,6 +180,13 @@ const Manage = () => {
 
   const handleAddStart = () => {
     setEditingTransaction(null);
+    setPrefilledData(null);
+    setShowModal(true);
+  };
+
+  const handleVoiceResult = (result: any) => {
+    setEditingTransaction(null);
+    setPrefilledData(result);
     setShowModal(true);
   };
 
@@ -356,6 +364,7 @@ const Manage = () => {
               onAddTransaction={handleAddStart}
               onDeleteTransaction={handleDeleteTransaction}
               onEditTransaction={handleEditTransaction}
+              onVoiceResult={handleVoiceResult}
               onViewIncome={() => {
                 setTab('transactions');
                 setFilterType('income');
@@ -415,7 +424,12 @@ const Manage = () => {
         </Tabs>
       </div>
 
-      <TransactionModal open={showModal} onOpenChange={setShowModal} transactionToEdit={editingTransaction} />
+      <TransactionModal 
+        open={showModal} 
+        onOpenChange={setShowModal} 
+        transactionToEdit={editingTransaction} 
+        prefilledData={prefilledData}
+      />
       <PrivacyPolicyModal open={showPrivacyModal} onOpenChange={setShowPrivacyModal} />
       <MonthlyRecapModal open={showRecap} onClose={closeRecap} data={recapData} />
     </Layout>

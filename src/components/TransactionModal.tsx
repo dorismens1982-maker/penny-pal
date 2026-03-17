@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTransactions } from '@/hooks/useTransactions';
-import { DollarSign, Calendar, Tag, FileText } from 'lucide-react';
+import { DollarSign, Calendar, Tag, FileText, Sparkles } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
@@ -19,9 +19,10 @@ interface TransactionModalProps {
     onOpenChange: (open: boolean) => void;
     transactionType?: 'income' | 'expense';
     transactionToEdit?: Transaction | null;
+    prefilledData?: any;
 }
 
-export const TransactionModal = ({ open, onOpenChange, transactionType = 'expense', transactionToEdit }: TransactionModalProps) => {
+export const TransactionModal = ({ open, onOpenChange, transactionType = 'expense', transactionToEdit, prefilledData }: TransactionModalProps) => {
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const title = transactionToEdit ? 'Edit Transaction' : 'Transaction';
     const description = transactionToEdit ? 'Update transaction details.' : 'Record your income or expenses.';
@@ -37,7 +38,8 @@ export const TransactionModal = ({ open, onOpenChange, transactionType = 'expens
                         onClose={() => onOpenChange(false)}
                         initialType={transactionType}
                         transactionToEdit={transactionToEdit}
-                        key={transactionToEdit ? transactionToEdit.id : 'new'}
+                        prefilledData={prefilledData}
+                        key={transactionToEdit ? transactionToEdit.id : (prefilledData ? 'voice-' + Date.now() : 'new')}
                     />
                 </DialogContent>
             </Dialog>
@@ -56,7 +58,8 @@ export const TransactionModal = ({ open, onOpenChange, transactionType = 'expens
                         onClose={() => onOpenChange(false)}
                         initialType={transactionType}
                         transactionToEdit={transactionToEdit}
-                        key={transactionToEdit ? transactionToEdit.id : 'new'}
+                        prefilledData={prefilledData}
+                        key={transactionToEdit ? transactionToEdit.id : (prefilledData ? 'voice-' + Date.now() : 'new')}
                         className="pb-safe"
                     />
                 </div>
@@ -70,9 +73,10 @@ interface TransactionFormProps {
     initialType: 'income' | 'expense';
     className?: string;
     transactionToEdit?: Transaction | null;
+    prefilledData?: any;
 }
 
-const TransactionForm = ({ onClose, initialType, className, transactionToEdit }: TransactionFormProps) => {
+const TransactionForm = ({ onClose, initialType, className, transactionToEdit, prefilledData }: TransactionFormProps) => {
     const { addTransaction, updateTransaction } = useTransactions();
     const [loading, setLoading] = useState(false);
 
@@ -85,7 +89,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
         date: new Date().toISOString().split('T')[0]
     });
 
-    // Reset or fill form when transactionToEdit changes
+    // Reset or fill form when transactionToEdit or prefilledData changes
     useEffect(() => {
         if (transactionToEdit) {
             setFormData({
@@ -94,6 +98,14 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                 category: transactionToEdit.category,
                 note: transactionToEdit.note || '',
                 date: new Date(transactionToEdit.date).toISOString().split('T')[0]
+            });
+        } else if (prefilledData) {
+            setFormData({
+                amount: prefilledData.amount?.toString() || '',
+                type: prefilledData.type || initialType,
+                category: prefilledData.category || '',
+                note: prefilledData.note || '',
+                date: prefilledData.date || new Date().toISOString().split('T')[0]
             });
         } else {
             // Reset to defaults if opening as "Add New"
@@ -105,7 +117,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                 date: new Date().toISOString().split('T')[0]
             });
         }
-    }, [transactionToEdit, initialType]); // Re-run if these props change
+    }, [transactionToEdit, initialType, prefilledData]); // Re-run if these props change
 
     const commonCategories = {
         income: ['Salary', 'Freelance', 'Business', 'Investment', 'Gift', 'Bonus', 'Other Income'],
@@ -140,6 +152,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
             [field]: value
         }));
     };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -222,6 +235,7 @@ const TransactionForm = ({ onClose, initialType, className, transactionToEdit }:
                     💰 Income
                 </Button>
             </div>
+
 
             {/* Amount */}
             <div className="space-y-2">
