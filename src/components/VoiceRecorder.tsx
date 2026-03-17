@@ -19,6 +19,7 @@ export const VoiceRecorder = ({ onResult }: VoiceRecorderProps) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+    const recordingStartTimeRef = useRef<number | null>(null);
     const { toast } = useToast();
 
     const startRecording = async () => {
@@ -35,12 +36,35 @@ export const VoiceRecorder = ({ onResult }: VoiceRecorderProps) => {
             };
 
             mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-                await processAudio(audioBlob);
+                const duration = recordingStartTimeRef.current 
+                    ? (Date.now() - recordingStartTimeRef.current) / 1000 
+                    : 0;
+
+                if (duration < 0.5) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Recording too short',
+                        description: 'Please hold the button for a bit longer while speaking.',
+                    });
+                    setIsProcessing(false);
+                } else if (audioChunksRef.current.length === 0) {
+                     toast({
+                        variant: 'destructive',
+                        title: 'No audio captured',
+                        description: 'Please try again and make sure you are speaking clearly.',
+                    });
+                    setIsProcessing(false);
+                } else {
+                    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                    await processAudio(audioBlob);
+                }
+                
                 stream.getTracks().forEach(track => track.stop());
+                recordingStartTimeRef.current = null;
             };
 
             mediaRecorder.start();
+            recordingStartTimeRef.current = Date.now();
             setIsRecording(true);
         } catch (error) {
             console.error('Error accessing microphone:', error);
@@ -80,10 +104,27 @@ export const VoiceRecorder = ({ onResult }: VoiceRecorderProps) => {
             }
         } catch (error: any) {
             console.error('Error processing voice:', error);
+            
+            let errorMessage = 'Could not understand the audio. Please try again.';
+            
+            // supabase-js v2 FunctionsHttpError: context is the Response object
+            if (error.context instanceof Response) {
+                try {
+                    const details = await error.context.json();
+                    console.log('Detailed error from server:', details);
+                    errorMessage = `${details.error || error.message} (Step: ${details.step || 'unknown'})`;
+                } catch (parseError) {
+                    console.error('Failed to parse error JSON:', parseError);
+                    errorMessage = error.message;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
             toast({
                 variant: 'destructive',
                 title: 'AI Processing Failed',
-                description: error.message || 'Could not understand the audio. Please try again.',
+                description: errorMessage,
             });
         } finally {
             setIsProcessing(false);

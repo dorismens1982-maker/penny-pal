@@ -24,29 +24,36 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { headers: getCorsHeaders(req) })
   }
   const corsHeaders = getCorsHeaders(req);
+  let step = "initialization";
 
   try {
-    const groqApiKey = Deno.env.get('GROQ_API_KEY');
-    if (!groqApiKey) {
-      throw new Error('Missing GROQ_API_KEY');
+    console.log('Voice processing started...');
+    
+    step = "getting_api_key";
+    const rawApiKey = Deno.env.get('GROQ_API_KEY');
+    if (!rawApiKey) {
+      throw new Error('Supabase Secret GROQ_API_KEY is not defined.');
     }
+    const groqApiKey = rawApiKey.trim();
 
-    // Get the audio data from the multipart form
+    step = "parsing_form_data";
     const formData = await req.formData();
-    const audioFile = formData.get('file') as File;
+    const audioFile = formData.get('file');
+    
     if (!audioFile) {
-      return new Response(JSON.stringify({ error: 'No audio file provided' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      throw new Error('No audio file provided.');
     }
 
-    // 1. Transcribe audio using Groq Whisper
+    console.log(`Audio file received: size=${audioFile.size}, type=${audioFile.type}`);
+
+    step = "transcription_fetch";
     const transcriptionFormData = new FormData();
-    transcriptionFormData.append('file', audioFile);
+    // Groq Whisper needs a filename with extension to recognize the format
+    transcriptionFormData.append('file', audioFile, 'speech.webm');
     transcriptionFormData.append('model', 'whisper-large-v3');
     transcriptionFormData.append('response_format', 'json');
 
+    console.log('Sending to Groq Whisper...');
     const transcriptionResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
@@ -57,14 +64,20 @@ Deno.serve(async (req: Request) => {
 
     if (!transcriptionResponse.ok) {
       const errorText = await transcriptionResponse.text();
-      console.error('Groq Transcription Error:', errorText);
-      throw new Error(`Transcription failed: ${transcriptionResponse.statusText}`);
+      throw new Error(`Whisper Error (${transcriptionResponse.status}): ${errorText}`);
     }
 
-    const { text: transcript } = await transcriptionResponse.json();
-    console.log('Transcript:', transcript);
+    step = "transcription_parsing";
+    const transcriptionData = await transcriptionResponse.json();
+    const transcript = transcriptionData.text;
+    console.log('Transcript received:', transcript);
 
-    // 2. Extract structured data using Groq Llama 3
+    if (!transcript || transcript.trim().length === 0) {
+       throw new Error('No speech detected in audio.');
+    }
+
+    step = "extraction_fetch";
+    console.log('Sending to Groq Llama for extraction...');
     const extractionResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -72,7 +85,7 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
@@ -100,22 +113,33 @@ Deno.serve(async (req: Request) => {
 
     if (!extractionResponse.ok) {
       const errorText = await extractionResponse.text();
-      console.error('Groq Extraction Error:', errorText);
-      throw new Error(`Extraction failed: ${extractionResponse.statusText}`);
+      throw new Error(`Llama Error (${extractionResponse.status}): ${errorText}`);
     }
 
+    step = "extraction_parsing";
     const extractionResult = await extractionResponse.json();
     const resultText = extractionResult.choices[0].message.content;
-    const structuredData = JSON.parse(resultText);
+    console.log('Extraction Result:', resultText);
+    
+    let structuredData;
+    try {
+        structuredData = JSON.parse(resultText);
+    } catch (e) {
+        throw new Error(`Failed to parse AI JSON: ${resultText}`);
+    }
 
+    step = "returning_response";
     return new Response(JSON.stringify(structuredData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
 
   } catch (error: any) {
-    console.error('Voice Processing Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error(`Error at step [${step}]:`, error.message);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      step: step
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
     });
