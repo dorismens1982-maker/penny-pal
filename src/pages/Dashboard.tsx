@@ -3,8 +3,9 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTransactions } from '@/hooks/useTransactions';
-import { Plus, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownLeft, Sparkles } from 'lucide-react';
 import { TransactionModal } from '@/components/TransactionModal';
+import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNewMonthDetection } from '@/hooks/useNewMonthDetection';
@@ -71,6 +72,7 @@ const Dashboard = () => {
   const { profile, session } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
+  const [prefilledData, setPrefilledData] = useState<any>(null);
   const navigate = useNavigate();
   const { header } = usePageHeader('dashboard');
 
@@ -86,7 +88,14 @@ const Dashboard = () => {
   };
 
   const handleOpenSpendingModal = () => {
+    setPrefilledData(null);
     setModalType('expense');
+    setShowAddModal(true);
+  };
+
+  const handleVoiceResult = (result: any) => {
+    setPrefilledData(result);
+    setModalType(result.type || 'expense');
     setShowAddModal(true);
   };
 
@@ -147,6 +156,15 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* QUICK VOICE LOG */}
+        <div className="bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center gap-2 text-primary font-semibold text-sm justify-center">
+            <Sparkles className="w-4 h-4 animate-pulse" />
+            Quickly log with AI Voice
+          </div>
+          <VoiceRecorder onResult={handleVoiceResult} />
+        </div>
+
         {/* ACTION BUTTONS */}
         <div className="flex gap-3 w-full">
           <Button
@@ -191,7 +209,12 @@ const Dashboard = () => {
         )}
       </div>
 
-      <TransactionModal open={showAddModal} onOpenChange={setShowAddModal} transactionType={modalType} />
+      <TransactionModal 
+        open={showAddModal} 
+        onOpenChange={setShowAddModal} 
+        transactionType={modalType} 
+        prefilledData={prefilledData}
+      />
     </Layout>
   );
 };

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, ArrowDownLeft, Wallet, Plus } from 'lucide-react';
+import { TrendingUp, ArrowDownLeft, Wallet, Plus, Sparkles } from 'lucide-react';
+import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { TransactionRow } from './TransactionRow';
@@ -19,6 +20,7 @@ interface OverviewTabProps {
     onViewIncome?: () => void;
     onViewExpenses?: () => void;
     onEditTransaction: (t: any) => void;
+    onVoiceResult: (result: any) => void;
     currency: CurrencyCode;
 }
 
@@ -32,6 +34,7 @@ export const OverviewTab = ({
     onViewIncome,
     onViewExpenses,
     onEditTransaction,
+    onVoiceResult,
     currency,
 }: OverviewTabProps) => {
     return (
@@ -82,6 +85,15 @@ export const OverviewTab = ({
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* QUICK VOICE LOG */}
+            <div className="bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary font-semibold text-sm justify-center">
+                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    Quickly log with AI Voice
+                </div>
+                <VoiceRecorder onResult={onVoiceResult} />
             </div>
 
             {/* Cashflow Chart */}
