@@ -57,18 +57,32 @@ Deno.serve(async (req) => {
             throw error
         }
 
+        // Fetch profiles to get voice credits and premium status
+        const { data: profiles, error: profileError } = await supabaseAdmin
+            .from('profiles')
+            .select('user_id, voice_credits, is_premium')
+
+        if (profileError) {
+            console.error('Error fetching profiles:', profileError)
+        }
+
         // Map to safe user data (don't expose sensitive fields)
-        const safeUsers = users.map((user: any) => ({
-            id: user.id,
-            email: user.email,
-            created_at: user.created_at,
-            last_sign_in_at: user.last_sign_in_at,
-            email_confirmed_at: user.email_confirmed_at,
-            phone: user.phone,
-            user_metadata: {
-                preferred_name: user.user_metadata?.preferred_name || null
+        const safeUsers = users.map((user: any) => {
+            const profile = profiles?.find((p: any) => p.user_id === user.id)
+            return {
+                id: user.id,
+                email: user.email,
+                created_at: user.created_at,
+                last_sign_in_at: user.last_sign_in_at,
+                email_confirmed_at: user.email_confirmed_at,
+                phone: user.phone,
+                user_metadata: {
+                    preferred_name: user.user_metadata?.preferred_name || null
+                },
+                voice_credits: profile?.voice_credits ?? 5,
+                is_premium: profile?.is_premium ?? false
             }
-        }))
+        })
 
         return new Response(
             JSON.stringify({

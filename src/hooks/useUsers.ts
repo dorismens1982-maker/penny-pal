@@ -11,6 +11,8 @@ export interface AuthUser {
     user_metadata: {
         preferred_name: string | null;
     };
+    voice_credits: number;
+    is_premium: boolean;
 }
 
 export function useUsers() {
@@ -55,7 +57,9 @@ export function useUsers() {
                         phone: null,
                         user_metadata: {
                             preferred_name: p.preferred_name
-                        }
+                        },
+                        voice_credits: p.voice_credits ?? 5,
+                        is_premium: p.is_premium ?? false
                     }));
                     setUsers(mappedUsers);
                     setError('Using fallback data (profiles table)');

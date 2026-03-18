@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, FileText, Activity, TrendingUp } from 'lucide-react';
+import { Users, FileText, Activity, TrendingUp, Star, MessageSquare, Zap } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
@@ -52,6 +52,27 @@ const SuperAdminDashboard = () => {
             change: "Vs last month",
             icon: TrendingUp,
             trend: (stats.growthRate ?? 0) >= 0 ? "up" : "down"
+        },
+        {
+            title: "Avg Voice Credits",
+            value: loading ? "..." : (stats.voiceStats?.averageCredits ?? 5).toString(),
+            change: "Across all users",
+            icon: Star,
+            trend: "up"
+        },
+        {
+            title: "Voice Feedback",
+            value: loading ? "..." : (stats.voiceStats?.totalFeedback ?? 0).toString(),
+            change: "Total suggestions",
+            icon: MessageSquare,
+            trend: "up"
+        },
+        {
+            title: "Premium Voice",
+            value: loading ? "..." : (stats.voiceStats?.premiumUsers ?? 0).toString(),
+            change: "Unlimited users",
+            icon: Zap,
+            trend: "up"
         }
     ];
 
@@ -63,7 +84,7 @@ const SuperAdminDashboard = () => {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
                 {statCards.map((stat, i) => (
                     <StatCard key={i} {...stat} />
                 ))}
@@ -132,7 +153,9 @@ const SuperAdminDashboard = () => {
                                 stats.recentActivity.map((activity) => (
                                     <div key={activity.id} className="flex items-center gap-4">
                                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                            {activity.type === 'user_signup' ? (
+                                            {activity.id.includes('feedback') ? (
+                                                <MessageSquare className="w-4 h-4 text-blue-600" />
+                                            ) : activity.type === 'user_signup' ? (
                                                 <Users className="w-4 h-4 text-blue-600" />
                                             ) : (
                                                 <FileText className="w-4 h-4 text-blue-600" />
@@ -151,6 +174,41 @@ const SuperAdminDashboard = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Voice Feedback Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                        Voice AI Feedback
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {loading ? (
+                            Array(3).fill(0).map((_, i) => (
+                                <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
+                            ))
+                        ) : stats.recentFeedback.length === 0 ? (
+                            <div className="col-span-full py-12 text-center text-muted-foreground">
+                                No feedback received yet.
+                            </div>
+                        ) : (
+                            stats.recentFeedback.map((f) => (
+                                <div key={f.id} className="p-4 rounded-2xl bg-muted/30 border border-muted-foreground/10 space-y-2">
+                                    <div className="flex justify-between items-start">
+                                        <div className="text-xs font-bold text-primary uppercase">{f.userName}</div>
+                                        <div className="text-[10px] text-muted-foreground">
+                                            {formatDistanceToNow(new Date(f.time), { addSuffix: true })}
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-foreground italic">"{f.message}"</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };

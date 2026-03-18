@@ -29,6 +29,44 @@ Deno.serve(async (req: Request) => {
   try {
     console.log('Voice processing started...');
     
+    // 1. Auth & Usage Check
+    step = "auth_check";
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header found.');
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authError || !user) {
+      throw new Error('User authentication failed.');
+    }
+
+    step = "usage_check";
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('voice_credits, is_premium')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profileError) {
+      throw new Error(`Profile not found: ${profileError.message}`);
+    }
+
+    if (!profile.is_premium && (profile.voice_credits === null || profile.voice_credits <= 0)) {
+      return new Response(JSON.stringify({ 
+        error: 'out_of_credits',
+        message: 'You have run out of Voice Credits. Upgrade to Unlimited for 30 GHS/month!'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 403
+      });
+    }
+
+    // 2. Groq Processing
     step = "getting_api_key";
     const rawApiKey = Deno.env.get('GROQ_API_KEY');
     if (!rawApiKey) {
@@ -44,16 +82,12 @@ Deno.serve(async (req: Request) => {
       throw new Error('No audio file provided.');
     }
 
-    console.log(`Audio file received: size=${audioFile.size}, type=${audioFile.type}`);
-
     step = "transcription_fetch";
     const transcriptionFormData = new FormData();
-    // Groq Whisper needs a filename with extension to recognize the format
     transcriptionFormData.append('file', audioFile, 'speech.webm');
     transcriptionFormData.append('model', 'whisper-large-v3');
     transcriptionFormData.append('response_format', 'json');
 
-    console.log('Sending to Groq Whisper...');
     const transcriptionResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
@@ -70,14 +104,12 @@ Deno.serve(async (req: Request) => {
     step = "transcription_parsing";
     const transcriptionData = await transcriptionResponse.json();
     const transcript = transcriptionData.text;
-    console.log('Transcript received:', transcript);
 
     if (!transcript || transcript.trim().length === 0) {
        throw new Error('No speech detected in audio.');
     }
 
     step = "extraction_fetch";
-    console.log('Sending to Groq Llama for extraction...');
     const extractionResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -113,23 +145,31 @@ Deno.serve(async (req: Request) => {
 
     if (!extractionResponse.ok) {
       const errorText = await extractionResponse.text();
-      throw new Error(`Llama Error (${extractionResponse.status}): ${errorText}`);
+      throw new Error(`Extraction Error (${extractionResponse.status}): ${errorText}`);
     }
 
     step = "extraction_parsing";
     const extractionResult = await extractionResponse.json();
     const resultText = extractionResult.choices[0].message.content;
-    console.log('Extraction Result:', resultText);
-    
-    let structuredData;
-    try {
-        structuredData = JSON.parse(resultText);
-    } catch (e) {
-        throw new Error(`Failed to parse AI JSON: ${resultText}`);
+    const structuredData = JSON.parse(resultText);
+
+    // 3. Decrement Credits (if not premium)
+    step = "update_usage";
+    let remainingCredits = profile.voice_credits;
+    if (!profile.is_premium) {
+      remainingCredits = profile.voice_credits - 1;
+      await supabaseClient
+        .from('profiles')
+        .update({ voice_credits: remainingCredits })
+        .eq('user_id', user.id);
     }
 
     step = "returning_response";
-    return new Response(JSON.stringify(structuredData), {
+    return new Response(JSON.stringify({
+      ...structuredData,
+      remaining_credits: profile.is_premium ? 'unlimited' : remainingCredits,
+      is_premium: profile.is_premium
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
