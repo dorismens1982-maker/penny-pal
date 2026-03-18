@@ -9,7 +9,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { AuthUser } from '@/hooks/useUsers';
-import { MoreHorizontal, Trash2, Shield, Mail, CheckCircle, XCircle } from 'lucide-react';
+import { MoreHorizontal, Trash2, Shield, Mail, CheckCircle, XCircle, Star, Zap, RefreshCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,24 +25,35 @@ interface UsersTableProps {
     users: AuthUser[];
     loading: boolean;
     onDelete?: (id: string) => void;
+    onRefresh?: () => void;
 }
 
-export const UsersTable = ({ users, loading, onDelete }: UsersTableProps) => {
-    if (loading) {
-        return (
-            <div className="w-full h-48 flex items-center justify-center text-muted-foreground">
-                Loading users...
-            </div>
-        );
-    }
+export const UsersTable = ({ users, loading, onDelete, onRefresh }: UsersTableProps) => {
+    const { toast } = useToast();
 
-    if (users.length === 0) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-muted-foreground">No users found.</p>
-            </div>
-        );
-    }
+    const updateVoiceStatus = async (userId: string, updates: { voice_credits?: number; is_premium?: boolean }) => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update(updates as any)
+                .eq('user_id', userId);
+
+            if (error) throw error;
+
+            toast({
+                title: 'User updated',
+                description: 'Voice status has been updated successfully.',
+            });
+            onRefresh?.();
+        } catch (error: any) {
+            console.error('Error updating voice status:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Update failed',
+                description: error.message,
+            });
+        }
+    };
 
     return (
         <div className="rounded-md border">
@@ -50,7 +63,8 @@ export const UsersTable = ({ users, loading, onDelete }: UsersTableProps) => {
                         <TableHead>User</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Last Sign In</TableHead>
+                        <TableHead>Voice Credits</TableHead>
+                        <TableHead>Premium</TableHead>
                         <TableHead>Joined</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -89,10 +103,21 @@ export const UsersTable = ({ users, loading, onDelete }: UsersTableProps) => {
                                         </span>
                                     )}
                                 </TableCell>
-                                <TableCell className="text-sm text-muted-foreground">
-                                    {user.last_sign_in_at
-                                        ? new Date(user.last_sign_in_at).toLocaleDateString()
-                                        : 'Never'}
+                                <TableCell>
+                                    <div className="flex items-center gap-1.5">
+                                        <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                                        <span className="text-sm font-medium">{user.voice_credits}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {user.is_premium ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                                            <Zap className="w-3 h-3 fill-purple-700" />
+                                            Premium
+                                        </span>
+                                    ) : (
+                                        <span className="text-xs text-muted-foreground">Free Tier</span>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
                                     {new Date(user.created_at).toLocaleDateString()}
@@ -116,6 +141,20 @@ export const UsersTable = ({ users, loading, onDelete }: UsersTableProps) => {
                                                     Copy Email
                                                 </DropdownMenuItem>
                                             )}
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuLabel>Voice AI Controls</DropdownMenuLabel>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: 5 })}>
+                                                <RefreshCcw className="mr-2 h-4 w-4" />
+                                                Reset to 5 Credits
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: user.voice_credits + 5 })}>
+                                                <Star className="mr-2 h-4 w-4" />
+                                                Add +5 Credits
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { is_premium: !user.is_premium })}>
+                                                <Zap className="mr-2 h-4 w-4" />
+                                                {user.is_premium ? 'Revoke Premium' : 'Grant Premium'}
+                                            </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => onDelete?.(user.id)}>
                                                 <Trash2 className="mr-2 h-4 w-4" />

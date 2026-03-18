@@ -9,6 +9,7 @@ import { TransactionRow } from './TransactionRow';
 import { formatCurrency } from '@/utils/currency';
 import { getCloudinaryUrl } from '@/utils/cloudinary';
 import { CurrencyCode } from '@/utils/currencyConfig';
+import { VoiceAnnouncementBanner } from './VoiceAnnouncementBanner';
 
 interface OverviewTabProps {
     totals: { income: number; expenses: number };
@@ -87,8 +88,11 @@ export const OverviewTab = ({
                 </Card>
             </div>
 
+            {/* ANNOUNCEMENT BANNER */}
+            <VoiceAnnouncementBanner />
+
             {/* QUICK VOICE LOG */}
-            <div className="bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-4 space-y-3">
+            <div id="tour-voice-section" className="bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-4 space-y-3">
                 <div className="flex items-center gap-2 text-primary font-semibold text-sm justify-center">
                     <Sparkles className="w-4 h-4 animate-pulse" />
                     Quickly log with AI Voice

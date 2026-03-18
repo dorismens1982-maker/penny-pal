@@ -14,6 +14,17 @@ export interface DashboardStats {
         time: string;
     }[];
     growthRate?: number;
+    voiceStats: {
+        totalFeedback: number;
+        averageCredits: number;
+        premiumUsers: number;
+    };
+    recentFeedback: {
+        id: string;
+        userName: string;
+        message: string;
+        time: string;
+    }[];
 }
 
 export const useAnalytics = () => {
@@ -24,6 +35,12 @@ export const useAnalytics = () => {
         userGrowth: [],
         recentActivity: [],
         growthRate: 0,
+        voiceStats: {
+            totalFeedback: 0,
+            averageCredits: 5,
+            premiumUsers: 0,
+        },
+        recentFeedback: [],
     });
     const [loading, setLoading] = useState(true);
 
@@ -109,13 +126,54 @@ export const useAnalytics = () => {
                 time: user.created_at,
             }));
 
+            // 6. Voice AI Feedback & Stats
+            const { data: feedbackData } = await (supabase as any)
+                .from('voice_feedback')
+                .select('*, profiles(preferred_name)')
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            const { data: profileStats } = await (supabase as any)
+                .from('profiles')
+                .select('voice_credits, is_premium');
+
+            const totalFeedback = (feedbackData as any)?.length || 0;
+            const statsData = profileStats as any[] || [];
+            const premiumUsersCount = statsData.filter(p => p.is_premium).length || 0;
+            const totalCredits = statsData.reduce((acc, p) => acc + (p.voice_credits || 0), 0) || 0;
+            const avgCredits = statsData.length ? Math.round(totalCredits / statsData.length) : 5;
+
+            const recentFeedback = (feedbackData as any[] || []).map(f => ({
+                id: f.id,
+                userName: f.profiles?.preferred_name || 'Anonymous',
+                message: f.message,
+                time: f.created_at
+            }));
+
+            // 7. Merge Feedback into Activity
+            const combinedActivity = [
+                ...activity,
+                ...(feedbackData as any[] || []).map(f => ({
+                    id: f.id + '_feedback',
+                    type: 'post_created' as const, 
+                    description: `Voice Feedback: "${f.message.slice(0, 30)}..."`,
+                    time: f.created_at,
+                }))
+            ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 10);
+
             setStats({
                 totalUsers: users.length,
-                activeUsers: users.length, // Placeholder: Real active tracking would require last_sign_in_at data
+                activeUsers: users.length,
                 totalPosts: postsCount,
                 userGrowth: growthArray,
-                recentActivity: activity,
+                recentActivity: combinedActivity as any,
                 growthRate,
+                voiceStats: {
+                    totalFeedback,
+                    averageCredits: avgCredits,
+                    premiumUsers: premiumUsersCount,
+                },
+                recentFeedback: recentFeedback,
             });
 
         } catch (error) {

@@ -7,7 +7,7 @@ import { useUsers } from '@/hooks/useUsers';
 import { UsersTable } from '@/components/superadmin/UsersTable';
 
 const UsersPage = () => {
-    const { users, loading, error } = useUsers();
+    const { users, loading, error, refreshUsers } = useUsers();
     // TODO: Client-side filtering/searching can be added here
 
     const handleDelete = async (id: string) => {
@@ -58,7 +58,7 @@ const UsersPage = () => {
                             </p>
                         </div>
                     ) : (
-                        <UsersTable users={users} loading={loading} onDelete={handleDelete} />
+                        <UsersTable users={users} loading={loading} onDelete={handleDelete} onRefresh={refreshUsers} />
                     )}
                 </CardContent>
             </Card>
