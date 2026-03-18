@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { AuthUser } from '@/hooks/useUsers';
-import { MoreHorizontal, Trash2, Shield, Mail, CheckCircle, XCircle, Star, Zap, RefreshCcw } from 'lucide-react';
+import { MoreHorizontal, Trash2, Shield, Mail, CheckCircle, XCircle, Star, Zap, RefreshCcw, Plus, Minus, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -143,14 +143,31 @@ export const UsersTable = ({ users, loading, onDelete, onRefresh }: UsersTablePr
                                             )}
                                             <DropdownMenuSeparator />
                                             <DropdownMenuLabel>Voice AI Controls</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: 5 })}>
-                                                <RefreshCcw className="mr-2 h-4 w-4" />
-                                                Reset to 5 Credits
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: user.voice_credits + 1 })}>
+                                                <Plus className="mr-2 h-4 w-4" />
+                                                Add +1 Credit
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: Math.max(0, user.voice_credits - 1) })}>
+                                                <Minus className="mr-2 h-4 w-4" />
+                                                Subtract -1 Credit
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: user.voice_credits + 5 })}>
                                                 <Star className="mr-2 h-4 w-4" />
                                                 Add +5 Credits
                                             </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: Math.max(0, user.voice_credits - 5) })}>
+                                                <Minus className="mr-2 h-4 w-4" />
+                                                Subtract -5 Credits
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: 5 })}>
+                                                <RefreshCcw className="mr-2 h-4 w-4" />
+                                                Reset to 5 (Monthly Default)
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { voice_credits: 0 })}>
+                                                <RotateCcw className="mr-2 h-4 w-4" />
+                                                Clear to 0 Credits
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
                                             <DropdownMenuItem onClick={() => updateVoiceStatus(user.id, { is_premium: !user.is_premium })}>
                                                 <Zap className="mr-2 h-4 w-4" />
                                                 {user.is_premium ? 'Revoke Premium' : 'Grant Premium'}
