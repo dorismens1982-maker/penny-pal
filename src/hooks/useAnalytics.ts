@@ -130,14 +130,29 @@ export const useAnalytics = () => {
             let feedbackData: any[] = [];
             let totalFeedback = 0;
             try {
-                // Fetch recent feedback with profiles
+                // Fetch recent feedback entries
                 const { data: fData, error: fError } = await (supabase as any)
                     .from('voice_feedback')
-                    .select('*, profiles(preferred_name)')
+                    .select('*')
                     .order('created_at', { ascending: false })
                     .limit(5);
 
-                if (!fError) feedbackData = fData || [];
+                if (!fError && fData) {
+                    // Extract unique user IDs and fetch their profile names manually
+                    // Use a separate query to be robust against missing foreign key relationships
+                    const userIds = [...new Set(fData.map((f: any) => f.user_id))];
+                    const { data: pData } = await (supabase as any)
+                        .from('profiles')
+                        .select('user_id, preferred_name')
+                        .in('user_id', userIds);
+
+                    const profileMap = new Map((pData || []).map((p: any) => [p.user_id, p.preferred_name]));
+                    
+                    feedbackData = fData.map((f: any) => ({
+                        ...f,
+                        profiles: { preferred_name: profileMap.get(f.user_id) || 'Anonymous' }
+                    }));
+                }
 
                 // Fetch total feedback count
                 const { count, error: cError } = await (supabase as any)
