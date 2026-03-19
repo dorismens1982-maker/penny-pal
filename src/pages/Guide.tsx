@@ -21,7 +21,8 @@ import {
     CheckCircle2,
     AlertCircle,
     Sparkles,
-    Search
+    Search,
+    Mic
 } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
 import { Input } from '@/components/ui/input';
@@ -83,6 +84,33 @@ const Guide = () => {
                         'Click the edit icon (pencil) to modify details',
                         'Click the delete icon (trash) to remove',
                         'Confirm any deletions when prompted'
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'voice-logging',
+            title: 'AI Voice Logging',
+            icon: Mic,
+            color: 'from-primary to-accent',
+            sections: [
+                {
+                    subtitle: 'How to Use Voice',
+                    steps: [
+                        'Look for the microphone icon in your transaction logger',
+                        'Press and hold (or click) to start recording',
+                        'Speak clearly: "I spent 50 cedis on dinner" or "Received 200 from mobile money"',
+                        'Wait a second for the AI to process your request',
+                        'Verify the auto-filled details and click Save'
+                    ]
+                },
+                {
+                    subtitle: 'Tips for Success',
+                    list: [
+                        'Use simple, direct sentences',
+                        'State the amount and category clearly',
+                        'The AI understands local context (e.g., "momo", "trotro", "cedis")',
+                        'Check your remaining voice credits in the overview'
                     ]
                 }
             ]

@@ -127,23 +127,38 @@ export const useAnalytics = () => {
             }));
 
             // 6. Voice AI Feedback & Stats
-            const { data: feedbackData } = await (supabase as any)
-                .from('voice_feedback')
-                .select('*, profiles(preferred_name)')
-                .order('created_at', { ascending: false })
-                .limit(5);
+            let feedbackData: any[] = [];
+            let totalFeedback = 0;
+            try {
+                // Fetch recent feedback with profiles
+                const { data: fData, error: fError } = await (supabase as any)
+                    .from('voice_feedback')
+                    .select('*, profiles(preferred_name)')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                if (!fError) feedbackData = fData || [];
+
+                // Fetch total feedback count
+                const { count, error: cError } = await (supabase as any)
+                    .from('voice_feedback')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (!cError) totalFeedback = count || 0;
+            } catch (e) {
+                console.warn('Voice feedback fetch failed:', e);
+            }
 
             const { data: profileStats } = await (supabase as any)
                 .from('profiles')
                 .select('voice_credits, is_premium');
 
-            const totalFeedback = (feedbackData as any)?.length || 0;
             const statsData = profileStats as any[] || [];
             const premiumUsersCount = statsData.filter(p => p.is_premium).length || 0;
             const totalCredits = statsData.reduce((acc, p) => acc + (p.voice_credits || 0), 0) || 0;
             const avgCredits = statsData.length ? Math.round(totalCredits / statsData.length) : 5;
 
-            const recentFeedback = (feedbackData as any[] || []).map(f => ({
+            const recentFeedback = feedbackData.map(f => ({
                 id: f.id,
                 userName: f.profiles?.preferred_name || 'Anonymous',
                 message: f.message,
@@ -153,7 +168,7 @@ export const useAnalytics = () => {
             // 7. Merge Feedback into Activity
             const combinedActivity = [
                 ...activity,
-                ...(feedbackData as any[] || []).map(f => ({
+                ...feedbackData.map(f => ({
                     id: f.id + '_feedback',
                     type: 'post_created' as const, 
                     description: `Voice Feedback: "${f.message.slice(0, 30)}..."`,

@@ -7,7 +7,8 @@ import {
     Users,
     Zap,
     FolderLock,
-    MessageSquare
+    MessageSquare,
+    Mic
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -108,6 +109,28 @@ export const FeaturesSection = () => {
                             <div className="w-8 h-8 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center text-[10px] font-bold">JD</div>
                             <div className="w-8 h-8 rounded-full bg-accent/20 border-2 border-card flex items-center justify-center text-[10px] font-bold">SK</div>
                             <div className="w-8 h-8 rounded-full bg-income/20 border-2 border-card flex items-center justify-center text-[10px] font-bold">+</div>
+                        </div>
+                    </div>
+
+                    {/* BENTO 4: Voice AI (NEW) */}
+                    <div className="group relative p-8 rounded-3xl bg-primary/5 border border-primary/20 hover:border-primary/50 transition-all duration-300 hover:shadow-xl overflow-hidden flex flex-col justify-between">
+                        <div className="absolute top-0 right-0 p-2">
+                            <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full animate-pulse">NEW</span>
+                        </div>
+                        <div className="space-y-4 relative z-10">
+                            <div className="w-12 h-12 rounded-xl bg-primary/20 text-primary flex items-center justify-center mb-4 transition-transform duration-300 group-hover:rotate-12">
+                                <Mic className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold">Voice-First Logging</h3>
+                            <p className="text-muted-foreground text-sm leading-relaxed">
+                                Just talk. Our AI understands your local context and logs your expenses hands-free. "I spent 50 cedis on Jollof" — Done.
+                            </p>
+                        </div>
+                        <div className="mt-6">
+                             <div className="h-6 w-full bg-muted rounded-full overflow-hidden relative">
+                                 <div className="absolute h-full bg-primary/30 w-1/2 animate-shimmer" />
+                                 <div className="absolute inset-0 flex items-center justify-center text-[10px] font-mono text-primary/70">Listening...</div>
+                             </div>
                         </div>
                     </div>
                 </div>

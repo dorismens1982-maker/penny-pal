@@ -180,21 +180,19 @@ const InsightsPost = () => {
 
                 {/* Title Overlay on Image (Optional/Hybrid approach) - Keeping title separate for minimalism, but adding category here */}
                 <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10">
-                  <Badge className={`${getCategoryColor(post.category || '')} backdrop-blur-md border px-4 py-1.5 text-sm font-medium`}>
-                    {post.category}
-                  </Badge>
+                  {/* Category badge removed as requested */}
                 </div>
               </div>
             )}
 
             <div className="p-6 md:p-8 lg:p-10 max-w-5xl mx-auto">
               {/* Header Info */}
-              <div className="space-y-3 mb-5 text-center md:text-left">
+              <div className="space-y-4 mb-8 text-left">
                 <motion.h1
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-3xl md:text-4xl lg:text-5xl font-merriweather font-bold text-slate-900 leading-[1.15] tracking-tight"
+                  className="text-3xl md:text-4xl lg:text-5xl font-merriweather font-bold text-slate-900 leading-[1.2] tracking-tight text-left"
                 >
                   {post.title}
                 </motion.h1>
@@ -203,39 +201,39 @@ const InsightsPost = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="flex flex-wrap items-center gap-4 text-sm md:text-base text-slate-500 font-medium md:justify-start justify-center"
+                  className="flex items-center gap-x-3 sm:gap-x-4 text-xs sm:text-sm md:text-base text-slate-500 font-medium justify-start overflow-x-auto no-scrollbar pb-1"
                 >
-                  <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
-                    <span>By {post.author_name || 'Anonymous'}</span>
+                  <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-full whitespace-nowrap">
+                    <span>By {post.author_name || 'Penny Pal'}</span>
                   </div>
-                  <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                  <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
-                    <Calendar className="w-4 h-4" />
+                  <div className="shrink-0 w-1 h-1 bg-slate-400/50 rounded-full" />
+                  <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-full whitespace-nowrap">
+                    <Calendar className="w-4 h-4 text-primary" />
                     <span>
                       {new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
-                        month: 'long',
+                        month: 'short',
                         day: 'numeric',
                       })}
                     </span>
                   </div>
-                  <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                  <div className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1 rounded-full">
-                    <Clock className="w-4 h-4" />
-                    <span>{post.read_time || '5'} min read</span>
+                  <div className="shrink-0 w-1 h-1 bg-slate-400/50 rounded-full" />
+                  <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-full whitespace-nowrap">
+                    <Clock className="w-4 h-4 text-accent" />
+                    <span>{post.read_time || '5'} min</span>
                   </div>
                 </motion.div>
               </div>
 
               {/* Divider */}
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-10" />
+              <div className="w-full h-px bg-gradient-to-r from-slate-200 via-slate-200 to-transparent mb-10" />
 
               {/* Content */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="blog-content prose prose-lg max-w-none text-slate-700 ql-editor
+                className="blog-content prose prose-lg max-w-none text-slate-700 ql-editor text-justify
                                     prose-headings:font-merriweather prose-headings:font-bold prose-headings:text-slate-900
                                     prose-p:leading-relaxed prose-p:text-slate-600
                                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline
@@ -317,9 +315,7 @@ const InsightsPost = () => {
                         </div>
                       )}
                       <CardContent className="p-6">
-                        <Badge variant="secondary" className="mb-3 text-xs font-normal">
-                          {article.category}
-                        </Badge>
+                        {/* Category badge removed for consistency */}
                         <h3 className="font-bold text-slate-900 line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                           {article.title}
                         </h3>

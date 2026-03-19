@@ -36,7 +36,7 @@ import ContentPage from '@/pages/superadmin/Content';
 import SettingsPage from '@/pages/superadmin/Settings';
 import SubscribersPage from '@/pages/superadmin/Subscribers';
 
-import './App.css';
+import { PWAReloadPrompt } from '@/components/PWAReloadPrompt';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -56,6 +56,7 @@ function App() {
             <TransactionsProvider>
               <Router>
                 <InstallPWA />
+                <PWAReloadPrompt />
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />

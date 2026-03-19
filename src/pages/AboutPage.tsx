@@ -8,7 +8,8 @@ import {
     Heart,
     Zap,
     ShieldCheck,
-    ArrowRight
+    ArrowRight,
+    Mic
 } from 'lucide-react';
 
 const values = [
@@ -126,6 +127,17 @@ const AboutPage = () => {
                             </div>
                             <h3 className="text-xl font-bold">3. Community</h3>
                             <p className="text-muted-foreground text-sm">We cultivate a growing space where users can discuss trends, ask questions, and discover opportunities.</p>
+                        </div>
+                        <div className="space-y-4 text-center">
+                            <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 text-primary flex items-center justify-center relative">
+                                <Mic className="w-8 h-8" />
+                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-bold">4. AI Innovation</h3>
+                            <p className="text-muted-foreground text-sm">We're pioneering voice-first financial tracking, allowing users to log expenses as easily as sending a voice note.</p>
                         </div>
                     </div>
                 </div>

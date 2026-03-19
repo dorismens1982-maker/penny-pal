@@ -207,18 +207,13 @@ const Insights = () => {
                   >
                     <div className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
 
-                      {/* Thumbnail with nested category pills */}
+                      {/* Thumbnail with nested category pills removed as requested */}
                       <div className="relative w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden mb-6 filter group-hover:brightness-105 transition-all">
                         <img
                           src={getOptimizedImageUrl(post.image_url, 800) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800'}
                           alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                          <span className="bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] uppercase font-bold px-3 py-1.5 rounded-full shadow-sm">
-                            {post.category}
-                          </span>
-                        </div>
                       </div>
 
                       {/* Content Details */}
