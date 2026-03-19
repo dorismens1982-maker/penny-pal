@@ -71,14 +71,7 @@ export const LandingInsights = () => {
                                         <BookOpen className="w-12 h-12 text-muted-foreground/30" />
                                     </div>
                                 )}
-                                {/* Category Badge Overlay */}
-                                {post.category && (
-                                    <div className="absolute top-4 left-4">
-                                        <span className="inline-block bg-background/90 backdrop-blur-sm text-foreground text-xs font-medium px-2.5 py-1 rounded-md shadow-sm border border-border/50">
-                                            {post.category}
-                                        </span>
-                                    </div>
-                                )}
+                                {/* Category Badge Overlay Removed as requested */}
                             </div>
 
                             <div className="p-6 flex flex-col flex-1">

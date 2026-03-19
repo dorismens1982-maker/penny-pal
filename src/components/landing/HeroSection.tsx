@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,10 +22,6 @@ export const HeroSection = ({ onGetStarted, videoSrc, posterSrc }: HeroSectionPr
             <div className="container px-4 md:px-6 flex flex-col lg:flex-row items-center lg:items-start text-center lg:text-left gap-12 lg:gap-16 pt-10 lg:pt-20 animate-fade-in-up">
                 {/* Left Column - Content */}
                 <div className="flex-1 flex flex-col items-center lg:items-start space-y-8">
-                    <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary-dark">
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        Ghana's Smart Finance Platform
-                    </div>
 
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
                         Take control of your

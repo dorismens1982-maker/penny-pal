@@ -119,62 +119,77 @@ const BlogPost = () => {
         type="article"
       />
       <div className="min-h-screen bg-background">
-        {/* ✅ Hero Section */}
+        {/* ✅ Hero Section - Image Only */}
         <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden">
           <img
             src={heroImage}
             alt={post.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          
+          {/* Category Badge - Overlaid on image bottom-left */}
+          <div className="absolute bottom-4 left-4">
+            {/* Optional overlay content */}
+          </div>
+        </div>
 
-          <div className="absolute bottom-6 left-4 right-4 text-white">
-            <Badge className={`${getCategoryColor(post.category || '')} mb-2`}>
-              {post.category}
-            </Badge>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-merriweather font-bold mb-4 tracking-tight leading-[1.1] max-w-4xl">
-              {post.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm md:text-base opacity-95 font-medium">
-              <span className="flex items-center gap-2">
-                By {post.author_name || 'Anonymous'}
-              </span>
-              <span className="opacity-60">•</span>
-              <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> {new Date(post.published_at || post.created_at).toLocaleDateString()}
-              </span>
-              <span className="opacity-60">•</span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4" /> {post.read_time || '5'} min read
-              </span>
+        {/* ✅ Article Header & Metadata */}
+        <div className="max-w-3xl mx-auto px-4 pt-8 md:pt-12">
+          <Badge className={`${getCategoryColor(post.category || '')} mb-4`}>
+            {post.category}
+          </Badge>
+          
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-merriweather font-bold mb-6 tracking-tight leading-[1.2] text-foreground text-left">
+            {post.title}
+          </h1>
+          
+          <div className="flex items-center whitespace-nowrap gap-x-2 sm:gap-x-4 py-4 border-y border-border/50 text-xs sm:text-sm text-muted-foreground overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1.5 font-medium text-foreground flex-shrink-0">
+              By {post.author_name || 'Penny Pal'}
             </div>
-            <div className="flex gap-3 mt-4">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/blog')}
-                className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleShare}
-                className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                Share
-              </Button>
+            <span className="opacity-30 flex-shrink-0">•</span>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> 
+              {new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
             </div>
+            <span className="opacity-30 flex-shrink-0">•</span>
+            <div className="flex items-center gap-1.5 font-medium text-accent flex-shrink-0">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+              {post.read_time || '5'} min
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/blog')}
+              className="h-8 text-xs gap-1.5 border-primary/20 hover:bg-primary/5"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back to Blog
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleShare}
+              className="h-8 text-xs gap-1.5"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              Share
+            </Button>
           </div>
         </div>
 
         {/* ✅ Article Body */}
-        <article className="max-w-3xl mx-auto px-4 py-10">
+        <article className="max-w-3xl mx-auto px-4 py-8 md:py-12">
           <div
-            className="prose prose-lg max-w-none prose-headings:font-merriweather prose-a:text-primary marker:text-primary ql-editor"
+            className="prose prose-lg max-w-none prose-headings:font-merriweather prose-a:text-primary marker:text-primary ql-editor text-justify"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
 

@@ -8,7 +8,17 @@ import { UsersTable } from '@/components/superadmin/UsersTable';
 
 const UsersPage = () => {
     const { users, loading, error, refreshUsers } = useUsers();
-    // TODO: Client-side filtering/searching can be added here
+    const [searchTerm, setSearchTerm] = React.useState('');
+
+    const filteredUsers = React.useMemo(() => {
+        if (!searchTerm) return users;
+        const lowTerm = searchTerm.toLowerCase();
+        return users.filter(user => 
+            (user.email?.toLowerCase().includes(lowTerm)) ||
+            (user.user_metadata?.preferred_name?.toLowerCase().includes(lowTerm)) ||
+            (user.id.toLowerCase().includes(lowTerm))
+        );
+    }, [users, searchTerm]);
 
     const handleDelete = async (id: string) => {
         // Implement delete logic here later
@@ -46,7 +56,12 @@ const UsersPage = () => {
                         <CardTitle>Users List</CardTitle>
                         <div className="relative w-64">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search users..." className="pl-8" />
+                            <Input 
+                                placeholder="Search users..." 
+                                className="pl-8" 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
                     </div>
                 </CardHeader>
@@ -58,7 +73,12 @@ const UsersPage = () => {
                             </p>
                         </div>
                     ) : (
-                        <UsersTable users={users} loading={loading} onDelete={handleDelete} onRefresh={refreshUsers} />
+                        <UsersTable 
+                            users={filteredUsers} 
+                            loading={loading} 
+                            onDelete={handleDelete} 
+                            onRefresh={refreshUsers} 
+                        />
                     )}
                 </CardContent>
             </Card>
