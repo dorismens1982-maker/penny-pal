@@ -189,7 +189,7 @@ export const VoiceRecorder = ({ onResult }: VoiceRecorderProps) => {
             if (!user) throw new Error('Not logged in');
 
             // 1. Save feedback
-            const { error: fError } = await supabase
+            const { error: fError } = await (supabase as any)
                 .from('voice_feedback')
                 .insert({ user_id: user.id, message: feedback });
             if (fError) throw fError;
@@ -271,34 +271,40 @@ export const VoiceRecorder = ({ onResult }: VoiceRecorderProps) => {
                         <div className="flex items-center gap-2 px-4 py-1.5 bg-background/50 rounded-full border border-primary/10 shadow-sm">
                             <Star className={`h-4 w-4 ${credits === 0 && !isPremium ? 'text-muted-foreground' : 'text-yellow-500 fill-yellow-500'}`} />
                             <span className="text-xs font-bold uppercase tracking-wider">
-                                {isPremium ? "Unlimited Mode" : `${credits} Voice Credits Left`}
+                                {isPremium ? "Unlimited Mode" : `${credits} Voice Stars Left`}
                             </span>
                         </div>
 
-                        {(credits === 0 && !isPremium) && (
-                            <div className="flex flex-col items-center gap-3 mt-1 px-4 text-center">
+                        {(!isPremium && (credits === 0 || (typeof credits === 'number' && credits <= 0))) && (
+                            <div className="flex flex-col items-center gap-3 mt-1 px-4 text-center w-full animate-in fade-in slide-in-from-top-2 duration-500">
                                 {!rewardClaimed ? (
                                     <>
-                                        <p className="text-xs text-muted-foreground font-medium">
-                                            You've used all 5 free credits! Give us feedback to unlock 5 more.
-                                        </p>
-                                        <Button 
-                                            variant="default" 
-                                            size="sm" 
-                                            className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg animate-bounce"
-                                            onClick={() => setShowFeedback(true)}
-                                        >
-                                            <Zap className="h-4 w-4 mr-2 fill-white" />
-                                            Unlock +5 Stars
-                                        </Button>
+                                        <div className="bg-primary/10 p-4 rounded-2xl border border-primary/20 space-y-3">
+                                            <p className="text-sm text-foreground font-bold">
+                                                You've used your 5 free credits! 🌟
+                                            </p>
+                                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                                Share one thing we can improve to unlock **another 5 stars** for this month.
+                                            </p>
+                                            <Button 
+                                                variant="default" 
+                                                size="sm" 
+                                                className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg ring-2 ring-primary/20"
+                                                onClick={() => setShowFeedback(true)}
+                                            >
+                                                <Zap className="h-4 w-4 mr-2 fill-white" />
+                                                Unlock +5 More Stars
+                                            </Button>
+                                        </div>
                                     </>
                                 ) : (
-                                    <div className="flex flex-col items-center gap-1">
-                                        <div className="text-xs font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-lg border border-orange-100">
+                                    <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-orange-50/50 border border-orange-100">
+                                        <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 uppercase">
+                                            <Zap className="h-3 w-3 fill-orange-600" />
                                             Monthly Limit Reached
                                         </div>
-                                        <p className="text-[10px] text-muted-foreground italic">
-                                            Your 5 free credits will renew next month.
+                                        <p className="text-[11px] text-muted-foreground italic max-w-[200px]">
+                                            You've used all 10 stars for this month. They will renew back to 5 next month!
                                         </p>
                                     </div>
                                 )}
