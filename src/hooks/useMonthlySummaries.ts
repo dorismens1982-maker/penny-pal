@@ -36,7 +36,7 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
 
       let query = supabase
         .from('monthly_summaries')
-        .select('*')
+        .select('id, user_id, month, year, income, expenses, balance, transaction_count, created_at, updated_at')
         .eq('user_id', user.id)
         .order('year', { ascending: false })
         .order('month', { ascending: false });
@@ -137,30 +137,8 @@ export const useMonthlySummaries = (options?: UseMonthlySummariesOptions) => {
     fetchSummaries();
   }, [user, options?.startDate, options?.endDate, options?.limit]);
 
-  // Real-time subscription
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('monthly-summaries-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'monthly_summaries',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          fetchSummaries();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+  // Note: Realtime subscription removed to reduce egress.
+  // Call refetch() manually after updating a transaction to refresh summaries.
 
   return {
     summaries,

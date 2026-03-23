@@ -42,7 +42,7 @@ export const TransactionsProvider = ({ children }: { children: React.ReactNode }
         try {
             const { data, error } = await supabase
                 .from('transactions')
-                .select('*')
+                .select('id, amount, type, category, note, date, user_id, created_at')
                 .eq('user_id', user.id)
                 .order('date', { ascending: false });
 
@@ -181,30 +181,9 @@ export const TransactionsProvider = ({ children }: { children: React.ReactNode }
         fetchTransactions();
     }, [user]);
 
-    // Real-time subscription for instant updates
-    useEffect(() => {
-        if (!user) return;
-
-        const channel = supabase
-            .channel('transactions-changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'transactions',
-                    filter: `user_id=eq.${user.id}`,
-                },
-                () => {
-                    fetchTransactions();
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [user]);
+    // Note: Realtime subscription removed to reduce Supabase egress.
+    // Local state is updated optimistically by addTransaction / updateTransaction / deleteTransaction,
+    // so a full re-fetch on every remote change is unnecessary and expensive.
 
     // Calculate totals
     const totals = transactions.reduce(

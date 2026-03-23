@@ -20,7 +20,7 @@ export const useSubscribers = () => {
 
             const { data, error: fetchError } = await (supabase as any)
                 .from('newsletter_subscribers')
-                .select('*')
+                .select('id, email, status, subscribed_at')
                 .order('subscribed_at', { ascending: false });
 
             if (fetchError) {
@@ -41,23 +41,8 @@ export const useSubscribers = () => {
         fetchSubscribers();
     }, []);
 
-    // Also set up realtime subscription for new signups
-    useEffect(() => {
-        const channel = (supabase as any)
-            .channel('public:newsletter_subscribers')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'newsletter_subscribers' },
-                () => {
-                    fetchSubscribers();
-                }
-            )
-            .subscribe();
-
-        return () => {
-            (supabase as any).removeChannel(channel);
-        };
-    }, []);
+    // Note: Realtime subscription removed to reduce egress.
+    // Use the refresh() function or a manual refetch button in the admin UI instead.
 
     return { subscribers, loading, error, refresh: fetchSubscribers };
 };
