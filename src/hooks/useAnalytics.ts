@@ -133,7 +133,7 @@ export const useAnalytics = () => {
                 // Fetch recent feedback entries
                 const { data: fData, error: fError } = await (supabase as any)
                     .from('voice_feedback')
-                    .select('*')
+                    .select('id, user_id, message, created_at')
                     .order('created_at', { ascending: false })
                     .limit(5);
 

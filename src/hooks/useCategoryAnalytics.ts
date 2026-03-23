@@ -37,7 +37,7 @@ export const useCategoryAnalytics = (options?: UseCategoryAnalyticsOptions) => {
     try {
       let query = supabase
         .from('transactions')
-        .select('*')
+        .select('amount, type, category, date')
         .eq('user_id', user.id)
         .eq('type', 'expense')
         .order('date', { ascending: false });
@@ -69,29 +69,8 @@ export const useCategoryAnalytics = (options?: UseCategoryAnalyticsOptions) => {
     fetchTransactions();
   }, [user, options?.startDate, options?.endDate]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('category-analytics-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'transactions',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          fetchTransactions();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, options?.startDate, options?.endDate]);
+  // Note: Realtime subscription removed to reduce egress.
+  // TransactionsContext already handles transaction state; call refetch() explicitly when needed.
 
   const topCategories = useMemo(() => {
     const categoryMap = new Map<string, { amount: number; count: number }>();

@@ -29,7 +29,7 @@ export const usePageHeader = (pageIdentifier: string) => {
 
         const { data, error: fetchError } = await supabase
           .from('page_headers')
-          .select('*')
+          .select('id, page_identifier, title, subtitle, image_url, mobile_image_url, alt_text, height_mobile, height_desktop, overlay_opacity, text_color, is_active')
           .eq('page_identifier', pageIdentifier)
           .eq('is_active', true)
           .maybeSingle();

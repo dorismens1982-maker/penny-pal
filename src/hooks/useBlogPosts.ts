@@ -31,7 +31,7 @@ export const useBlogPosts = () => {
     const { data: posts = [], isLoading: loading } = useQuery({
         queryKey: BLOG_KEYS.list(queryFilter),
         queryFn: async () => {
-            let query = (supabase as any).from('blog_posts').select('*');
+            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, cover_image, category, published, published_at, created_at, read_time, tags, author');
 
             if (isAdmin) {
                 query = query.order('created_at', { ascending: false });
@@ -75,7 +75,7 @@ export const useBlogPosts = () => {
             if (!category) return [];
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
-                .select('*')
+                .select('id, title, slug, excerpt, cover_image, category, published_at, read_time')
                 .eq('category', category)
                 .eq('published', true)
                 .neq('id', excludeId)
@@ -260,7 +260,7 @@ export const useBlogPosts = () => {
             const [likesRes, userLikeRes, commentsRes] = await Promise.all([
                 (supabase as any).from('blog_post_likes').select('id', { count: 'exact', head: true }).eq('post_id', postId),
                 user ? (supabase as any).from('blog_post_likes').select('id').eq('post_id', postId).eq('user_id', user.id).maybeSingle() : Promise.resolve({ data: null }),
-                (supabase as any).from('blog_post_comments').select('*').eq('post_id', postId).order('created_at', { ascending: false })
+                (supabase as any).from('blog_post_comments').select('id, post_id, user_id, content, created_at').eq('post_id', postId).order('created_at', { ascending: false }).limit(50)
             ]);
             
             const likesCount = likesRes.count || 0;
