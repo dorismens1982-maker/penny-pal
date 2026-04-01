@@ -40,11 +40,13 @@ export const TransactionsProvider = ({ children }: { children: React.ReactNode }
         }
 
         try {
+            setLoading(true);
             const { data, error } = await supabase
                 .from('transactions')
                 .select('id, amount, type, category, note, date, user_id, created_at')
                 .eq('user_id', user.id)
-                .order('date', { ascending: false });
+                .order('date', { ascending: false })
+                .limit(200);
 
             if (error) throw error;
             setTransactions(data || []);
@@ -58,6 +60,7 @@ export const TransactionsProvider = ({ children }: { children: React.ReactNode }
             setLoading(false);
         }
     };
+
 
     const addTransaction = async (transactionData: {
         amount: number;

@@ -289,7 +289,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                 setSlug(post.slug);
                 setAuthorName(post.author_name || '');
                 setExcerpt(post.excerpt || '');
-                setContent(post.content);
+                setContent(post.content || '');
                 setImageUrl(post.image_url || '');
                 setCategory(post.category || '');
                 setReadTime(post.read_time || '5');
@@ -360,7 +360,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
     };
 
     const handleFixImages = async () => {
-        if (!content.includes('data:image/')) return;
+        if (!content || !content.includes('data:image/')) return;
 
         setFixingImages(true);
         toast({
@@ -411,7 +411,7 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
         setFixingImages(false);
     };
 
-    const hasLargeImages = content.includes('data:image/');
+    const hasLargeImages = content?.includes('data:image/') ?? false;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Q1 PennyPal Recap</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FAFAFA;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #FAFAFA;
+            padding-bottom: 40px;
+        }
+        .main {
+            background-color: #ffffff;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            color: #21262D;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        /* Header */
+        .header {
+            background-color: #F59E0B;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 28px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+        /* Content */
+        .content {
+            padding: 40px 30px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #21262D;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #4B5563;
+            margin-bottom: 24px;
+        }
+        /* Stats Grid */
+        .stats-container {
+            background-color: #F9FAFB;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid #E5E7EB;
+        }
+        .stat-row {
+            margin-bottom: 16px;
+        }
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #21262D;
+        }
+        .stat-highlight {
+            color: #F59E0B;
+        }
+        /* CTA Button */
+        .button-container {
+            text-align: center;
+            margin-top: 32px;
+        }
+        .button {
+            background-color: #F59E0B;
+            color: #ffffff !important;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+            transition: background-color 0.2s ease;
+        }
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+        .footer a {
+            color: #6B7280;
+            text-decoration: underline;
+        }
+        /* Responsive */
+        @media screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <table class="main">
+            <tr>
+                <td class="header">
+                    <div class="logo">PennyPal</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="content">
+                    <h1>90 Days of Progress, {{name}}! 📈</h1>
+                    <p>
+                        We’ve officially crossed the first 90-day mark of 2026. 
+                        In Q1, you did more than just track numbers—you took control of your financial future. 
+                        Here is a look at what you achieved in the first quarter:
+                    </p>
+
+                    <div class="stats-container">
+                        <div class="stat-row">
+                            <div class="stat-label">Total Tracked</div>
+                            <div class="stat-value">{{total_tracked}}</div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-label">Smartest Savings Move</div>
+                            <div class="stat-value stat-highlight">{{smartest_move}}</div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-label">Tracking Streak</div>
+                            <div class="stat-value">{{tracking_streak}} Days</div>
+                        </div>
+                    </div>
+
+                    <p>
+                        Q1 was about building habits. Now that you have the data, Q2 is all about <strong>refinement and growth</strong>. Let's take those insights and turn them into wealth-building actions.
+                    </p>
+
+                    <div class="button-container">
+                        <a href="https://mypennypal.com/dashboard" class="button">Set My Q2 Goals</a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="footer">
+                    <p>&copy; 2026 PennyPal. All rights reserved.</p>
+                    <p>
+                        You're receiving this because you're a powerhouse PennyPal user. <br>
+                        <a href="{{unsubscribe_url}}">Unsubscribe</a> if you'd rather not hear from us.
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

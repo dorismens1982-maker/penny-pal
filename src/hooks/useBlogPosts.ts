@@ -31,7 +31,7 @@ export const useBlogPosts = () => {
     const { data: posts = [], isLoading: loading } = useQuery({
         queryKey: BLOG_KEYS.list(queryFilter),
         queryFn: async () => {
-            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, image_url, category, published, published_at, created_at, read_time, tags, author');
+            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author');
 
             if (isAdmin) {
                 query = query.order('created_at', { ascending: false });
