@@ -1,7 +1,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, FileText, Activity, TrendingUp, Star, MessageSquare, Zap } from 'lucide-react';
+import { Users, FileText, Activity, TrendingUp, Star, MessageSquare, Zap, Loader2, Mail } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
 import { PartnershipBanner } from '@/components/partnerships/PartnershipBanner';
@@ -23,6 +26,36 @@ const StatCard = ({ title, value, change, icon: Icon, trend }: any) => (
 
 const SuperAdminDashboard = () => {
     const { stats, loading } = useAnalytics();
+    const { toast } = useToast();
+    const [triggering, setTriggering] = React.useState(false);
+
+    const handleTriggerRecap = async (testEmail?: string) => {
+        try {
+            setTriggering(true);
+            const { data, error } = await supabase.functions.invoke('send-q1-recap', {
+                body: { 
+                    testEmail: testEmail || "bigsamcreates@gmail.com",
+                    isTestRun: !!testEmail 
+                }
+            });
+
+            if (error) throw error;
+
+            toast({
+                title: testEmail ? "Test Email Sent!" : "Campaign Started!",
+                description: `Recap function triggered successfully for ${testEmail || 'all users'}.`,
+            });
+        } catch (error: any) {
+            console.error('Error triggering recap:', error);
+            toast({
+                variant: 'destructive',
+                title: "Trigger Failed",
+                description: error.message || "Make sure the Edge Function is deployed.",
+            });
+        } finally {
+            setTriggering(false);
+        }
+    };
 
     const statCards = [
         {
@@ -78,9 +111,33 @@ const SuperAdminDashboard = () => {
 
     return (
         <div className="space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Dashboard Overview</h1>
-                <p className="text-slate-500 mt-2">Welcome back, Super Admin. Here's what's happening today.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900">Dashboard Overview</h1>
+                    <p className="text-slate-500 mt-2">Welcome back, Super Admin. Here's what's happening today.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => handleTriggerRecap("bigsamcreates@gmail.com")}
+                        disabled={triggering}
+                    >
+                        {triggering ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Mail className="w-4 h-4 mr-2" />}
+                        Test Q1 Recap
+                    </Button>
+                    <Button 
+                        variant="default" 
+                        onClick={() => {
+                            if(confirm("Are you sure you want to trigger the Q1 Recap for ALL users?")) {
+                                handleTriggerRecap();
+                            }
+                        }}
+                        disabled={triggering}
+                    >
+                        {triggering ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+                        Launch Q1 Campaign
+                    </Button>
+                </div>
             </div>
 
             {/* Quick Stats Grid */}
