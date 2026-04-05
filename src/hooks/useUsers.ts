@@ -43,8 +43,9 @@ export function useUsers() {
             try {
                 const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                    .select('id, user_id, preferred_name, voice_credits, is_premium, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(500);
 
                 if (!profileError && profileData) {
                     // Map profiles to AuthUser format

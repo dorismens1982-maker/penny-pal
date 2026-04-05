@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
 
       const { data: profile, error: profileError } = await supabaseClient
         .from('profiles')
-        .select('*')
+        .select('user_id, preferred_name, currency')
         .eq('user_id', testUser.id)
         .maybeSingle();
 
@@ -74,7 +74,9 @@ Deno.serve(async (req) => {
     } else {
       // --- MASS EMAIL LOGIC ---
       // 1. Get all profiles
-      const { data: profiles, error: pError } = await supabaseClient.from('profiles').select('*');
+      const { data: profiles, error: pError } = await supabaseClient
+        .from('profiles')
+        .select('user_id, preferred_name, currency');
       if (pError) throw pError;
 
       // 2. Map emails from Auth to profiles
@@ -96,7 +98,7 @@ Deno.serve(async (req) => {
       // 2. Fetch Q1 2026 Summaries (Jan, Feb, Mar)
       const { data: summaries, error: sError } = await supabaseClient
         .from('monthly_summaries')
-        .select('*')
+        .select('month, year, income, expenses, balance, transaction_count')
         .eq('user_id', userProfile.user_id)
         .eq('year', 2026)
         .in('month', [1, 2, 3]);

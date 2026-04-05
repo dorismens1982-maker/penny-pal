@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           preferred_name: googleName ?? null,
         };
 
-        const { data: insertedData, error: insertError } = await sb.from('profiles').insert([newProfile]).select().single();
+        const { data: insertedData, error: insertError } = await sb.from('profiles').insert([newProfile]).select('id, user_id, preferred_name, currency, created_at').single();
 
         if (insertedData) {
           setProfile(insertedData as Profile);
