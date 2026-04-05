@@ -154,19 +154,21 @@ export const useAnalytics = () => {
                     }));
                 }
 
-                // Fetch total feedback count
+                // Fetch total feedback count (head: true means no rows are transferred)
                 const { count, error: cError } = await (supabase as any)
                     .from('voice_feedback')
-                    .select('*', { count: 'exact', head: true });
+                    .select('id', { count: 'exact', head: true });
                 
                 if (!cError) totalFeedback = count || 0;
             } catch (e) {
                 console.warn('Voice feedback fetch failed:', e);
             }
 
+            // Limit profiles fetch — we only need aggregate stats, not every row's full data
             const { data: profileStats } = await (supabase as any)
                 .from('profiles')
-                .select('voice_credits, is_premium');
+                .select('voice_credits, is_premium')
+                .limit(500);
 
             const statsData = profileStats as any[] || [];
             const premiumUsersCount = statsData.filter(p => p.is_premium).length || 0;

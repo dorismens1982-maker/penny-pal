@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
       } else {
         const { data } = await supabaseClient
           .from('monthly_summaries')
-          .select('*')
+          .select('income, expenses, balance')
           .eq('user_id', user.id)
           .eq('month', targetMonth)
           .eq('year', targetYear)

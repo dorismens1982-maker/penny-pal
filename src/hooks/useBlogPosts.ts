@@ -50,7 +50,7 @@ export const useBlogPosts = () => {
         try {
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
-                .select('*')
+                .select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author')
                 .eq('slug', slug)
                 .maybeSingle();
 
@@ -91,7 +91,7 @@ export const useBlogPosts = () => {
         queryKey: BLOG_KEYS.analytics,
         queryFn: async () => {
             const [postsRes, likesRes, commentsRes] = await Promise.all([
-                (supabase as any).from('blog_posts').select('*', { count: 'exact', head: true }),
+                (supabase as any).from('blog_posts').select('id', { count: 'exact', head: true }),
                 (supabase as any).from('blog_post_likes').select('id', { count: 'exact', head: true }),
                 (supabase as any).from('blog_post_comments').select('id', { count: 'exact', head: true }),
             ]);
@@ -297,7 +297,7 @@ export const useBlogPosts = () => {
             const { data, error } = await (supabase as any)
                 .from('blog_post_comments')
                 .insert([{ post_id: postId, user_id: user.id, content }])
-                .select()
+                .select('id, post_id, user_id, content, created_at')
                 .single();
             if (error) throw error;
             queryClient.invalidateQueries({ queryKey: BLOG_KEYS.interactions(postId) });

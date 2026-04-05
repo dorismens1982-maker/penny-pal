@@ -78,7 +78,7 @@ export const TransactionsProvider = ({ children }: { children: React.ReactNode }
                     ...transactionData,
                     user_id: user.id,
                 })
-                .select()
+                .select('id, amount, type, category, note, date, user_id, created_at')
                 .single();
 
             if (error) throw error;
@@ -109,7 +109,7 @@ export const TransactionsProvider = ({ children }: { children: React.ReactNode }
                 .from('transactions')
                 .update(updates)
                 .eq('id', id)
-                .select()
+                .select('id, amount, type, category, note, date, user_id, created_at')
                 .single();
 
             if (error) throw error;
