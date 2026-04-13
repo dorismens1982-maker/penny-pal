@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import type { BlogPost, CreateBlogPostData, UpdateBlogPostData } from '@/types/blog';
+import type { BlogPost, BlogSeries, CreateBlogPostData, UpdateBlogPostData } from '@/types/blog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { isAdminEmail } from '@/utils/admin';
 
@@ -20,7 +20,15 @@ export const useBlogPosts = () => {
         detail: (slug: string) => [...BLOG_KEYS.details(), slug] as const,
         analytics: ['blog_analytics'] as const,
         interactions: (postId: string) => [...BLOG_KEYS.all, 'interactions', postId] as const,
+        series: {
+            all: ['blog_series'] as const,
+            lists: () => [...BLOG_KEYS.series.all, 'list'] as const,
+            list: (filter: string) => [...BLOG_KEYS.series.lists(), filter] as const,
+            detail: (slug: string) => [...BLOG_KEYS.series.all, 'detail', slug] as const,
+            posts: (seriesId: string) => [...BLOG_KEYS.series.all, 'posts', seriesId] as const,
+        }
     };
+
 
     // --- Queries ---
 
@@ -31,7 +39,7 @@ export const useBlogPosts = () => {
     const { data: posts = [], isLoading: loading } = useQuery({
         queryKey: BLOG_KEYS.list(queryFilter),
         queryFn: async () => {
-            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author');
+            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author, series_id, series_order');
 
             if (isAdmin) {
                 query = query.order('created_at', { ascending: false });
@@ -45,12 +53,30 @@ export const useBlogPosts = () => {
         },
     });
 
+    // Fetch published series
+    const seriesFilter = isAdmin ? 'all' : 'published';
+    const { data: series = [], isLoading: seriesLoading } = useQuery({
+        queryKey: BLOG_KEYS.series.list(seriesFilter),
+        queryFn: async () => {
+            let query = (supabase as any).from('blog_series').select('*');
+            if (isAdmin) {
+                query = query.order('created_at', { ascending: false });
+            } else {
+                query = query.eq('published', true).order('published_at', { ascending: false });
+            }
+            const { data, error } = await query;
+            if (error) throw error;
+            return data as BlogSeries[];
+        },
+    });
+
+
     // Fetch single post by slug
     const fetchPostBySlug = async (slug: string): Promise<BlogPost | null> => {
         try {
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
-                .select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author')
+                .select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author, series_id, series_order')
                 .eq('slug', slug)
                 .maybeSingle();
 
@@ -61,6 +87,22 @@ export const useBlogPosts = () => {
             return null;
         }
     };
+
+    const fetchSeriesBySlug = async (slug: string): Promise<BlogSeries | null> => {
+        try {
+            const { data, error } = await (supabase as any)
+                .from('blog_series')
+                .select('*')
+                .eq('slug', slug)
+                .maybeSingle();
+            if (error) throw error;
+            return data;
+        } catch (error: any) {
+            console.error('Error fetching series by slug:', error);
+            return null;
+        }
+    };
+
 
     // --- Specialized Hooks for Pages ---
     const useBlogPost = (slug: string) => useQuery({
@@ -86,6 +128,29 @@ export const useBlogPosts = () => {
         enabled: !!category && !!excludeId,
     });
 
+    const useBlogSeries = (slug: string) => useQuery({
+        queryKey: BLOG_KEYS.series.detail(slug),
+        queryFn: () => fetchSeriesBySlug(slug),
+        enabled: !!slug,
+    });
+
+    const useSeriesPosts = (seriesId: string) => useQuery({
+        queryKey: BLOG_KEYS.series.posts(seriesId),
+        queryFn: async () => {
+            if (!seriesId) return [];
+            const { data, error } = await (supabase as any)
+                .from('blog_posts')
+                .select('id, title, slug, excerpt, image_url, published_at, read_time, series_order')
+                .eq('series_id', seriesId)
+                .eq('published', true)
+                .order('series_order', { ascending: true });
+            if (error) throw error;
+            return data as BlogPost[];
+        },
+        enabled: !!seriesId,
+    });
+
+
     // Global Analytics Query
     const analyticsQuery = useQuery({
         queryKey: BLOG_KEYS.analytics,
@@ -108,6 +173,7 @@ export const useBlogPosts = () => {
 
     const invalidateAll = () => {
         queryClient.invalidateQueries({ queryKey: BLOG_KEYS.all });
+        queryClient.invalidateQueries({ queryKey: BLOG_KEYS.series.all });
         queryClient.invalidateQueries({ queryKey: BLOG_KEYS.analytics });
     };
 
@@ -197,6 +263,81 @@ export const useBlogPosts = () => {
             toast({ variant: 'destructive', title: 'Error', description: error.message });
         },
     });
+
+    // --- Series Mutations ---
+
+    const createSeriesMutation = useMutation({
+        mutationFn: async (seriesData: any) => {
+            const { data, error } = await (supabase as any)
+                .from('blog_series')
+                .insert([seriesData])
+                .select('id, slug');
+            if (error) throw error;
+            return data?.[0];
+        },
+        onSuccess: () => {
+            toast({ title: 'Series created', description: 'Your blog series has been created.' });
+            invalidateAll();
+        },
+        onError: (error: any) => {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        },
+    });
+
+    const updateSeriesMutation = useMutation({
+        mutationFn: async (seriesData: any) => {
+            const { id, ...updates } = seriesData;
+            const { data, error } = await (supabase as any)
+                .from('blog_series')
+                .update(updates)
+                .eq('id', id)
+                .select('id, slug');
+            if (error) throw error;
+            return data?.[0];
+        },
+        onSuccess: (data) => {
+            toast({ title: 'Series updated', description: 'Your blog series has been updated.' });
+            invalidateAll();
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.series.detail(data.slug) });
+        },
+        onError: (error: any) => {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        },
+    });
+
+    const deleteSeriesMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await (supabase as any).from('blog_series').delete().eq('id', id);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast({ title: 'Series deleted', description: 'Series removed successfully.' });
+            invalidateAll();
+        },
+    });
+
+    const toggleSeriesPublishMutation = useMutation({
+        mutationFn: async ({ id, published }: { id: string; published: boolean }) => {
+            const updates: Record<string, any> = { published };
+            if (published) {
+                updates.published_at = new Date().toISOString();
+            }
+            const { error } = await (supabase as any)
+                .from('blog_series')
+                .update(updates)
+                .eq('id', id);
+            if (error) throw error;
+            return { id, published };
+        },
+        onSuccess: (_, { published }) => {
+            toast({
+                title: published ? 'Series published' : 'Series unpublished',
+                description: published ? 'The series is now live.' : 'The series has been unpublished.',
+            });
+            invalidateAll();
+        },
+    });
+
 
     // Other actions (unchanged logic but could be refactored further)
     const uploadImage = async (file: File): Promise<string | null> => {
@@ -311,13 +452,19 @@ export const useBlogPosts = () => {
 
     return {
         posts,
-        loading,
+        series,
+        loading: loading || seriesLoading,
         isAdmin,
         fetchPostBySlug,
+        fetchSeriesBySlug,
         createPost: createPostMutation.mutateAsync,
         updatePost: updatePostMutation.mutateAsync,
         deletePost: deletePostMutation.mutateAsync,
         togglePublish: togglePublishMutation.mutateAsync,
+        createSeries: createSeriesMutation.mutateAsync,
+        updateSeries: updateSeriesMutation.mutateAsync,
+        deleteSeries: deleteSeriesMutation.mutateAsync,
+        toggleSeriesPublish: toggleSeriesPublishMutation.mutateAsync,
         uploadImage,
         generateSlug: (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         toggleLike,
@@ -326,9 +473,21 @@ export const useBlogPosts = () => {
         fetchAnalytics: async () => analyticsQuery.data || { totalPosts: 0, totalLikes: 0, totalComments: 0 },
         useBlogPost,
         useRelatedPosts,
+        useBlogSeries,
+        useSeriesPosts,
         // Add refetch for convenience
-        refetchPosts: () => queryClient.invalidateQueries({ queryKey: BLOG_KEYS.lists() }),
-        fetchAllPosts: () => queryClient.invalidateQueries({ queryKey: BLOG_KEYS.list('all') }),
-        fetchPublishedPosts: () => queryClient.invalidateQueries({ queryKey: BLOG_KEYS.list('published') }),
+        refetchPosts: () => {
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.lists() });
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.series.lists() });
+        },
+        fetchAllPosts: () => {
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.list('all') });
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.series.list('all') });
+        },
+        fetchPublishedPosts: () => {
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.list('published') });
+            queryClient.invalidateQueries({ queryKey: BLOG_KEYS.series.list('published') });
+        },
     };
+
 };

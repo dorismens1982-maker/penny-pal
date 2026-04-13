@@ -150,7 +150,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     onClose,
     onSave,
 }) => {
-    const { createPost, updatePost, uploadImage, generateSlug } = useBlogPosts();
+    const { createPost, updatePost, uploadImage, generateSlug, series: allSeries } = useBlogPosts();
 
     const [title, setTitle] = useState(post?.title || '');
     const [slug, setSlug] = useState(post?.slug || '');
@@ -163,6 +163,8 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
+    const [seriesId, setSeriesId] = useState(post?.series_id || '');
+    const [seriesOrder, setSeriesOrder] = useState(post?.series_order?.toString() || '');
 
     // Auto-generate slug from title (only for new posts)
     useEffect(() => {
@@ -198,6 +200,8 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
             category,
             published: shouldPublish,
             published_at: shouldPublish ? new Date().toISOString() : undefined,
+            series_id: seriesId || undefined,
+            series_order: seriesOrder ? parseInt(seriesOrder) : undefined,
         };
 
         let success = false;
@@ -338,6 +342,37 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                                     onChange={(e) => setCategory(e.target.value)}
                                     placeholder="e.g., Budgeting Tips"
                                 />
+                            </div>
+
+                            {/* Series Assignment */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="series">Belongs to Series</Label>
+                                    <select
+                                        id="series"
+                                        value={seriesId}
+                                        onChange={(e) => setSeriesId(e.target.value)}
+                                        className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="">None (Individual Post)</option>
+                                        {allSeries?.map((s) => (
+                                            <option key={s.id} value={s.id}>
+                                                {s.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="seriesOrder">Order in Series</Label>
+                                    <Input
+                                        id="seriesOrder"
+                                        type="number"
+                                        value={seriesOrder}
+                                        onChange={(e) => setSeriesOrder(e.target.value)}
+                                        placeholder="e.g., 1"
+                                    />
+                                    <p className="text-[10px] text-slate-400">Lower numbers appear first in the release list.</p>
+                                </div>
                             </div>
 
                             {/* Featured Image */}

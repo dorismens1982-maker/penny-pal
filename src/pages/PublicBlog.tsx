@@ -80,7 +80,7 @@ const PublicBlog = () => {
                     <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary/80 bg-primary/10 px-3 py-1 rounded-full">
                         Financial Education
                     </span>
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-merriweather">
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight ">
                         The <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{APP_NAME}</span> Blog
                     </h1>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto">
@@ -144,7 +144,7 @@ const PublicBlog = () => {
                                 </span>
                                 <span className="text-xs text-primary font-semibold uppercase tracking-wider">Featured</span>
                             </div>
-                            <h2 className="text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors font-merriweather">{featured.title}</h2>
+                            <h2 className="text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors ">{featured.title}</h2>
                             <p className="text-muted-foreground leading-relaxed line-clamp-2">{featured.excerpt}</p>
                             <div className="flex items-center justify-between pt-2">
                                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -177,7 +177,7 @@ const PublicBlog = () => {
                                     <span className={`self-start px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${categoryColors[post.category || ''] || 'bg-muted text-muted-foreground border-border'}`}>
                                         {post.category}
                                     </span>
-                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors leading-snug line-clamp-2 font-merriweather">{post.title}</h3>
+                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors leading-snug line-clamp-2 ">{post.title}</h3>
                                     <p className="text-muted-foreground text-sm leading-relaxed flex-1 line-clamp-3">{post.excerpt}</p>
                                     <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
                                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.read_time || '5'} min</span>

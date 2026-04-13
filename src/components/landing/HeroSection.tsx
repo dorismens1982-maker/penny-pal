@@ -23,7 +23,7 @@ export const HeroSection = ({ onGetStarted, videoSrc, posterSrc }: HeroSectionPr
                 {/* Left Column - Content */}
                 <div className="flex-1 flex flex-col items-center lg:items-start space-y-8">
 
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
                         Take control of your
                         <span className="block mt-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                             financial future
