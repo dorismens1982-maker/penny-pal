@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 import type { BlogPost } from '@/types/blog';
-import { Clock, Calendar, Search, Sparkles, X } from 'lucide-react';
+import { Clock, Calendar, Search, Sparkles, X, Layers, BookOpen } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { APP_NAME } from '@/config/app';
@@ -19,22 +20,33 @@ import { isAdminEmail } from '@/utils/admin';
 
 const Insights = () => {
   const navigate = useNavigate();
-  const { posts: allPosts, loading } = useBlogPosts();
+  const { posts: allPosts, series: allSeries, loading } = useBlogPosts();
   const { user } = useAuth();
   const isAdmin = isAdminEmail(user?.email);
 
-  // Non-admins should only ever see published posts (double guard in case of cache edge cases)
+  // Filter published content
   const posts = isAdmin ? allPosts : allPosts.filter(p => p.published);
+  const series = isAdmin ? allSeries : allSeries.filter(s => s.published);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Extract unique categories
+  // Combine posts and series for the feed
+  // Hide posts that belong to a series to avoid redundancy in the main feed
+  const standalonePosts = posts.filter(p => !p.series_id);
+  
+  const combinedContent = [
+    ...standalonePosts.map(p => ({ ...p, contentType: 'post' as const })),
+    ...series.map(s => ({ ...s, contentType: 'series' as const }))
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Extract unique categories (only from posts for now)
   const categories = ['All', ...Array.from(new Set(posts.map(p => p.category).filter(Boolean)))];
 
-  const filteredPosts = posts.filter((post) => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredContent = combinedContent.filter((item) => {
+    const matchesCategory = selectedCategory === 'All' || (item.contentType === 'post' && (item as any).category === selectedCategory);
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item as any).excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -84,62 +96,96 @@ const Insights = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
 
             {/* Left: The Latest */}
-            {posts.length > 0 && (
+            {combinedContent.length > 0 && (
               <div className="lg:col-span-2 space-y-4">
-                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-merriweather">The Latest</h2>
+                <h2 className="text-3xl font-bold text-slate-800 tracking-tight ">The Latest</h2>
                 <div
-                  className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all"
-                  onClick={() => navigate(`/insights/${posts[0].slug}`)}
+                  className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all relative"
+                  onClick={() => {
+                    const item = combinedContent[0];
+                    if (item.contentType === 'series') {
+                      navigate(`/insights/series/${item.slug}`);
+                    } else {
+                      navigate(`/insights/${item.slug}`);
+                    }
+                  }}
                 >
                   <div className="relative w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden mb-6">
                     <img
-                      src={getOptimizedImageUrl(posts[0].image_url) || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200'}
-                      alt={posts[0].title}
+                      src={getOptimizedImageUrl(combinedContent[0].image_url) || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200'}
+                      alt={combinedContent[0].title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
+                    {combinedContent[0].contentType === 'series' && (
+                        <div className="absolute top-4 left-4">
+                            <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                                <Layers className="w-3 h-3" />
+                                Series Release
+                            </span>
+                        </div>
+                    )}
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors font-merriweather">
-                    {posts[0].title}
+                  <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors ">
+                    {combinedContent[0].title}
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-                    <span>{new Date(posts[0].created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    <span>{new Date(combinedContent[0].created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                     <span className="text-slate-300">|</span>
-                    <span className="text-primary font-medium">{getAuthorName(posts[0])}</span>
+                    <span className="text-primary font-medium">
+                        {combinedContent[0].contentType === 'series' ? 'Curated Collection' : getAuthorName(combinedContent[0] as BlogPost)}
+                    </span>
                   </div>
                   <p className="text-slate-600 leading-relaxed mb-6 line-clamp-3">
-                    {posts[0].excerpt || "Explore the latest insights and trends shaping the future of digital finance..."}
+                    {combinedContent[0].excerpt || "Explore the latest insights and trends shaping the future of digital finance..."}
                   </p>
-                  <span className="font-bold text-primary group-hover:underline decoration-2 underline-offset-4">Read more</span>
+                  <span className="font-bold text-primary group-hover:underline decoration-2 underline-offset-4">
+                    {combinedContent[0].contentType === 'series' ? 'View Series' : 'Read more'}
+                  </span>
                 </div>
               </div>
             )}
 
             {/* Right: Top Reads */}
-            {posts.length > 1 && (
+            {combinedContent.length > 1 && (
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-merriweather">Top Reads</h2>
+                <h2 className="text-3xl font-bold text-slate-800 tracking-tight ">Top Reads</h2>
                 <div className="flex flex-col gap-4">
-                  {posts.slice(1, 4).map((post) => (
+                  {combinedContent.slice(1, 4).map((item) => (
                     <div
-                      key={post.id}
-                      className="bg-white rounded-[1.5rem] p-3 flex gap-4 items-center shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all"
-                      onClick={() => navigate(`/insights/${post.slug}`)}
+                      key={item.id}
+                      className="bg-white rounded-[1.5rem] p-3 flex gap-4 items-center shadow-sm border border-slate-100 cursor-pointer group hover:shadow-md transition-all relative"
+                      onClick={() => {
+                        if (item.contentType === 'series') {
+                          navigate(`/insights/series/${item.slug}`);
+                        } else {
+                          navigate(`/insights/${item.slug}`);
+                        }
+                      }}
                     >
                       <div className="w-24 h-24 md:w-32 md:h-24 shrink-0 rounded-xl overflow-hidden relative">
                         <img
-                          src={getOptimizedImageUrl(post.image_url, 400) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=400'}
-                          alt={post.title}
+                          src={getOptimizedImageUrl(item.image_url, 400) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=400'}
+                          alt={item.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
+                         {item.contentType === 'series' && (
+                            <div className="absolute top-1 left-1">
+                                <span className="bg-primary/90 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold shadow-sm">
+                                    Series
+                                </span>
+                            </div>
+                        )}
                       </div>
                       <div className="flex-1 py-1 pr-2">
-                        <h4 className="font-bold text-slate-900 leading-snug line-clamp-2 md:line-clamp-3 mb-2 group-hover:text-primary transition-colors text-sm md:text-base font-merriweather">
-                          {post.title}
+                        <h4 className="font-bold text-slate-900 leading-snug line-clamp-2 md:line-clamp-3 mb-2 group-hover:text-primary transition-colors text-sm md:text-base ">
+                          {item.title}
                         </h4>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-slate-500">
-                          <span className="shrink-0">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                          <span className="shrink-0">{new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                           <span className="hidden sm:inline text-slate-300">|</span>
-                          <span className="text-primary font-medium truncate">{getAuthorName(post)}</span>
+                          <span className="text-primary font-medium truncate">
+                            {item.contentType === 'series' ? 'Series' : getAuthorName(item as BlogPost)}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -153,7 +199,7 @@ const Insights = () => {
           <div className="pb-20">
             {/* Header & Search */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-              <h2 className="text-3xl font-bold text-slate-800 tracking-tight font-merriweather">
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight ">
                 Browse by categories
               </h2>
               <div className="relative w-full md:w-64">
@@ -190,52 +236,75 @@ const Insights = () => {
               })}
             </div>
 
-            {filteredPosts.length === 0 ? (
+            {filteredContent.length === 0 ? (
               <div className="py-12 text-center text-slate-500 bg-white/40 rounded-3xl border border-white/20">
                 <p>No insights found matching your filters.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                {filteredPosts.map((post, idx) => (
+                {filteredContent.map((item, idx) => (
                   <motion.div
-                    key={post.id}
+                    key={item.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    onClick={() => navigate(`/insights/${post.slug}`)}
+                    onClick={() => {
+                        if (item.contentType === 'series') {
+                          navigate(`/insights/series/${item.slug}`);
+                        } else {
+                          navigate(`/insights/${item.slug}`);
+                        }
+                      }}
                     className="h-full flex flex-col group cursor-pointer"
                   >
-                    <div className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
+                    <div className="bg-white rounded-[2rem] p-4 pb-6 shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300 group-hover:-translate-y-1 relative">
 
-                      {/* Thumbnail with nested category pills removed as requested */}
                       <div className="relative w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden mb-6 filter group-hover:brightness-105 transition-all">
                         <img
-                          src={getOptimizedImageUrl(post.image_url, 800) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800'}
-                          alt={post.title}
+                          src={getOptimizedImageUrl(item.image_url, 800) || 'https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800'}
+                          alt={item.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
+                        {item.contentType === 'series' && (
+                            <div className="absolute top-4 left-4">
+                                <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                                    <Layers className="w-3 h-3" />
+                                    Series
+                                </span>
+                            </div>
+                        )}
                       </div>
 
                       {/* Content Details */}
                       <div className="flex flex-col flex-1 px-1">
                         <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
-                          <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {post.read_time || '5'} min
-                          </span>
+                          <span>{new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                          {item.contentType === 'post' && (
+                             <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {(item as BlogPost)!.read_time || '5'} min
+                             </span>
+                          )}
+                          {item.contentType === 'series' && (
+                             <span className="flex items-center gap-1">
+                                <BookOpen className="w-3 h-3" />
+                                Series
+                             </span>
+                          )}
                         </div>
 
-                        <h3 className="font-merriweather font-bold text-slate-900 text-lg leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                          {post.title}
+                        <h3 className=" font-bold text-slate-900 text-lg leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                          {item.title}
                         </h3>
 
                         <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-6 flex-1">
-                          {post.excerpt || "It is a long established fact that a reader will be distracted by the readable content of a page from when looking at its layout..."}
+                          {item.excerpt || "It is a long established fact that a reader will be distracted by the readable content of a page from when looking at its layout..."}
                         </p>
 
                         <div className="mt-auto">
-                          <span className="text-sm font-bold text-primary group-hover:underline decoration-2 underline-offset-4">Read More</span>
+                          <span className="text-sm font-bold text-primary group-hover:underline decoration-2 underline-offset-4">
+                            {item.contentType === 'series' ? 'Explore Series' : 'Read More'}
+                          </span>
                         </div>
                       </div>
 

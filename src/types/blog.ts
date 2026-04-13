@@ -1,3 +1,16 @@
+export interface BlogSeries {
+    id: string;
+    title: string;
+    slug: string;
+    description?: string;
+    excerpt?: string;
+    image_url?: string;
+    published: boolean;
+    published_at?: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface BlogPost {
     id: string;
     title: string;
@@ -14,6 +27,8 @@ export interface BlogPost {
     published_at?: string;
     created_at: string;
     updated_at: string;
+    series_id?: string;
+    series_order?: number;
     author_roles?: {
         role: string;
     };
@@ -21,6 +36,7 @@ export interface BlogPost {
         full_name: string | null;
     };
 }
+
 
 export interface BlogCategory {
     id: string;
@@ -43,6 +59,8 @@ export interface CreateBlogPostData {
     tags?: string[];
     published?: boolean;
     published_at?: string;
+    series_id?: string;
+    series_order?: number;
 }
 
 export interface UpdateBlogPostData extends Partial<CreateBlogPostData> {

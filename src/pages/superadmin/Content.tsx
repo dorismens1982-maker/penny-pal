@@ -3,14 +3,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { ContentTable } from '@/components/superadmin/ContentTable';
+import { SeriesTable } from '@/components/superadmin/SeriesTable';
 import { PostEditorModal } from '@/components/superadmin/PostEditorModal';
-import { BlogPost } from '@/types/blog';
+import { BlogSeriesEditor } from '@/components/blog/BlogSeriesEditor';
+import { BlogPost, BlogSeries } from '@/types/blog';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
+import { FileText, Layers, FolderPlus } from 'lucide-react';
 
 const ContentPage = () => {
     const { fetchAnalytics } = useBlogPosts();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'articles' | 'series'>('articles');
+    
+    // Post Modal State
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+    const [initialSeriesId, setInitialSeriesId] = useState<string | undefined>();
+    const [initialSeriesOrder, setInitialSeriesOrder] = useState<number | undefined>();
+
+    // Series Editor State
+    const [isSeriesEditorOpen, setIsSeriesEditorOpen] = useState(false);
+    const [editingSeries, setEditingSeries] = useState<BlogSeries | undefined>();
+    const [seriesEditorTab, setSeriesEditorTab] = useState<'details' | 'posts'>('details');
+
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [stats, setStats] = useState({ totalPosts: 0, totalLikes: 0, totalComments: 0 });
 
@@ -22,14 +36,30 @@ const ContentPage = () => {
         loadStats();
     }, [refreshTrigger]);
 
-    const handleCreate = () => {
+    const handleCreatePost = (initialSeriesId?: string, initialSeriesOrder?: number) => {
         setEditingPost(null);
-        setIsModalOpen(true);
+        setInitialSeriesId(initialSeriesId);
+        setInitialSeriesOrder(initialSeriesOrder);
+        setIsPostModalOpen(true);
     };
 
-    const handleEdit = (post: BlogPost) => {
+    const handleEditPost = (post: BlogPost) => {
         setEditingPost(post);
-        setIsModalOpen(true);
+        setInitialSeriesId(undefined);
+        setInitialSeriesOrder(undefined);
+        setIsPostModalOpen(true);
+    };
+
+    const handleCreateSeries = () => {
+        setEditingSeries(undefined);
+        setSeriesEditorTab('details');
+        setIsSeriesEditorOpen(true);
+    };
+
+    const handleEditSeries = (series: BlogSeries, tab: 'details' | 'posts' = 'details') => {
+        setEditingSeries(series);
+        setSeriesEditorTab(tab);
+        setIsSeriesEditorOpen(true);
     };
 
     const handleSaved = () => {
@@ -38,15 +68,21 @@ const ContentPage = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900">Content Management</h1>
-                    <p className="text-slate-500 mt-2">Manage blog posts and educational content.</p>
+                    <p className="text-slate-500 mt-2">Manage blog posts, educational content, and series releases.</p>
                 </div>
-                <Button onClick={handleCreate} className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Create New Post
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={handleCreateSeries} variant="outline" className="gap-2 bg-white">
+                        <FolderPlus className="w-4 h-4" />
+                        New Series
+                    </Button>
+                    <Button onClick={() => handleCreatePost()} className="gap-2">
+                        <Plus className="w-4 h-4" />
+                        Create New Post
+                    </Button>
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -89,23 +125,72 @@ const ContentPage = () => {
                 </Card>
             </div>
 
+            {/* Tab Navigation */}
+            <div className="border-b border-slate-200">
+                <nav className="-mb-px flex space-x-8">
+                    <button
+                        onClick={() => setActiveTab('articles')}
+                        className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors
+                            ${activeTab === 'articles'
+                                ? 'border-primary text-primary'
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                    >
+                        <FileText className="w-4 h-4" />
+                        Standalone Articles
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('series')}
+                        className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors
+                            ${activeTab === 'series'
+                                ? 'border-primary text-primary'
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            }`}
+                    >
+                        <Layers className="w-4 h-4" />
+                        Series Releases
+                    </button>
+                </nav>
+            </div>
+
             <Card>
                 <CardHeader>
-                    <CardTitle>Blog Posts</CardTitle>
+                    <CardTitle>{activeTab === 'articles' ? 'Blog Posts' : 'Series Collections'}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ContentTable refreshTrigger={refreshTrigger} onEdit={handleEdit} />
+                    {activeTab === 'articles' ? (
+                        <ContentTable refreshTrigger={refreshTrigger} onEdit={handleEditPost} />
+                    ) : (
+                        <SeriesTable 
+                            refreshTrigger={refreshTrigger} 
+                            onEdit={(s) => handleEditSeries(s, 'details')} 
+                            onManageEpisodes={(s) => handleEditSeries(s, 'posts')}
+                        />
+                    )}
                 </CardContent>
             </Card>
 
             <PostEditorModal
-                open={isModalOpen}
-                onOpenChange={setIsModalOpen}
+                open={isPostModalOpen}
+                onOpenChange={setIsPostModalOpen}
                 post={editingPost}
                 onSaved={handleSaved}
+                initialSeriesId={initialSeriesId}
+                initialSeriesOrder={initialSeriesOrder}
             />
+
+            {isSeriesEditorOpen && (
+                <BlogSeriesEditor
+                    series={editingSeries}
+                    onClose={() => setIsSeriesEditorOpen(false)}
+                    onSave={handleSaved}
+                    onCreateEpisode={(sId, ord) => handleCreatePost(sId, ord)}
+                    initialTab={seriesEditorTab}
+                />
+            )}
         </div>
     );
 };
+
 
 export default ContentPage;

@@ -18,6 +18,7 @@ import { useBlogPosts } from '@/hooks/useBlogPosts';
 import { ImageUploader } from '@/components/blog/ImageUploader';
 import { Lock, Unlock, Eye, Save, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // ── Register custom fonts once, at module level ────────────────────────────────
 const Font = Quill.import('formats/font') as any;
@@ -165,9 +166,18 @@ interface PostEditorModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSaved: () => void;
+    initialSeriesId?: string;
+    initialSeriesOrder?: number;
 }
 
-export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEditorModalProps) => {
+export const PostEditorModal = ({ 
+    post, 
+    open, 
+    onOpenChange, 
+    onSaved,
+    initialSeriesId,
+    initialSeriesOrder
+}: PostEditorModalProps) => {
     const { createPost, updatePost, generateSlug, uploadImage } = useBlogPosts();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
@@ -186,6 +196,11 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
     const [readTime, setReadTime] = useState('5');
     const [published, setPublished] = useState(false);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
+    
+    // Series support
+    const { series } = useBlogPosts(); // get available series
+    const [seriesId, setSeriesId] = useState<string>('none');
+    const [seriesOrder, setSeriesOrder] = useState<string>('');
 
     // Keep a stable ref to uploadImage so the toolbar handler can access the
     // latest version without being listed as a modules dependency.
@@ -294,6 +309,8 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                 setCategory(post.category || '');
                 setReadTime(post.read_time || '5');
                 setPublished(post.published);
+                setSeriesId(post.series_id || 'none');
+                setSeriesOrder(post.series_order?.toString() || '');
                 setSlugLocked(true);
             } else {
                 setTitle('');
@@ -305,11 +322,13 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                 setCategory('');
                 setReadTime('5');
                 setPublished(false);
+                setSeriesId(initialSeriesId || 'none');
+                setSeriesOrder(initialSeriesOrder?.toString() || '');
                 setSlugLocked(true);
             }
             setIsPreviewMode(false);
         }
-    }, [post, open]);
+    }, [post, open, initialSeriesId, initialSeriesOrder]);
 
     // Auto-generate slug on title change
     useEffect(() => {
@@ -345,6 +364,8 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
             read_time: readTime,
             published: shouldPublish,
             published_at: shouldPublish ? new Date().toISOString() : undefined,
+            series_id: seriesId === 'none' ? undefined : seriesId,
+            series_order: seriesOrder ? parseInt(seriesOrder, 10) : undefined,
         };
         try {
             if (post) {
@@ -514,6 +535,36 @@ export const PostEditorModal = ({ post, open, onOpenChange, onSaved }: PostEdito
                                                 value={readTime}
                                                 onChange={(e) => setReadTime(e.target.value)}
                                                 placeholder="e.g. 5"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Series Assignment */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="series">Belongs to Series</Label>
+                                            <Select value={seriesId} onValueChange={setSeriesId}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a Series" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">Not in a series</SelectItem>
+                                                    {series.map(s => (
+                                                        <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="seriesOrder">Series Order (No.)</Label>
+                                            <Input
+                                                id="seriesOrder"
+                                                type="number"
+                                                value={seriesOrder}
+                                                onChange={(e) => setSeriesOrder(e.target.value)}
+                                                placeholder="e.g. 1"
+                                                disabled={seriesId === 'none'}
+                                                className={seriesId === 'none' ? 'bg-slate-100 opacity-50' : ''}
                                             />
                                         </div>
                                     </div>

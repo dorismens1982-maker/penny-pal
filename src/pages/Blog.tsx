@@ -118,7 +118,7 @@ const Blog = () => {
                     </Badge>
 
                     {/* Title */}
-                    <h2 className="text-2xl font-merriweather font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    <h2 className="text-2xl  font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {post.title}
                     </h2>
 

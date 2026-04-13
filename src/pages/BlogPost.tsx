@@ -45,7 +45,7 @@ const BlogPost = () => {
     return (
       <Layout>
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
-          <h1 className="text-2xl font-merriweather font-bold mb-4">Article Not Found</h1>
+          <h1 className="text-2xl  font-bold mb-4">Article Not Found</h1>
           <p className="text-muted-foreground mb-6">
             The article you're looking for doesn't exist.
           </p>
@@ -140,7 +140,7 @@ const BlogPost = () => {
             {post.category}
           </Badge>
           
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-merriweather font-bold mb-6 tracking-tight leading-[1.2] text-foreground text-left">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl  font-bold mb-6 tracking-tight leading-[1.2] text-foreground text-left">
             {post.title}
           </h1>
           
@@ -189,7 +189,7 @@ const BlogPost = () => {
         {/* ✅ Article Body */}
         <article className="max-w-3xl mx-auto px-4 py-8 md:py-12">
           <div
-            className="prose prose-lg max-w-none prose-headings:font-merriweather prose-a:text-primary marker:text-primary ql-editor text-justify"
+            className="prose prose-lg max-w-none prose-headings: prose-a:text-primary marker:text-primary ql-editor text-justify"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
 

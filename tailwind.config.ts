@@ -78,6 +78,7 @@ export default {
         poppins: ["Poppins", "sans-serif"],
         inter: ["Inter", "sans-serif"],
         merriweather: ["Merriweather", "serif"],
+        prosto: ["Prosto One", "sans-serif"],
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",

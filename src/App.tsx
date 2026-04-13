@@ -17,8 +17,8 @@ import Dashboard from '@/pages/Dashboard';
 import Manage from '@/pages/Manage';
 import Insights from '@/pages/Insights';
 import InsightsPost from '@/pages/InsightsPost';
+import InsightsSeries from '@/pages/InsightsSeries';
 import Settings from '@/pages/Settings';
-import { BlogAdmin } from '@/pages/BlogAdmin';
 import Guide from '@/pages/Guide';
 import PublicBlog from '@/pages/PublicBlog';
 import AboutPage from '@/pages/AboutPage';
@@ -95,6 +95,7 @@ function App() {
 
                   <Route path="/insights" element={<Insights />} />
                   <Route path="/insights/:slug" element={<InsightsPost />} />
+                  <Route path="/insights/series/:slug" element={<InsightsSeries />} />
 
                   {/* Super Admin Routes */}
                   <Route
