@@ -39,7 +39,7 @@ export const useBlogPosts = () => {
     const { data: posts = [], isLoading: loading } = useQuery({
         queryKey: BLOG_KEYS.list(queryFilter),
         queryFn: async () => {
-            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author, series_id, series_order');
+            let query = (supabase as any).from('blog_posts').select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author, author_name, series_id, series_order');
 
             if (isAdmin) {
                 query = query.order('created_at', { ascending: false });
@@ -76,7 +76,7 @@ export const useBlogPosts = () => {
         try {
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
-                .select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author, series_id, series_order')
+                .select('id, title, slug, excerpt, content, image_url, category, published, published_at, created_at, read_time, tags, author, author_name, series_id, series_order')
                 .eq('slug', slug)
                 .maybeSingle();
 
@@ -140,7 +140,7 @@ export const useBlogPosts = () => {
             if (!seriesId) return [];
             const { data, error } = await (supabase as any)
                 .from('blog_posts')
-                .select('id, title, slug, excerpt, image_url, published_at, read_time, series_order')
+                .select('id, title, slug, excerpt, author_name, image_url, published_at, read_time, series_order')
                 .eq('series_id', seriesId)
                 .eq('published', true)
                 .order('series_order', { ascending: true });
