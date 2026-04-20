@@ -233,7 +233,7 @@ const InsightsPost = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="blog-content prose prose-lg max-w-none text-slate-700 ql-editor text-justify
+                className="blog-content prose prose-lg max-w-none text-slate-700 ql-editor text-left
                                     prose-headings: prose-headings:font-bold prose-headings:text-slate-900
                                     prose-p:leading-relaxed prose-p:text-slate-600
                                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline

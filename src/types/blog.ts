@@ -5,6 +5,7 @@ export interface BlogSeries {
     description?: string;
     excerpt?: string;
     image_url?: string;
+    author_name?: string;
     published: boolean;
     published_at?: string;
     created_at: string;

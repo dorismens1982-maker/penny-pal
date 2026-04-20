@@ -132,7 +132,9 @@ const Insights = () => {
                     <span>{new Date(combinedContent[0].created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                     <span className="text-slate-300">|</span>
                     <span className="text-primary font-medium">
-                        {combinedContent[0].contentType === 'series' ? 'Curated Collection' : getAuthorName(combinedContent[0] as BlogPost)}
+                        {combinedContent[0].contentType === 'series' 
+                          ? ((combinedContent[0] as any).author_name || 'Curated Collection') 
+                          : getAuthorName(combinedContent[0] as BlogPost)}
                     </span>
                   </div>
                   <p className="text-slate-600 leading-relaxed mb-6 line-clamp-3">
@@ -184,7 +186,7 @@ const Insights = () => {
                           <span className="shrink-0">{new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                           <span className="hidden sm:inline text-slate-300">|</span>
                           <span className="text-primary font-medium truncate">
-                            {item.contentType === 'series' ? 'Series' : getAuthorName(item as BlogPost)}
+                            {item.contentType === 'series' ? ((item as any).author_name || 'Series') : getAuthorName(item as BlogPost)}
                           </span>
                         </div>
                       </div>

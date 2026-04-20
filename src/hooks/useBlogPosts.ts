@@ -58,7 +58,7 @@ export const useBlogPosts = () => {
     const { data: series = [], isLoading: seriesLoading } = useQuery({
         queryKey: BLOG_KEYS.series.list(seriesFilter),
         queryFn: async () => {
-            let query = (supabase as any).from('blog_series').select('*');
+            let query = (supabase as any).from('blog_series').select('id, title, slug, description, excerpt, image_url, author_name, published, published_at, created_at, updated_at');
             if (isAdmin) {
                 query = query.order('created_at', { ascending: false });
             } else {
@@ -92,7 +92,7 @@ export const useBlogPosts = () => {
         try {
             const { data, error } = await (supabase as any)
                 .from('blog_series')
-                .select('*')
+                .select('id, title, slug, description, excerpt, image_url, author_name, published, published_at, created_at, updated_at')
                 .eq('slug', slug)
                 .maybeSingle();
             if (error) throw error;
