@@ -98,8 +98,8 @@ const modules = {
             [{ list: 'ordered' }, { list: 'bullet' }],
             [{ indent: '-1' }, { indent: '+1' }],
 
-            // Align
-            [{ align: [] }],
+            // Align - individual buttons for better visibility
+            [{ align: '' }, { align: 'center' }, { align: 'right' }, { align: 'justify' }],
 
             // Media / blocks – note: 'image' here will be overridden by handler
             ['link', 'image', 'video'],
@@ -157,7 +157,38 @@ const fontStyles = `
     .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before { content: 'Monospace'; font-family: 'Courier New', monospace; }
 
     .ql-container { min-height: 300px; }
-    .ql-editor { min-height: 300px; }
+    .ql-editor { 
+        min-height: 300px; 
+        text-align: left; 
+    }
+
+    /* Toolbar wrapping and styling */
+    .ql-toolbar.ql-snow {
+        flex-wrap: wrap;
+        border-bottom: 1px solid #e2e8f0 !important;
+        background: #f8fafc;
+    }
+
+    .ql-snow.ql-toolbar button {
+        width: 28px !important;
+        height: 28px !important;
+        padding: 3px !important;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 640px) {
+        .ql-toolbar.ql-snow {
+            padding: 4px !important;
+        }
+        .ql-toolbar .ql-formats {
+            margin-right: 4px !important;
+            margin-bottom: 4px !important;
+        }
+        .ql-editor {
+            font-size: 16px !important;
+            padding: 15px 12px !important;
+        }
+    }
 `;
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -292,6 +323,64 @@ export const PostEditorModal = ({
             editorEl.removeEventListener('paste', handlePaste as EventListener);
             editorEl.removeEventListener('drop', handleDrop as EventListener);
         };
+    // ── Tooltips: Inject titles into toolbar buttons for better UX ──────────
+    useEffect(() => {
+        if (!open || !quillRef.current) return;
+        
+        const timer = setTimeout(() => {
+            const toolbar = document.querySelector('.ql-toolbar');
+            if (!toolbar) return;
+
+            const tooltipMap: Record<string, string> = {
+                '.ql-header': 'Heading Level',
+                '.ql-font': 'Font Family',
+                '.ql-size': 'Font Size',
+                '.ql-bold': 'Bold (Ctrl+B)',
+                '.ql-italic': 'Italic (Ctrl+I)',
+                '.ql-underline': 'Underline (Ctrl+U)',
+                '.ql-strike': 'Strikethrough',
+                '.ql-color': 'Text Color',
+                '.ql-background': 'Background Color',
+                '.ql-script[value="sub"]': 'Subscript',
+                '.ql-script[value="super"]': 'Superscript',
+                '.ql-list[value="ordered"]': 'Numbered List',
+                '.ql-list[value="bullet"]': 'Bullet List',
+                '.ql-indent[value="-1"]': 'Decrease Indent',
+                '.ql-indent[value="+1"]': 'Increase Indent',
+                '.ql-direction': 'Text Direction',
+                '.ql-align[value=""]': 'Left Align',
+                '.ql-align[value="center"]': 'Center Align',
+                '.ql-align[value="right"]': 'Right Align',
+                '.ql-align[value="justify"]': 'Justify Align',
+                '.ql-link': 'Insert Link',
+                '.ql-image': 'Insert Image',
+                '.ql-video': 'Insert Video',
+                '.ql-blockquote': 'Quote',
+                '.ql-code-block': 'Code Block',
+                '.ql-clean': 'Clear Formatting'
+            };
+
+            Object.entries(tooltipMap).forEach(([selector, text]) => {
+                const el = toolbar.querySelector(selector);
+                if (el) el.setAttribute('title', text);
+            });
+
+            // Also handle pickers labels
+            toolbar.querySelectorAll('.ql-picker').forEach(picker => {
+                const label = picker.querySelector('.ql-picker-label');
+                if (label) {
+                    if (picker.classList.contains('ql-header')) label.setAttribute('title', 'Heading Style');
+                    if (picker.classList.contains('ql-font')) label.setAttribute('title', 'Font Family');
+                    if (picker.classList.contains('ql-size')) label.setAttribute('title', 'Text Size');
+                    if (picker.classList.contains('ql-color')) label.setAttribute('title', 'Text Color');
+                    if (picker.classList.contains('ql-background')) label.setAttribute('title', 'Highlight Color');
+                }
+            });
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [open]);
+
     // Only run once after editor mounts — ref keeps uploadImage fresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
@@ -436,7 +525,7 @@ export const PostEditorModal = ({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-0 gap-0">
+            <DialogContent className="sm:max-w-4xl w-full h-[100dvh] sm:h-[90vh] overflow-y-auto flex flex-col p-0 gap-0">
                 <DialogHeader className="p-6 pb-2 border-b">
                     <div className="flex items-center justify-between w-full">
                         <DialogTitle>{post ? 'Edit Post' : 'Create New Post'}</DialogTitle>
@@ -651,34 +740,38 @@ export const PostEditorModal = ({
                     )}
                 </div>
 
-                <DialogFooter className="p-6 pt-2 border-t bg-slate-50">
-                    <div className="flex items-center justify-between w-full">
+                <DialogFooter className="p-4 sm:p-6 pt-2 border-t bg-slate-50">
+                    <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
                         <div className="flex items-center space-x-2">
                             <Switch
                                 id="published"
                                 checked={published}
                                 onCheckedChange={setPublished}
                             />
-                            <Label htmlFor="published">Publish immediately</Label>
+                            <Label htmlFor="published" className="text-sm">Publish immediately</Label>
                         </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                            <Button variant="outline" size="sm" className="sm:h-10 sm:px-4 h-9 px-3" onClick={() => onOpenChange(false)}>
                                 Cancel
                             </Button>
                             <Button
                                 variant="outline"
+                                size="sm"
+                                className="sm:h-10 sm:px-4 h-9 px-3"
                                 onClick={() => handleSubmit(false)}
                                 disabled={loading}
                             >
-                                <Save className="w-4 h-4 mr-2" />
-                                {loading ? 'Saving…' : 'Save as Draft'}
+                                <Save className="w-4 h-4 mr-2 hidden sm:inline" />
+                                {loading ? 'Saving…' : 'Save Draft'}
                             </Button>
                             <Button
+                                size="sm"
+                                className="sm:h-10 sm:px-4 h-9 px-3"
                                 onClick={() => handleSubmit(true)}
                                 disabled={loading}
                             >
-                                <Eye className="w-4 h-4 mr-2" />
-                                {loading ? 'Publishing…' : published ? 'Update & Publish' : 'Publish'}
+                                <Eye className="w-4 h-4 mr-2 hidden sm:inline" />
+                                {loading ? 'Publishing…' : published ? 'Update' : 'Publish'}
                             </Button>
                         </div>
                     </div>

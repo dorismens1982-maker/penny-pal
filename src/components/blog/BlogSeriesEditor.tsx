@@ -32,6 +32,7 @@ export const BlogSeriesEditor: React.FC<BlogSeriesEditorProps> = ({
     const [excerpt, setExcerpt] = useState(series?.excerpt || '');
     const [description, setDescription] = useState(series?.description || '');
     const [imageUrl, setImageUrl] = useState(series?.image_url || '');
+    const [authorName, setAuthorName] = useState(series?.author_name || '');
     const [published, setPublished] = useState(series?.published || false);
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -83,6 +84,7 @@ export const BlogSeriesEditor: React.FC<BlogSeriesEditorProps> = ({
             excerpt,
             description,
             image_url: imageUrl,
+            author_name: authorName,
             published: shouldPublish,
             published_at: shouldPublish ? new Date().toISOString() : undefined,
         };
@@ -271,6 +273,16 @@ export const BlogSeriesEditor: React.FC<BlogSeriesEditorProps> = ({
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Detailed description of what this series covers..."
                                     rows={4}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="s-author">Author Name</Label>
+                                <Input
+                                    id="s-author"
+                                    value={authorName}
+                                    onChange={(e) => setAuthorName(e.target.value)}
+                                    placeholder="e.g. Penny Pal Team"
                                 />
                             </div>
 

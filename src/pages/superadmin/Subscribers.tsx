@@ -5,12 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Search, Download, Mail, Users } from 'lucide-react';
 import { useSubscribers } from '@/hooks/useSubscribers';
 import { SubscribersTable } from '@/components/superadmin/SubscribersTable';
+import { exportToExcel } from '@/utils/excelExport';
 
 const SubscribersPage = () => {
     const { subscribers, loading, error } = useSubscribers();
     // TODO: Client-side filtering/searching can be added here
 
     const activeSubscribers = subscribers.filter(s => s.status === 'subscribed').length;
+
+    const handleExport = () => {
+        if (subscribers.length === 0) return;
+        
+        // Map data to a cleaner format for Excel
+        const exportData = subscribers.map(s => ({
+            'ID': s.id,
+            'Email': s.email,
+            'Status': s.status,
+            'Subscribed At': new Date(s.subscribed_at).toLocaleString()
+        }));
+
+        exportToExcel(exportData, `subscribers_${new Date().toISOString().split('T')[0]}`, 'Subscribers');
+    };
 
     return (
         <div className="space-y-6">
@@ -19,9 +34,14 @@ const SubscribersPage = () => {
                     <h1 className="text-3xl font-bold text-slate-900">Newsletter Subscribers</h1>
                     <p className="text-slate-500 mt-2">Manage your email list and automatic signups.</p>
                 </div>
-                <Button variant="outline" className="gap-2">
+                <Button 
+                    variant="outline" 
+                    className="gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
+                    onClick={handleExport}
+                    disabled={subscribers.length === 0}
+                >
                     <Download className="w-4 h-4" />
-                    Export CSV
+                    Export Excel
                 </Button>
             </div>
 

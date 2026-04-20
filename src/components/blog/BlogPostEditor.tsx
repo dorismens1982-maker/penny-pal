@@ -100,8 +100,8 @@ const modules = {
             [{ list: 'ordered' }, { list: 'bullet' }],
             [{ indent: '-1' }, { indent: '+1' }],
 
-            // Align
-            [{ align: [] }],
+            // Align - buttons instead of picker for better flexibility
+            [{ align: '' }, { align: 'center' }, { align: 'right' }, { align: 'justify' }],
 
             // Media / blocks
             ['link', 'image', 'video'],
@@ -172,6 +172,70 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
             setSlug(generateSlug(title));
         }
     }, [title, post, slug, generateSlug]);
+
+    // ── Tooltips for Quill Toolbar ─────────────────────────────────────────────
+    useEffect(() => {
+        // We use a slight delay to ensure Quill has rendered the toolbar
+        const timer = setTimeout(() => {
+            const toolbar = document.querySelector('.ql-toolbar');
+            if (!toolbar) return;
+
+            const tooltips: Record<string, string> = {
+                '.ql-header': 'Heading Style',
+                '.ql-font': 'Font Family',
+                '.ql-size': 'Text Size',
+                '.ql-bold': 'Bold (Ctrl+B)',
+                '.ql-italic': 'Italic (Ctrl+I)',
+                '.ql-underline': 'Underline (Ctrl+U)',
+                '.ql-strike': 'Strikethrough',
+                '.ql-color': 'Text Color',
+                '.ql-background': 'Highlight Color',
+                '.ql-script[value="sub"]': 'Subscript',
+                '.ql-script[value="super"]': 'Superscript',
+                '.ql-list[value="ordered"]': 'Numbered List',
+                '.ql-list[value="bullet"]': 'Bullet List',
+                '.ql-indent[value="-1"]': 'Decrease Indent',
+                '.ql-indent[value="+1"]': 'Increase Indent',
+                '.ql-direction': 'Text Direction',
+                '.ql-align': 'Alignment',
+                '.ql-link': 'Insert Link',
+                '.ql-image': 'Insert Image',
+                '.ql-video': 'Insert Video',
+                '.ql-blockquote': 'Blockquote',
+                '.ql-code-block': 'Code Block',
+                '.ql-clean': 'Clear All Formatting',
+            };
+
+            Object.entries(tooltips).forEach(([selector, text]) => {
+                const elements = toolbar.querySelectorAll(selector);
+                elements.forEach((el) => {
+                    if (el instanceof HTMLElement) {
+                        // For align buttons specifically, differentiate them
+                        if (selector === '.ql-align') {
+                            const val = el.getAttribute('data-value') || 'left';
+                            if (val === 'center') el.title = 'Center Align';
+                            else if (val === 'right') el.title = 'Right Align';
+                            else if (val === 'justify') el.title = 'Justify';
+                            else el.title = 'Left Align';
+                        } else {
+                            el.title = text;
+                        }
+                    }
+                });
+            });
+
+            // Also search for picker items inside dropdowns
+            const pickerItems = toolbar.querySelectorAll('.ql-picker-item, .ql-picker-label');
+            pickerItems.forEach(item => {
+                if (item instanceof HTMLElement && !item.title) {
+                    const label = item.getAttribute('data-label') || item.innerText;
+                    if (label) item.title = label;
+                }
+            });
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleImageSelect = async (file: File) => {
         setUploading(true);
@@ -483,9 +547,10 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({
                 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
                 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before { content: 'Monospace'; font-family: 'Courier New', monospace; }
 
-                /* Make the Quill editor area taller */
-                .blog-editor-wrap .ql-container { min-height: 280px; }
-                .blog-editor-wrap .ql-editor { min-height: 280px; }
+                /* Make the Quill editor area taller and ensure left alignment by default */
+                .blog-editor-wrap .ql-container { min-height: 280px; text-align: left; }
+                .blog-editor-wrap .ql-editor { min-height: 280px; text-align: left; }
+                .blog-editor-wrap .ql-editor.ql-blank::before { text-align: left; left: 15px; }
             `}</style>
         </div>
     );

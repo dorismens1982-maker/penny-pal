@@ -5,10 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Search, Download, Trash2, Shield } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { UsersTable } from '@/components/superadmin/UsersTable';
+import { exportToExcel } from '@/utils/excelExport';
 
 const UsersPage = () => {
     const { users, loading, error, refreshUsers } = useUsers();
     const [searchTerm, setSearchTerm] = React.useState('');
+
+    const handleExport = () => {
+        if (users.length === 0) return;
+
+        // Map data to a cleaner format for Excel
+        const exportData = users.map(user => ({
+            'ID': user.id,
+            'Email': user.email || 'N/A',
+            'Name': user.user_metadata?.preferred_name || 'N/A',
+            'Role': user.role || 'user',
+            'Created At': user.created_at ? new Date(user.created_at).toLocaleString() : 'N/A',
+            'Last Sign In': user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : 'N/A'
+        }));
+
+        exportToExcel(exportData, `users_${new Date().toISOString().split('T')[0]}`, 'Users');
+    };
 
     const filteredUsers = React.useMemo(() => {
         if (!searchTerm) return users;

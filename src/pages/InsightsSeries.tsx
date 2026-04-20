@@ -85,9 +85,14 @@ const InsightsSeries = () => {
                                 <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary/80 bg-primary/10 px-3 py-1 rounded-full">
                                     {posts.length} {posts.length === 1 ? 'Release' : 'Releases'}
                                 </span>
-                                <h1 className="text-3xl md:text-4xl font-bold text-slate-900  leading-tight">
+                                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
                                     {series.title}
                                 </h1>
+                                {series.author_name && (
+                                    <p className="text-sm font-medium text-slate-500">
+                                        By {series.author_name}
+                                    </p>
+                                )}
                                 <p className="text-slate-600 leading-relaxed text-lg">
                                     {series.description || series.excerpt}
                                 </p>

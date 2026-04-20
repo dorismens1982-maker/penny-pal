@@ -189,7 +189,7 @@ const BlogPost = () => {
         {/* ✅ Article Body */}
         <article className="max-w-3xl mx-auto px-4 py-8 md:py-12">
           <div
-            className="prose prose-lg max-w-none prose-headings: prose-a:text-primary marker:text-primary ql-editor text-justify"
+            className="prose prose-lg max-w-none prose-headings: prose-a:text-primary marker:text-primary ql-editor text-left"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
 
