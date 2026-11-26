@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           budget_id: string
           category: string
+          note: string | null
           created_at: string
           id: string
           limit: number
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           budget_id: string
           category: string
+          note?: string | null
           created_at?: string
           id?: string
           limit?: number
@@ -34,6 +36,7 @@ export type Database = {
         Update: {
           budget_id?: string
           category?: string
+          note?: string | null
           created_at?: string
           id?: string
           limit?: number
