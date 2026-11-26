@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   LayoutDashboard,
+  PiggyBank,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/config/app';
@@ -29,17 +30,24 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
   const currentTab = searchParams.get('tab');
   const isAdmin = isAdminEmail(user?.email);
 
+  // Three main sections: Budget, Money (income and expenses), Resources (blog, news, guides)
+  const isResourcesPage =
+    location.pathname.startsWith('/insights') ||
+    location.pathname.startsWith('/guide') ||
+    location.pathname.startsWith('/community');
+
   const desktopNavItems = [
-    { path: '/insights', icon: BookOpen, label: 'Insights' },
-    { path: '/manage', icon: Wallet, label: 'Manage' },
+    { path: '/budget', icon: PiggyBank, label: 'Budget' },
+    { path: '/manage', icon: Wallet, label: 'Money' },
+    { path: '/insights', icon: BookOpen, label: 'Resources' },
     ...(isAdmin ? [{ path: '/superadmin', icon: LayoutDashboard, label: 'Admin' }] : []),
   ];
 
   const mobileNavItems = [
-    { path: '/manage?tab=overview', icon: Wallet, label: 'Overview', isActive: location.pathname === '/manage' && (currentTab === 'overview' || !currentTab) },
+    { path: '/budget', icon: PiggyBank, label: 'Budget', isActive: location.pathname.startsWith('/budget') },
+    { path: '/manage?tab=overview', icon: Wallet, label: 'Money', isActive: location.pathname === '/manage' && (currentTab === 'overview' || !currentTab) },
     { path: '/manage?tab=transactions', icon: Receipt, label: 'Transactions', isActive: location.pathname === '/manage' && currentTab === 'transactions' },
-    { path: '/manage?tab=analytics', icon: BarChart3, label: 'Analytics', isActive: location.pathname === '/manage' && currentTab === 'analytics' },
-    { path: '/insights', icon: BookOpen, label: 'Insights', isActive: location.pathname.startsWith('/insights') },
+    { path: '/insights', icon: BookOpen, label: 'Resources', isActive: isResourcesPage },
     { path: '/manage?tab=settings', icon: Settings, label: 'Settings', isActive: location.pathname === '/manage' && currentTab === 'settings' },
     ...(isAdmin ? [{ path: '/superadmin', icon: LayoutDashboard, label: 'Admin', isActive: location.pathname.startsWith('/superadmin') }] : []),
   ];

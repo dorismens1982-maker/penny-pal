@@ -15,6 +15,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import { InstallPWA } from '@/components/InstallPWA';
 import Dashboard from '@/pages/Dashboard';
 import Manage from '@/pages/Manage';
+import Budget from '@/pages/Budget';
 import Insights from '@/pages/Insights';
 import InsightsPost from '@/pages/InsightsPost';
 import InsightsSeries from '@/pages/InsightsSeries';
@@ -86,6 +87,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Manage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/budget"
+                    element={
+                      <ProtectedRoute>
+                        <Budget />
                       </ProtectedRoute>
                     }
                   />
