@@ -775,18 +775,13 @@ const Budget = () => {
                 Name each category and say briefly what it is for. The limit is the most you plan to spend.
               </p>
 
-              <div className="space-y-3">
+              {/* One compact row per category: name, what it is for, limit, remove */}
+              <div className="divide-y divide-border/60 rounded-xl border border-border/60">
                 {rows.map((row, index) => {
                   const suggested = suggestions.get(normalise(row.category));
                   return (
-                    <div key={index} className="rounded-xl border border-border/60 p-3 space-y-2.5 bg-card">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Category {index + 1}</p>
-                        <Button variant="ghost" size="sm" onClick={() => removeRow(index)} aria-label="Remove category" className="h-7 px-2 text-expense gap-1">
-                          <Trash2 className="w-3.5 h-3.5" /> Remove
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    <div key={index} className="p-3 space-y-1.5">
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_9rem_auto] gap-2 items-center">
                         <Input
                           value={row.category}
                           placeholder="Category name, e.g. Transport"
@@ -799,9 +794,7 @@ const Budget = () => {
                           aria-label="What it is for"
                           onChange={(e) => updateRow(index, { note: e.target.value })}
                         />
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="relative w-40">
+                        <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">GH₵</span>
                           <Input
                             type="number"
@@ -812,17 +805,24 @@ const Budget = () => {
                             onChange={(e) => updateRow(index, { limit: Number(e.target.value) })}
                           />
                         </div>
-                        <span className="text-xs text-muted-foreground">per month</span>
-                        {suggested !== undefined && suggested !== row.limit && (
-                          <button
-                            type="button"
-                            onClick={() => updateRow(index, { limit: suggested })}
-                            className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
-                          >
-                            Use {formatMoney(suggested)} (your 3-month average)
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeRow(index)}
+                          aria-label="Remove category"
+                          className="h-9 w-9 justify-self-end md:justify-self-center grid place-items-center rounded-md text-muted-foreground hover:text-expense hover:bg-expense/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
+                      {suggested !== undefined && suggested !== row.limit && (
+                        <button
+                          type="button"
+                          onClick={() => updateRow(index, { limit: suggested })}
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          Use {formatMoney(suggested)} (your 3-month average)
+                        </button>
+                      )}
                     </div>
                   );
                 })}
