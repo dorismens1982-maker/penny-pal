@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { motion } from 'framer-motion';
-import { ArrowDownLeft, ArrowLeft, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowDownLeft, ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,20 +127,26 @@ const Budget = () => {
   const { transactions } = useTransactions();
   const { toast } = useToast();
 
+  // Month switcher: 0 is the current month, negative numbers go back
+  const [monthOffset, setMonthOffset] = useState(0);
   const today = new Date();
-  const month = today.getMonth() + 1;
-  const year = today.getFullYear();
-  const monthLabel = today.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
-  const monthPrefix = monthKey(today, 0);
-  const daysLeft = new Date(year, month, 0).getDate() - today.getDate();
+  const selected = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const month = selected.getMonth() + 1;
+  const year = selected.getFullYear();
+  const isCurrent = monthOffset === 0;
+  const monthLabel = selected.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  const monthPrefix = monthKey(selected, 0);
+  const lastDay = new Date(year, month, 0).getDate();
+  const daysLeft = isCurrent ? lastDay - today.getDate() : 0;
   const previous = {
-    month: today.getMonth() === 0 ? 12 : today.getMonth(),
-    year: today.getMonth() === 0 ? year - 1 : year,
+    month: month === 1 ? 12 : month - 1,
+    year: month === 1 ? year - 1 : year,
   };
 
   const [loading, setLoading] = useState(true);
   const [budgetId, setBudgetId] = useState<string | null>(null);
   const [savedCategories, setSavedCategories] = useState<SavedCategory[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Screen flow: 'overview' (saved budget or template picker) → 'preview' → 'builder'
   const [screen, setScreen] = useState<'overview' | 'preview' | 'builder'>('overview');
@@ -178,6 +184,7 @@ const Budget = () => {
       setSavedCategories([]);
       setBudgetId(null);
     }
+    setExpandedId(null);
     setLoading(false);
   }, [user, month, year, toast]);
 
@@ -185,22 +192,27 @@ const Budget = () => {
     loadBudget();
   }, [loadBudget]);
 
-  // Spending this month per category (matched by name, ignoring case)
+  // Expenses in the selected month
+  const expenseThisMonth = useMemo(
+    () => transactions.filter((t) => t.type === 'expense' && t.date?.startsWith(monthPrefix)),
+    [transactions, monthPrefix],
+  );
+
+  // Spending per category (matched by name, ignoring case)
   const spentByCategory = useMemo(() => {
     const totals = new Map<string, number>();
-    for (const t of transactions) {
-      if (t.type !== 'expense' || !t.date?.startsWith(monthPrefix)) continue;
+    for (const t of expenseThisMonth) {
       const key = normalise(t.category);
       totals.set(key, (totals.get(key) ?? 0) + Number(t.amount));
     }
     return totals;
-  }, [transactions, monthPrefix]);
+  }, [expenseThisMonth]);
 
   const spentFor = (category: string) => spentByCategory.get(normalise(category)) ?? 0;
 
-  // Suggested limit per category: average monthly spend over the last 3 full months
+  // Suggested limit per category: average monthly spend over the 3 months before the selected one
   const suggestions = useMemo(() => {
-    const keys = [monthKey(today, 1), monthKey(today, 2), monthKey(today, 3)];
+    const keys = [monthKey(selected, 1), monthKey(selected, 2), monthKey(selected, 3)];
     const totals = new Map<string, number>();
     for (const t of transactions) {
       if (t.type !== 'expense' || !t.date) continue;
@@ -211,11 +223,44 @@ const Budget = () => {
     const averages = new Map<string, number>();
     totals.forEach((sum, key) => averages.set(key, Math.round(sum / 3)));
     return averages;
-  }, [transactions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions, monthOffset]);
+
+  // Categories spent on this month that have no limit yet
+  const unbudgeted = useMemo(() => {
+    const budgeted = new Set(savedCategories.map((c) => normalise(c.category)));
+    const found = new Map<string, { name: string; total: number }>();
+    for (const t of expenseThisMonth) {
+      const key = normalise(t.category);
+      if (budgeted.has(key)) continue;
+      const existing = found.get(key);
+      if (existing) existing.total += Number(t.amount);
+      else found.set(key, { name: t.category.trim(), total: Number(t.amount) });
+    }
+    return Array.from(found.values()).sort((a, b) => b.total - a.total);
+  }, [expenseThisMonth, savedCategories]);
 
   const totalLimit = savedCategories.reduce((sum, c) => sum + Number(c.limit), 0);
   const totalSpent = savedCategories.reduce((sum, c) => sum + spentFor(c.category), 0);
   const left = totalLimit - totalSpent;
+
+  const overCategories = savedCategories.filter((c) => Number(c.limit) > 0 && spentFor(c.category) > Number(c.limit));
+  const nearCategories = savedCategories.filter((c) => {
+    const limit = Number(c.limit);
+    if (limit <= 0 || spentFor(c.category) > limit) return false;
+    return spentFor(c.category) / limit >= 0.8;
+  });
+
+  // One-line health summary for the top of the page
+  const healthLine = () => {
+    if (overCategories.length > 0) {
+      return `${overCategories.length} over the limit and ${nearCategories.length} close to it. Tap the warning below to see them.`;
+    }
+    if (nearCategories.length > 0) {
+      return `${nearCategories.length} close to the limit. The rest are comfortably under.`;
+    }
+    return 'On track. Every category is under 80% used.';
+  };
 
   // ---------- Flow ----------
   const openPreview = (template: Template) => {
@@ -243,6 +288,15 @@ const Budget = () => {
     } else {
       openPreview(TEMPLATES[TEMPLATES.length - 1]);
     }
+  };
+
+  // Quick add: set up the spending categories that have no limit yet
+  const openAddUnbudgeted = () => {
+    setRows([
+      ...savedCategories.map((c) => ({ category: c.category, note: c.note ?? '', limit: Number(c.limit) })),
+      ...unbudgeted.map((u) => ({ category: u.name, note: '', limit: suggestions.get(normalise(u.name)) ?? 0 })),
+    ]);
+    setScreen('builder');
   };
 
   const copyLastMonth = async () => {
@@ -291,6 +345,10 @@ const Budget = () => {
     setScreen('overview');
     setRows([]);
     setPreviewTemplate(null);
+  };
+
+  const scrollToCategories = () => {
+    document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   // ---------- Builder helpers ----------
@@ -387,28 +445,62 @@ const Budget = () => {
   const statusLine = (spent: number, limit: number) => {
     const remaining = limit - spent;
     if (limit <= 0) return 'No limit set';
-    if (remaining < 0) return `Over by ${formatMoney(Math.abs(remaining))}. Cut back for the rest of the month.`;
+    if (remaining < 0) {
+      return isCurrent
+        ? `Over by ${formatMoney(Math.abs(remaining))}. Cut back for the rest of the month.`
+        : `Over by ${formatMoney(Math.abs(remaining))} this month.`;
+    }
+    if (!isCurrent) return `${formatMoney(remaining)} left at the end of the month.`;
     const percent = Math.round((spent / limit) * 100);
     if (percent >= 80) return `${percent}% used with ${daysLeft} days left. Slow down to stay on track.`;
     return `${formatMoney(remaining)} left with ${daysLeft} days to go.`;
   };
+
+  // Expense transactions for one category this month, newest first
+  const transactionsFor = (category: string) =>
+    expenseThisMonth
+      .filter((t) => normalise(t.category) === normalise(category))
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const hasBudget = !loading && !!budgetId;
   const previewCard = previewTemplate && previewTemplate.id !== 'copy' ? previewTemplate : null;
 
   return (
     <Layout>
-      <div className="px-4 pb-20 md:pb-4 space-y-4 max-w-7xl">
+      <div className="px-4 pb-24 md:pb-4 space-y-4 max-w-7xl">
 
-        {/* Header card, same style as the Money page */}
+        {/* Header card with month switcher, same style as the Money page */}
         <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
           <CardContent className="p-4 md:p-5">
             <div className="flex items-center justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <h1 className="text-lg md:text-2xl font-bold text-foreground">
                   {screen === 'builder' ? 'Customise budget' : screen === 'preview' ? 'Review budget' : 'Your budget'}
                 </h1>
-                <p className="text-xs md:text-sm text-muted-foreground mt-0.5">{monthLabel}</p>
+                {screen === 'overview' ? (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setMonthOffset((o) => o - 1)}
+                      className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
+                      aria-label="Previous month"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <p className="text-xs md:text-sm text-muted-foreground min-w-[9rem] text-center">{monthLabel}</p>
+                    <button
+                      type="button"
+                      onClick={() => setMonthOffset((o) => Math.min(o + 1, 0))}
+                      disabled={isCurrent}
+                      className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent"
+                      aria-label="Next month"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs md:text-sm text-muted-foreground mt-0.5">{monthLabel}</p>
+                )}
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full grid place-items-center bg-primary/15 text-primary shrink-0">
                 <PiggyBank className="w-5 h-5 md:w-6 md:h-6" />
@@ -462,9 +554,47 @@ const Budget = () => {
           </div>
         )}
 
+        {/* Health line and warnings: only when a budget is saved */}
+        {hasBudget && screen === 'overview' && savedCategories.length > 0 && (
+          <>
+            <p className="text-sm text-muted-foreground px-1">{healthLine()}</p>
+
+            {overCategories.length > 0 && (
+              <button
+                type="button"
+                onClick={scrollToCategories}
+                className="w-full flex items-center gap-3 rounded-2xl border border-expense/30 bg-expense/5 p-3 text-left hover:bg-expense/10"
+              >
+                <AlertTriangle className="w-4 h-4 text-expense shrink-0" />
+                <span className="text-sm">
+                  <span className="font-semibold text-expense">Over budget:</span>{' '}
+                  {overCategories.map((c) => c.category).join(', ')}
+                </span>
+              </button>
+            )}
+          </>
+        )}
+
+        {/* Quick add: spending with no limit yet */}
+        {hasBudget && screen === 'overview' && unbudgeted.length > 0 && (
+          <Card className="shadow-sm border-accent/40">
+            <CardContent className="p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm">You spent on {unbudgeted.length} {unbudgeted.length === 1 ? 'category' : 'categories'} with no limit</p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  {unbudgeted.map((u) => `${u.name} (${formatMoney(u.total)})`).join(', ')}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={openAddUnbudgeted} className="gap-1.5 shrink-0">
+                <Plus className="w-3.5 h-3.5" /> Set limits
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* ---------- Overview with a saved budget ---------- */}
         {hasBudget && screen === 'overview' && (
-          <Card className="shadow-sm border-border/60">
+          <Card id="categories" className="shadow-sm border-border/60 scroll-mt-20">
             <CardContent className="p-4 md:p-5 space-y-5">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-semibold">Categories</p>
@@ -478,28 +608,55 @@ const Budget = () => {
                 </div>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-2">
                 {savedCategories.map((c) => {
                   const spent = spentFor(c.category);
                   const limit = Number(c.limit);
                   const percent = limit > 0 ? Math.round((spent / limit) * 100) : 0;
+                  const open = expandedId === c.id;
+                  const list = open ? transactionsFor(c.category) : [];
                   return (
-                    <div key={c.id} className="space-y-1.5">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">{c.category}</p>
-                          {c.note && <p className="text-xs text-muted-foreground truncate">{c.note}</p>}
+                    <div key={c.id} className="rounded-xl border border-border/60">
+                      <button
+                        type="button"
+                        onClick={() => setExpandedId(open ? null : c.id)}
+                        aria-expanded={open}
+                        className="w-full p-3 space-y-1.5 text-left"
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate">{c.category}</p>
+                            {c.note && <p className="text-xs text-muted-foreground truncate">{c.note}</p>}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <p className="text-sm font-medium whitespace-nowrap">
+                              {formatMoney(spent)} <span className="text-muted-foreground">/ {formatMoney(limit)}</span>
+                            </p>
+                            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
+                          </div>
                         </div>
-                        <p className="text-sm font-medium whitespace-nowrap">
-                          {formatMoney(spent)} <span className="text-muted-foreground">/ {formatMoney(limit)}</span>
+                        <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div className={`h-full rounded-full transition-all ${barColor(percent)}`} style={{ width: `${Math.min(percent, 100)}%` }} />
+                        </div>
+                        <p className={`text-xs ${spent > limit ? 'text-expense font-medium' : 'text-muted-foreground'}`}>
+                          {statusLine(spent, limit)}
                         </p>
-                      </div>
-                      <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                        <div className={`h-full rounded-full transition-all ${barColor(percent)}`} style={{ width: `${Math.min(percent, 100)}%` }} />
-                      </div>
-                      <p className={`text-xs ${spent > limit ? 'text-expense font-medium' : 'text-muted-foreground'}`}>
-                        {statusLine(spent, limit)}
-                      </p>
+                      </button>
+
+                      {open && (
+                        <div className="border-t border-border/60 px-3 py-2 space-y-1.5">
+                          {list.length === 0 && <p className="text-xs text-muted-foreground py-1">No spending in this category yet.</p>}
+                          {list.map((t) => (
+                            <div key={t.id} className="flex justify-between gap-3 text-xs py-1">
+                              <div className="min-w-0">
+                                <p className="truncate">{t.note || 'Expense'}</p>
+                                <p className="text-muted-foreground">{t.date}</p>
+                              </div>
+                              <p className="font-merriweather font-semibold whitespace-nowrap">{formatMoney(Number(t.amount))}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -528,9 +685,11 @@ const Budget = () => {
               </div>
             </div>
 
-            <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
-              <Copy className="w-3.5 h-3.5" /> Copy last month instead
-            </Button>
+            {isCurrent && (
+              <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
+                <Copy className="w-3.5 h-3.5" /> Copy last month instead
+              </Button>
+            )}
           </>
         )}
 
