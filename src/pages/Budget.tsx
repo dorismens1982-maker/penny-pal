@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Layout } from '@/components/Layout';
-import { ArrowDownLeft, ArrowLeft, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeft, Briefcase, Bus, BookOpen, Copy, GraduationCap, Home, PenLine, PiggyBank, Pencil, Plus, ShoppingBasket, Smile, Trash2, Utensils, Wallet, Wifi, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +72,39 @@ const monthKey = (base: Date, offset: number) => {
 };
 
 const normalise = (s: string) => s.trim().toLowerCase();
+
+// Banner art for each template (icon on a colour gradient)
+const TEMPLATE_ART: Record<string, { icon: React.ElementType; gradient: string }> = {
+  student: { icon: GraduationCap, gradient: 'from-primary-dark to-accent' },
+  worker: { icon: Briefcase, gradient: 'from-income to-income-light' },
+  family: { icon: Home, gradient: 'from-expense to-primary' },
+  blank: { icon: PenLine, gradient: 'from-slate-500 to-slate-700' },
+  copy: { icon: Copy, gradient: 'from-income to-primary' },
+};
+
+// Picks an icon from the category name so every row has a visual
+const categoryIcon = (name: string): React.ElementType => {
+  const n = normalise(name);
+  if (/rent|house|home/.test(n)) return Home;
+  if (/grocer/.test(n)) return ShoppingBasket;
+  if (/food|canteen|meal/.test(n)) return Utensils;
+  if (/transport|commute|trotro|bus|fare|bolt/.test(n)) return Bus;
+  if (/bill|power|water|electric/.test(n)) return Zap;
+  if (/data|airtime|internet|wifi/.test(n)) return Wifi;
+  if (/school|fee|book|supplies/.test(n)) return BookOpen;
+  if (/saving|emergency/.test(n)) return PiggyBank;
+  if (/fun|treat|outing|leisure/.test(n)) return Smile;
+  return Wallet;
+};
+
+const IconTile = ({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) => {
+  const Icon = categoryIcon(name);
+  return (
+    <div className={`${size === 'md' ? 'w-11 h-11' : 'w-9 h-9'} rounded-xl grid place-items-center bg-primary/15 text-primary shrink-0`}>
+      <Icon className={size === 'md' ? 'w-5 h-5' : 'w-4 h-4'} />
+    </div>
+  );
+};
 
 const Budget = () => {
   const { user } = useAuth();
@@ -420,10 +453,13 @@ const Budget = () => {
                   const percent = limit > 0 ? Math.round((spent / limit) * 100) : 0;
                   return (
                     <div key={c.id} className="space-y-1.5">
-                      <div className="flex justify-between items-baseline gap-2">
+                      <div className="flex justify-between items-center gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                        <IconTile name={c.category} size="md" />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate">{c.category}</p>
                           {c.note && <p className="text-xs text-muted-foreground truncate">{c.note}</p>}
+                        </div>
                         </div>
                         <p className="text-sm font-medium whitespace-nowrap">
                           {formatMoney(spent)} <span className="text-muted-foreground">/ {formatMoney(limit)}</span>
@@ -458,13 +494,19 @@ const Budget = () => {
             <div className="grid gap-3 sm:grid-cols-2">
               {TEMPLATES.map((t) => {
                 const total = t.rows.reduce((s, r) => s + r.limit, 0);
+                const art = TEMPLATE_ART[t.id];
+                const ArtIcon = art.icon;
                 return (
                   <button
                     key={t.id}
                     type="button"
                     onClick={() => openPreview(t)}
-                    className="rounded-2xl border border-border/60 bg-card p-4 text-left shadow-sm hover:border-primary hover:shadow-md transition-all"
+                    className="overflow-hidden rounded-2xl border border-border/60 bg-card text-left shadow-sm hover:border-primary hover:shadow-md transition-all"
                   >
+                    <div className={`h-24 bg-gradient-to-br ${art.gradient} grid place-items-center`}>
+                      <ArtIcon className="w-10 h-10 text-white drop-shadow" />
+                    </div>
+                    <div className="p-4">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-semibold">{t.label}</p>
                       {t.rows.length > 0 && (
@@ -477,6 +519,7 @@ const Budget = () => {
                         {t.rows.length} categories: {t.rows.map((r) => r.category).join(', ')}
                       </p>
                     )}
+                    </div>
                   </button>
                 );
               })}
@@ -491,7 +534,17 @@ const Budget = () => {
         {/* ---------- Preview: name it and see what is included ---------- */}
         {!loading && screen === 'preview' && (
           <Card className="shadow-sm border-border/60">
-            <CardContent className="p-4 md:p-5 space-y-5">
+            <CardContent className="p-0 space-y-0">
+              {previewTemplate && TEMPLATE_ART[previewTemplate.id] && (() => {
+                const art = TEMPLATE_ART[previewTemplate.id];
+                const ArtIcon = art.icon;
+                return (
+                  <div className={`h-28 bg-gradient-to-br ${art.gradient} grid place-items-center rounded-t-2xl`}>
+                    <ArtIcon className="w-12 h-12 text-white drop-shadow" />
+                  </div>
+                );
+              })()}
+              <div className="p-4 md:p-5 space-y-5">
               <div className="flex items-center gap-2">
                 <button type="button" onClick={backToOverview} className="text-muted-foreground hover:text-foreground" aria-label="Back">
                   <ArrowLeft className="w-4 h-4" />
@@ -512,9 +565,12 @@ const Budget = () => {
                   )}
                   {rows.map((r, i) => (
                     <div key={i} className="flex items-center justify-between gap-3 p-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                      <IconTile name={r.category} />
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{r.category || 'Untitled'}</p>
                         {r.note && <p className="text-xs text-muted-foreground truncate">{r.note}</p>}
+                      </div>
                       </div>
                       <p className="text-sm font-semibold whitespace-nowrap">{formatMoney(Number(r.limit) || 0)}</p>
                     </div>
@@ -539,6 +595,7 @@ const Budget = () => {
                 >
                   {saving ? 'Saving...' : 'Create budget'}
                 </Button>
+              </div>
               </div>
             </CardContent>
           </Card>
