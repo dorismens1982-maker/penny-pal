@@ -270,7 +270,11 @@ const Budget = () => {
     setScreen('preview');
   };
 
-  const openCustomise = () => setScreen('builder');
+  const openCustomise = () => {
+    // Never open the builder empty: start with one blank row to fill in
+    setRows((prev) => (prev.length > 0 ? prev : [{ category: '', note: '', limit: 0 }]));
+    setScreen('builder');
+  };
 
   const openEditSaved = () => {
     setRows(savedCategories.map((c) => ({ category: c.category, note: c.note ?? '', limit: Number(c.limit) })));
@@ -499,7 +503,11 @@ const Budget = () => {
                     </button>
                   </div>
                 ) : (
-                  <p className="text-xs md:text-sm text-muted-foreground mt-0.5">{monthLabel}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                    {screen === 'builder' && previewTemplate && previewTemplate.id !== 'copy'
+                      ? `Based on ${previewTemplate.label} · ${monthLabel}`
+                      : monthLabel}
+                  </p>
                 )}
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full grid place-items-center bg-primary/15 text-primary shrink-0">
@@ -706,9 +714,9 @@ const Budget = () => {
             )}
             <CardContent className="p-4 md:p-5 space-y-5">
               <div className="flex items-center gap-2">
-                <button type="button" onClick={backToOverview} className="text-muted-foreground hover:text-foreground" aria-label="Back">
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
+                <Button variant="outline" size="sm" onClick={backToOverview} className="gap-1.5" aria-label="Back to budget">
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
                 <p className="text-sm text-muted-foreground">
                   Starting from: <span className="font-semibold text-foreground">{previewTemplate?.label}</span>
                 </p>
@@ -749,7 +757,7 @@ const Budget = () => {
                 </Button>
                 <Button
                   onClick={saveBudget}
-                  disabled={saving || rows.length === 0}
+                  disabled={saving || rows.every((r) => !r.category.trim())}
                   className="bg-primary text-primary-foreground hover:bg-primary-dark"
                 >
                   {saving ? 'Saving...' : 'Create budget'}
@@ -820,20 +828,32 @@ const Budget = () => {
                 })}
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div>
                 <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
                   <Plus className="w-3.5 h-3.5" /> Add category
                 </Button>
-                <p className="text-sm font-merriweather font-semibold">Total: {formatMoney(rowTotal)}</p>
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
-                <Button variant="outline" onClick={() => setScreen(budgetId ? 'overview' : 'preview')} disabled={saving}>
-                  Cancel
-                </Button>
-                <Button onClick={saveBudget} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary-dark">
-                  {saving ? 'Saving...' : budgetId ? 'Save changes' : 'Save budget'}
-                </Button>
+              {/* Sticky total and actions, so the running total is always visible */}
+              <div className="sticky bottom-20 md:bottom-4 z-30 pt-2">
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card/95 backdrop-blur p-3 shadow-md">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Total per month</p>
+                    <p className="text-sm font-merriweather font-bold truncate">{formatMoney(rowTotal)}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button variant="outline" onClick={() => setScreen(budgetId ? 'overview' : 'preview')} disabled={saving}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={saveBudget}
+                      disabled={saving || rows.every((r) => !r.category.trim())}
+                      className="bg-primary text-primary-foreground hover:bg-primary-dark"
+                    >
+                      {saving ? 'Saving...' : budgetId ? 'Save changes' : 'Save budget'}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
