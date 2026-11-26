@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Layout } from '@/components/Layout';
-import { ArrowDownLeft, ArrowLeft, Briefcase, Bus, BookOpen, Copy, GraduationCap, Home, PenLine, PiggyBank, Pencil, Plus, ShoppingBasket, Smile, Trash2, Utensils, Wallet, Wifi, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowDownLeft, ArrowLeft, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,15 @@ import { useToast } from '@/hooks/use-toast';
 
 type Row = { category: string; note: string; limit: number };
 type SavedCategory = { id: string; category: string; note: string | null; limit: number };
-type Template = { id: string; label: string; description: string; rows: Row[] };
+type Template = {
+  id: string;
+  label: string;
+  description: string;
+  // Background photo for the carousel card. Leave null to show the colour fallback.
+  image: string | null;
+  gradient: string;
+  rows: Row[];
+};
 
 // Starter categories. Users can rename, edit or remove any of them.
 const TEMPLATES: Template[] = [
@@ -19,6 +28,8 @@ const TEMPLATES: Template[] = [
     id: 'student',
     label: 'Student',
     description: 'Campus food, transport, data and school costs',
+    image: null,
+    gradient: 'from-primary-dark to-accent',
     rows: [
       { category: 'Food & canteen', note: 'Meals on campus and snacks', limit: 400 },
       { category: 'Transport', note: 'Trotro, bus or bolt to school', limit: 150 },
@@ -31,6 +42,8 @@ const TEMPLATES: Template[] = [
     id: 'worker',
     label: 'Worker',
     description: 'Rent, bills, food and getting to work',
+    image: null,
+    gradient: 'from-income to-income-light',
     rows: [
       { category: 'Rent', note: 'Monthly rent or room', limit: 1200 },
       { category: 'Groceries', note: 'Food for the house', limit: 700 },
@@ -43,6 +56,8 @@ const TEMPLATES: Template[] = [
     id: 'family',
     label: 'Family',
     description: 'Household costs, school fees and savings',
+    image: null,
+    gradient: 'from-expense to-primary',
     rows: [
       { category: 'Groceries', note: 'Food for everyone', limit: 900 },
       { category: 'Bills', note: 'Power, water, internet', limit: 500 },
@@ -55,6 +70,8 @@ const TEMPLATES: Template[] = [
     id: 'blank',
     label: 'Start blank',
     description: 'Build every category yourself',
+    image: null,
+    gradient: 'from-slate-600 to-slate-800',
     rows: [],
   },
 ];
@@ -73,36 +90,35 @@ const monthKey = (base: Date, offset: number) => {
 
 const normalise = (s: string) => s.trim().toLowerCase();
 
-// Banner art for each template (icon on a colour gradient)
-const TEMPLATE_ART: Record<string, { icon: React.ElementType; gradient: string }> = {
-  student: { icon: GraduationCap, gradient: 'from-primary-dark to-accent' },
-  worker: { icon: Briefcase, gradient: 'from-income to-income-light' },
-  family: { icon: Home, gradient: 'from-expense to-primary' },
-  blank: { icon: PenLine, gradient: 'from-slate-500 to-slate-700' },
-  copy: { icon: Copy, gradient: 'from-income to-primary' },
-};
-
-// Picks an icon from the category name so every row has a visual
-const categoryIcon = (name: string): React.ElementType => {
-  const n = normalise(name);
-  if (/rent|house|home/.test(n)) return Home;
-  if (/grocer/.test(n)) return ShoppingBasket;
-  if (/food|canteen|meal/.test(n)) return Utensils;
-  if (/transport|commute|trotro|bus|fare|bolt/.test(n)) return Bus;
-  if (/bill|power|water|electric/.test(n)) return Zap;
-  if (/data|airtime|internet|wifi/.test(n)) return Wifi;
-  if (/school|fee|book|supplies/.test(n)) return BookOpen;
-  if (/saving|emergency/.test(n)) return PiggyBank;
-  if (/fun|treat|outing|leisure/.test(n)) return Smile;
-  return Wallet;
-};
-
-const IconTile = ({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) => {
-  const Icon = categoryIcon(name);
+// Photo-style card, same shape as the carousel on the Money page
+const TemplateCard = ({ template, onClick }: { template: Template; onClick: () => void }) => {
+  const total = template.rows.reduce((s, r) => s + r.limit, 0);
   return (
-    <div className={`${size === 'md' ? 'w-11 h-11' : 'w-9 h-9'} rounded-xl grid place-items-center bg-primary/15 text-primary shrink-0`}>
-      <Icon className={size === 'md' ? 'w-5 h-5' : 'w-4 h-4'} />
-    </div>
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileHover={{ y: -2 }}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="relative min-w-[280px] md:min-w-[320px] h-40 md:h-48 rounded-2xl overflow-hidden text-left cursor-pointer group shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div className={`absolute inset-0 bg-gradient-to-br ${template.gradient}`} />
+      {template.image && (
+        <img
+          src={template.image}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 p-4 w-full">
+        <h3 className="text-white font-bold text-lg md:text-xl leading-tight">{template.label}</h3>
+        <p className="text-white/80 text-xs md:text-sm mt-1 line-clamp-2">{template.description}</p>
+        <p className="text-white/90 text-xs md:text-sm mt-2 font-merriweather font-semibold">
+          {template.rows.length > 0 ? `${formatMoney(total)} a month` : 'Build your own'}
+        </p>
+      </div>
+    </motion.button>
   );
 };
 
@@ -243,6 +259,8 @@ const Budget = () => {
       id: 'copy',
       label: 'Last month',
       description: 'Copied from last month. Change anything you like.',
+      image: null,
+      gradient: 'from-income to-primary',
       rows: [],
     });
     setPreviewName(`${monthLabel} budget`);
@@ -363,6 +381,7 @@ const Budget = () => {
   };
 
   const hasBudget = !loading && !!budgetId;
+  const previewCard = previewTemplate && previewTemplate.id !== 'copy' ? previewTemplate : null;
 
   return (
     <Layout>
@@ -397,7 +416,7 @@ const Budget = () => {
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Budgeted</p>
-                  <p className="text-sm md:text-xl font-bold truncate">{formatMoney(totalLimit)}</p>
+                  <p className="text-sm md:text-xl font-merriweather font-bold truncate">{formatMoney(totalLimit)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -408,7 +427,7 @@ const Budget = () => {
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Spent</p>
-                  <p className="text-sm md:text-xl font-bold text-expense truncate">{formatMoney(totalSpent)}</p>
+                  <p className="text-sm md:text-xl font-merriweather font-bold text-expense truncate">{formatMoney(totalSpent)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -421,7 +440,7 @@ const Budget = () => {
                   <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">
                     {left >= 0 ? 'Left to spend' : 'Over budget'}
                   </p>
-                  <p className={`text-sm md:text-xl font-bold truncate ${left >= 0 ? 'text-income' : 'text-expense'}`}>
+                  <p className={`text-sm md:text-xl font-merriweather font-bold truncate ${left >= 0 ? 'text-income' : 'text-expense'}`}>
                     {formatMoney(Math.abs(left))}
                   </p>
                 </div>
@@ -453,13 +472,10 @@ const Budget = () => {
                   const percent = limit > 0 ? Math.round((spent / limit) * 100) : 0;
                   return (
                     <div key={c.id} className="space-y-1.5">
-                      <div className="flex justify-between items-center gap-2">
-                        <div className="flex items-center gap-3 min-w-0">
-                        <IconTile name={c.category} size="md" />
+                      <div className="flex justify-between items-start gap-2">
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate">{c.category}</p>
                           {c.note && <p className="text-xs text-muted-foreground truncate">{c.note}</p>}
-                        </div>
                         </div>
                         <p className="text-sm font-medium whitespace-nowrap">
                           {formatMoney(spent)} <span className="text-muted-foreground">/ {formatMoney(limit)}</span>
@@ -479,50 +495,24 @@ const Budget = () => {
           </Card>
         )}
 
-        {/* ---------- Overview with no budget: pick a template ---------- */}
+        {/* ---------- Overview with no budget: pick a template from the carousel ---------- */}
         {!loading && !budgetId && screen === 'overview' && (
           <>
             <Card className="shadow-sm border-border/60">
               <CardContent className="p-4 md:p-5">
                 <p className="font-semibold">You have no budget for {monthLabel} yet</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Choose a starting point. You'll see what it includes before anything is saved.
+                  Swipe to choose a starting point. You'll see what it includes before anything is saved.
                 </p>
               </CardContent>
             </Card>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {TEMPLATES.map((t) => {
-                const total = t.rows.reduce((s, r) => s + r.limit, 0);
-                const art = TEMPLATE_ART[t.id];
-                const ArtIcon = art.icon;
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => openPreview(t)}
-                    className="overflow-hidden rounded-2xl border border-border/60 bg-card text-left shadow-sm hover:border-primary hover:shadow-md transition-all"
-                  >
-                    <div className={`h-24 bg-gradient-to-br ${art.gradient} grid place-items-center`}>
-                      <ArtIcon className="w-10 h-10 text-white drop-shadow" />
-                    </div>
-                    <div className="p-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-semibold">{t.label}</p>
-                      {t.rows.length > 0 && (
-                        <span className="text-xs font-medium text-muted-foreground">{formatMoney(total)}</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t.description}</p>
-                    {t.rows.length > 0 && (
-                      <p className="text-xs text-muted-foreground mt-3">
-                        {t.rows.length} categories: {t.rows.map((r) => r.category).join(', ')}
-                      </p>
-                    )}
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="w-full overflow-x-auto pb-4 pt-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+              <div className="flex gap-4 w-max">
+                {TEMPLATES.map((t) => (
+                  <TemplateCard key={t.id} template={t} onClick={() => openPreview(t)} />
+                ))}
+              </div>
             </div>
 
             <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
@@ -533,23 +523,23 @@ const Budget = () => {
 
         {/* ---------- Preview: name it and see what is included ---------- */}
         {!loading && screen === 'preview' && (
-          <Card className="shadow-sm border-border/60">
-            <CardContent className="p-0 space-y-0">
-              {previewTemplate && TEMPLATE_ART[previewTemplate.id] && (() => {
-                const art = TEMPLATE_ART[previewTemplate.id];
-                const ArtIcon = art.icon;
-                return (
-                  <div className={`h-28 bg-gradient-to-br ${art.gradient} grid place-items-center rounded-t-2xl`}>
-                    <ArtIcon className="w-12 h-12 text-white drop-shadow" />
-                  </div>
-                );
-              })()}
-              <div className="p-4 md:p-5 space-y-5">
+          <Card className="shadow-sm border-border/60 overflow-hidden">
+            {previewCard && (
+              <div className="relative h-28 md:h-32">
+                <div className={`absolute inset-0 bg-gradient-to-br ${previewCard.gradient}`} />
+                {previewCard.image && <img src={previewCard.image} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <p className="absolute bottom-3 left-4 text-white font-bold text-lg">{previewCard.label}</p>
+              </div>
+            )}
+            <CardContent className="p-4 md:p-5 space-y-5">
               <div className="flex items-center gap-2">
                 <button type="button" onClick={backToOverview} className="text-muted-foreground hover:text-foreground" aria-label="Back">
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <p className="text-sm text-muted-foreground">Starting from: <span className="font-semibold text-foreground">{previewTemplate?.label}</span></p>
+                <p className="text-sm text-muted-foreground">
+                  Starting from: <span className="font-semibold text-foreground">{previewTemplate?.label}</span>
+                </p>
               </div>
 
               <div className="space-y-1.5">
@@ -564,21 +554,18 @@ const Budget = () => {
                     <p className="p-4 text-sm text-muted-foreground">No categories yet. Customise to add some.</p>
                   )}
                   {rows.map((r, i) => (
-                    <div key={i} className="flex items-center justify-between gap-3 p-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                      <IconTile name={r.category} />
+                    <div key={i} className="flex items-start justify-between gap-3 p-3">
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{r.category || 'Untitled'}</p>
                         {r.note && <p className="text-xs text-muted-foreground truncate">{r.note}</p>}
                       </div>
-                      </div>
-                      <p className="text-sm font-semibold whitespace-nowrap">{formatMoney(Number(r.limit) || 0)}</p>
+                      <p className="text-sm font-merriweather font-semibold whitespace-nowrap">{formatMoney(Number(r.limit) || 0)}</p>
                     </div>
                   ))}
                   {rows.length > 0 && (
                     <div className="flex items-center justify-between p-3 bg-muted/40 rounded-b-xl">
                       <p className="text-sm font-semibold">Total</p>
-                      <p className="text-sm font-bold">{formatMoney(rowTotal)}</p>
+                      <p className="text-sm font-merriweather font-bold">{formatMoney(rowTotal)}</p>
                     </div>
                   )}
                 </div>
@@ -595,7 +582,6 @@ const Budget = () => {
                 >
                   {saving ? 'Saving...' : 'Create budget'}
                 </Button>
-              </div>
               </div>
             </CardContent>
           </Card>
@@ -666,7 +652,7 @@ const Budget = () => {
                 <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
                   <Plus className="w-3.5 h-3.5" /> Add category
                 </Button>
-                <p className="text-sm font-semibold">Total: {formatMoney(rowTotal)}</p>
+                <p className="text-sm font-merriweather font-semibold">Total: {formatMoney(rowTotal)}</p>
               </div>
 
               <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
