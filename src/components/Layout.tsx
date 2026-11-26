@@ -157,7 +157,7 @@ export const Layout = ({ children, onAddTransaction }: LayoutProps) => {
           {children}
         </div>
 
-        {!location.pathname.startsWith('/manage') && !location.pathname.startsWith('/superadmin') ? (
+        {!location.pathname.startsWith('/manage') && !location.pathname.startsWith('/budget') && !location.pathname.startsWith('/superadmin') ? (
           <div className="mt-auto pt-10">
             <LandingFooter />
           </div>

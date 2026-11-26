@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Layout } from '@/components/Layout';
+import { ArrowDownLeft, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -316,57 +317,108 @@ const Budget = () => {
     return `${formatMoney(left)} left with ${daysLeft} days to go.`;
   };
 
+  const monthSpent = totalSpent;
+  const left = totalLimit - totalSpent;
+
   return (
     <Layout>
-      <div className="container mx-auto px-4 pt-6 pb-24 md:pb-10 max-w-3xl space-y-5">
-        <div>
-          <h1 className="font-poppins text-2xl font-bold text-foreground">Budget</h1>
-          <p className="text-sm text-muted-foreground">{monthLabel}</p>
-        </div>
+      <div className="px-4 pb-20 md:pb-4 space-y-4 max-w-7xl">
 
-        {loading && <p className="text-sm text-muted-foreground">Loading your budget...</p>}
+        {/* Header card, same style as the Money page */}
+        <Card className="mt-1 md:mt-0 shadow-sm border-border/60 bg-gradient-to-br from-background to-muted/30">
+          <CardContent className="p-4 md:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h1 className="text-lg md:text-2xl font-bold text-foreground">Your budget</h1>
+                <p className="text-xs md:text-sm text-muted-foreground mt-0.5">{monthLabel}</p>
+              </div>
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full grid place-items-center bg-primary/15 text-primary shrink-0">
+                <PiggyBank className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* ---------- Existing budget: progress view ---------- */}
+        {loading && <p className="text-sm text-muted-foreground px-1">Loading your budget...</p>}
+
+        {/* Summary stat cards, same as the Money page */}
         {!loading && budgetId && !creating && (
-          <Card className="rounded-2xl shadow-md">
-            <CardContent className="p-5 space-y-5">
-              <div className="flex flex-wrap justify-between gap-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">Spent so far</p>
-                  <p className="font-poppins text-2xl font-bold">
-                    {formatMoney(totalSpent)}
-                    <span className="text-base font-medium text-muted-foreground"> of {formatMoney(totalLimit)}</span>
-                  </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            <Card className="shadow-sm">
+              <CardContent className="p-3 md:p-4 flex items-center gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full grid place-items-center bg-muted shrink-0">
+                  <PiggyBank className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" onClick={editCurrent}>
-                    Edit
+                <div className="overflow-hidden">
+                  <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Budgeted</p>
+                  <p className="text-sm md:text-xl font-bold truncate">{formatMoney(totalLimit)}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="shadow-sm">
+              <CardContent className="p-3 md:p-4 flex items-center gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full grid place-items-center bg-expense/10 text-expense shrink-0">
+                  <ArrowDownLeft className="w-4 h-4 md:w-5 md:h-5" />
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Spent</p>
+                  <p className="text-sm md:text-xl font-bold text-expense truncate">{formatMoney(monthSpent)}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="shadow-sm col-span-2 md:col-span-1">
+              <CardContent className="p-3 md:p-4 flex items-center gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full grid place-items-center bg-income/10 text-income shrink-0">
+                  <Wallet className="w-4 h-4 md:w-5 md:h-5" />
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">{left >= 0 ? 'Left to spend' : 'Over budget'}</p>
+                  <p className={`text-sm md:text-xl font-bold truncate ${left >= 0 ? 'text-income' : 'text-expense'}`}>{formatMoney(Math.abs(left))}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Progress view */}
+        {!loading && budgetId && !creating && (
+          <Card className="shadow-sm border-border/60">
+            <CardContent className="p-4 md:p-5 space-y-5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold">Categories</p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={editCurrent} className="gap-1.5">
+                    <Pencil className="w-3.5 h-3.5" /> Edit
                   </Button>
-                  <Button variant="outline" size="sm" onClick={deleteBudget} className="text-expense">
-                    Delete
+                  <Button variant="outline" size="sm" onClick={deleteBudget} className="gap-1.5 text-expense">
+                    <Trash2 className="w-3.5 h-3.5" /> Delete
                   </Button>
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {savedCategories.map((c) => {
                   const spent = spentFor(c.category);
                   const limit = Number(c.limit);
                   const percent = limit > 0 ? Math.round((spent / limit) * 100) : 0;
                   return (
-                    <div key={c.id}>
-                      <div className="flex justify-between text-sm font-medium">
-                        <span>{c.category}</span>
-                        <span>{formatMoney(spent)} / {formatMoney(limit)}</span>
+                    <div key={c.id} className="space-y-1.5">
+                      <div className="flex justify-between items-baseline gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold truncate">{c.category}</p>
+                          {c.note && <p className="text-xs text-muted-foreground truncate">{c.note}</p>}
+                        </div>
+                        <p className="text-sm font-medium whitespace-nowrap">
+                          {formatMoney(spent)} <span className="text-muted-foreground">/ {formatMoney(limit)}</span>
+                        </p>
                       </div>
-                      {c.note && <p className="text-xs text-muted-foreground">{c.note}</p>}
-                      <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
                           className={`h-full rounded-full transition-all ${barColor(percent)}`}
                           style={{ width: `${Math.min(percent, 100)}%` }}
                         />
                       </div>
-                      <p className={`mt-1 text-xs ${spent > limit ? 'text-expense' : 'text-muted-foreground'}`}>
+                      <p className={`text-xs ${spent > limit ? 'text-expense font-medium' : 'text-muted-foreground'}`}>
                         {statusLine(spent, limit)}
                       </p>
                     </div>
@@ -377,10 +429,10 @@ const Budget = () => {
           </Card>
         )}
 
-        {/* ---------- No budget yet: templates, copy, hint ---------- */}
+        {/* No budget yet */}
         {!loading && !budgetId && !creating && (
-          <Card className="rounded-2xl shadow-md">
-            <CardContent className="p-5 space-y-4">
+          <Card className="shadow-sm border-border/60">
+            <CardContent className="p-4 md:p-5 space-y-4">
               <div>
                 <p className="font-semibold">No budget for {monthLabel} yet</p>
                 <p className="text-sm text-muted-foreground">Pick a template and adjust it. Takes about a minute.</p>
@@ -391,24 +443,24 @@ const Budget = () => {
                     key={t.id}
                     type="button"
                     onClick={() => startFromTemplate(t.id)}
-                    className="rounded-xl border border-border p-4 text-left hover:border-primary transition-colors"
+                    className="rounded-xl border border-border/60 bg-card p-4 text-left shadow-sm hover:border-primary hover:bg-primary/5 transition-colors"
                   >
                     <p className="font-semibold">{t.label}</p>
                     <p className="text-xs text-muted-foreground mt-1">{t.description}</p>
                   </button>
                 ))}
               </div>
-              <Button variant="outline" size="sm" onClick={copyLastMonth}>
-                Copy last month
+              <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
+                <Copy className="w-3.5 h-3.5" /> Copy last month
               </Button>
             </CardContent>
           </Card>
         )}
 
-        {/* ---------- Builder: create or edit ---------- */}
+        {/* Builder */}
         {!loading && creating && (
-          <Card className="rounded-2xl shadow-md">
-            <CardContent className="p-5 space-y-4">
+          <Card className="shadow-sm border-border/60">
+            <CardContent className="p-4 md:p-5 space-y-4">
               <div>
                 <p className="font-semibold">{budgetId ? 'Edit your budget' : 'Build your budget'}</p>
                 <p className="text-sm text-muted-foreground">Name each category and say briefly what it is for.</p>
@@ -421,7 +473,7 @@ const Budget = () => {
                       key={t.id}
                       type="button"
                       onClick={() => startFromTemplate(t.id)}
-                      className={`rounded-full border px-4 py-2 text-sm transition-colors ${activeTemplate === t.id
+                      className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${activeTemplate === t.id
                           ? 'bg-primary text-primary-foreground border-primary font-semibold'
                           : 'bg-card border-border text-foreground hover:bg-muted'
                         }`}
@@ -429,13 +481,13 @@ const Budget = () => {
                       {t.label}
                     </button>
                   ))}
-                  <Button variant="outline" size="sm" onClick={copyLastMonth}>
-                    Copy last month
+                  <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
+                    <Copy className="w-3.5 h-3.5" /> Copy last month
                   </Button>
                 </div>
               )}
 
-              <div className="hidden md:grid grid-cols-[1fr_1.5fr_160px_36px] gap-2 text-xs font-semibold text-muted-foreground">
+              <div className="hidden md:grid grid-cols-[1fr_1.5fr_160px_36px] gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <span>Category</span>
                 <span>What is it for?</span>
                 <span>Limit (GH₵)</span>
@@ -473,33 +525,29 @@ const Budget = () => {
                             onClick={() => updateRow(index, { limit: suggested })}
                             className="mt-1 text-xs text-primary hover:underline"
                           >
-                            Suggested: {formatMoney(suggested)} (your 3-month average)
+                            Suggested: {formatMoney(suggested)} (3-month average)
                           </button>
                         )}
                       </div>
                       <Button variant="ghost" size="icon" onClick={() => removeRow(index)} aria-label="Remove category" className="text-expense">
-                        ×
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   );
                 })}
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                <Button variant="outline" size="sm" onClick={addRow}>
-                  + Add category
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> Add category
                 </Button>
-                <p className="text-sm font-medium">
+                <p className="text-sm font-semibold">
                   Total: {formatMoney(rows.reduce((s, r) => s + (Number(r.limit) || 0), 0))}
                 </p>
               </div>
 
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={saveBudget}
-                  disabled={saving}
-                  className="bg-primary text-primary-foreground hover:bg-primary-dark"
-                >
+              <div className="flex gap-2 pt-1">
+                <Button onClick={saveBudget} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary-dark">
                   {saving ? 'Saving...' : 'Save budget'}
                 </Button>
                 <Button variant="outline" onClick={cancelBuilder} disabled={saving}>
