@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Layout } from '@/components/Layout';
-import { ArrowDownLeft, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeft, Copy, PiggyBank, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -84,14 +84,20 @@ const Budget = () => {
   const monthLabel = today.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
   const monthPrefix = monthKey(today, 0);
   const daysLeft = new Date(year, month, 0).getDate() - today.getDate();
-  const previous = { month: today.getMonth() === 0 ? 12 : today.getMonth(), year: today.getMonth() === 0 ? year - 1 : year };
+  const previous = {
+    month: today.getMonth() === 0 ? 12 : today.getMonth(),
+    year: today.getMonth() === 0 ? year - 1 : year,
+  };
 
   const [loading, setLoading] = useState(true);
   const [budgetId, setBudgetId] = useState<string | null>(null);
   const [savedCategories, setSavedCategories] = useState<SavedCategory[]>([]);
-  const [creating, setCreating] = useState(false);
+
+  // Screen flow: 'overview' (saved budget or template picker) → 'preview' → 'builder'
+  const [screen, setScreen] = useState<'overview' | 'preview' | 'builder'>('overview');
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+  const [previewName, setPreviewName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
-  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const loadBudget = useCallback(async () => {
@@ -160,24 +166,22 @@ const Budget = () => {
 
   const totalLimit = savedCategories.reduce((sum, c) => sum + Number(c.limit), 0);
   const totalSpent = savedCategories.reduce((sum, c) => sum + spentFor(c.category), 0);
+  const left = totalLimit - totalSpent;
 
-  // ---------- Builder ----------
-  const openBuilder = (rowsToEdit: Row[], templateId: string | null) => {
-    setRows(rowsToEdit.map((r) => ({ ...r })));
-    setActiveTemplate(templateId);
-    setCreating(true);
+  // ---------- Flow ----------
+  const openPreview = (template: Template) => {
+    setPreviewTemplate(template);
+    setPreviewName(`${monthLabel} budget`);
+    setRows(template.rows.map((r) => ({ ...r })));
+    setScreen('preview');
   };
 
-  const startFromTemplate = (templateId: string) => {
-    const template = TEMPLATES.find((t) => t.id === templateId);
-    if (template) openBuilder(template.rows, templateId);
-  };
+  const openCustomise = () => setScreen('builder');
 
-  const editCurrent = () =>
-    openBuilder(
-      savedCategories.map((c) => ({ category: c.category, note: c.note ?? '', limit: Number(c.limit) })),
-      null,
-    );
+  const openEditSaved = () => {
+    setRows(savedCategories.map((c) => ({ category: c.category, note: c.note ?? '', limit: Number(c.limit) })));
+    setScreen('builder');
+  };
 
   const copyLastMonth = async () => {
     if (!user) return;
@@ -202,28 +206,38 @@ const Budget = () => {
       .from('budget_categories')
       .select('id, category, note, limit')
       .eq('budget_id', last.id);
-    openBuilder(
+    setPreviewTemplate({
+      id: 'copy',
+      label: 'Last month',
+      description: 'Copied from last month. Change anything you like.',
+      rows: [],
+    });
+    setPreviewName(`${monthLabel} budget`);
+    setRows(
       ((categories ?? []) as SavedCategory[]).map((c) => ({
         category: c.category,
         note: c.note ?? '',
         limit: Number(c.limit),
       })),
-      null,
     );
+    setScreen('preview');
   };
 
+  const backToOverview = () => {
+    setScreen('overview');
+    setRows([]);
+    setPreviewTemplate(null);
+  };
+
+  // ---------- Builder helpers ----------
   const updateRow = (index: number, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
-
   const removeRow = (index: number) => setRows((prev) => prev.filter((_, i) => i !== index));
-
   const addRow = () => setRows((prev) => [...prev, { category: '', note: '', limit: 0 }]);
 
-  const cancelBuilder = () => {
-    setCreating(false);
-    setRows([]);
-  };
+  const rowTotal = rows.reduce((s, r) => s + (Number(r.limit) || 0), 0);
 
+  // ---------- Save ----------
   const saveBudget = async () => {
     if (!user) return;
     const cleaned = rows
@@ -240,10 +254,7 @@ const Budget = () => {
 
     if (budgetId) {
       // Editing: update the total, then replace the categories
-      const { error: updateError } = await supabase
-        .from('budgets')
-        .update({ total_limit: total })
-        .eq('id', budgetId);
+      const { error: updateError } = await supabase.from('budgets').update({ total_limit: total }).eq('id', budgetId);
       if (updateError) {
         setSaving(false);
         toast({ title: 'Could not update budget', description: updateError.message, variant: 'destructive' });
@@ -263,7 +274,7 @@ const Budget = () => {
         .from('budgets')
         .insert({
           user_id: user.id,
-          name: `${monthLabel} budget`,
+          name: previewName.trim() || `${monthLabel} budget`,
           period_type: 'monthly',
           month,
           year,
@@ -292,8 +303,9 @@ const Budget = () => {
       setSaving(false);
     }
 
-    setCreating(false);
+    setScreen('overview');
     setRows([]);
+    setPreviewTemplate(null);
     toast({ title: 'Budget saved' });
     loadBudget();
   };
@@ -309,16 +321,15 @@ const Budget = () => {
 
   // Plain-language status for one category
   const statusLine = (spent: number, limit: number) => {
-    const left = limit - spent;
+    const remaining = limit - spent;
     if (limit <= 0) return 'No limit set';
-    if (left < 0) return `Over by ${formatMoney(Math.abs(left))}. Cut back for the rest of the month.`;
+    if (remaining < 0) return `Over by ${formatMoney(Math.abs(remaining))}. Cut back for the rest of the month.`;
     const percent = Math.round((spent / limit) * 100);
     if (percent >= 80) return `${percent}% used with ${daysLeft} days left. Slow down to stay on track.`;
-    return `${formatMoney(left)} left with ${daysLeft} days to go.`;
+    return `${formatMoney(remaining)} left with ${daysLeft} days to go.`;
   };
 
-  const monthSpent = totalSpent;
-  const left = totalLimit - totalSpent;
+  const hasBudget = !loading && !!budgetId;
 
   return (
     <Layout>
@@ -329,7 +340,9 @@ const Budget = () => {
           <CardContent className="p-4 md:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h1 className="text-lg md:text-2xl font-bold text-foreground">Your budget</h1>
+                <h1 className="text-lg md:text-2xl font-bold text-foreground">
+                  {screen === 'builder' ? 'Customise budget' : screen === 'preview' ? 'Review budget' : 'Your budget'}
+                </h1>
                 <p className="text-xs md:text-sm text-muted-foreground mt-0.5">{monthLabel}</p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full grid place-items-center bg-primary/15 text-primary shrink-0">
@@ -341,8 +354,8 @@ const Budget = () => {
 
         {loading && <p className="text-sm text-muted-foreground px-1">Loading your budget...</p>}
 
-        {/* Summary stat cards, same as the Money page */}
-        {!loading && budgetId && !creating && (
+        {/* Summary stats: only when a budget is saved */}
+        {hasBudget && screen === 'overview' && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             <Card className="shadow-sm">
               <CardContent className="p-3 md:p-4 flex items-center gap-3">
@@ -362,7 +375,7 @@ const Budget = () => {
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Spent</p>
-                  <p className="text-sm md:text-xl font-bold text-expense truncate">{formatMoney(monthSpent)}</p>
+                  <p className="text-sm md:text-xl font-bold text-expense truncate">{formatMoney(totalSpent)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -372,22 +385,26 @@ const Budget = () => {
                   <Wallet className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">{left >= 0 ? 'Left to spend' : 'Over budget'}</p>
-                  <p className={`text-sm md:text-xl font-bold truncate ${left >= 0 ? 'text-income' : 'text-expense'}`}>{formatMoney(Math.abs(left))}</p>
+                  <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">
+                    {left >= 0 ? 'Left to spend' : 'Over budget'}
+                  </p>
+                  <p className={`text-sm md:text-xl font-bold truncate ${left >= 0 ? 'text-income' : 'text-expense'}`}>
+                    {formatMoney(Math.abs(left))}
+                  </p>
                 </div>
               </CardContent>
             </Card>
           </div>
         )}
 
-        {/* Progress view */}
-        {!loading && budgetId && !creating && (
+        {/* ---------- Overview with a saved budget ---------- */}
+        {hasBudget && screen === 'overview' && (
           <Card className="shadow-sm border-border/60">
             <CardContent className="p-4 md:p-5 space-y-5">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-semibold">Categories</p>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={editCurrent} className="gap-1.5">
+                  <Button variant="outline" size="sm" onClick={openEditSaved} className="gap-1.5">
                     <Pencil className="w-3.5 h-3.5" /> Edit
                   </Button>
                   <Button variant="outline" size="sm" onClick={deleteBudget} className="gap-1.5 text-expense">
@@ -413,10 +430,7 @@ const Budget = () => {
                         </p>
                       </div>
                       <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full transition-all ${barColor(percent)}`}
-                          style={{ width: `${Math.min(percent, 100)}%` }}
-                        />
+                        <div className={`h-full rounded-full transition-all ${barColor(percent)}`} style={{ width: `${Math.min(percent, 100)}%` }} />
                       </div>
                       <p className={`text-xs ${spent > limit ? 'text-expense font-medium' : 'text-muted-foreground'}`}>
                         {statusLine(spent, limit)}
@@ -429,109 +443,163 @@ const Budget = () => {
           </Card>
         )}
 
-        {/* No budget yet */}
-        {!loading && !budgetId && !creating && (
-          <Card className="shadow-sm border-border/60">
-            <CardContent className="p-4 md:p-5 space-y-4">
-              <div>
-                <p className="font-semibold">No budget for {monthLabel} yet</p>
-                <p className="text-sm text-muted-foreground">Pick a template and adjust it. Takes about a minute.</p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {TEMPLATES.map((t) => (
+        {/* ---------- Overview with no budget: pick a template ---------- */}
+        {!loading && !budgetId && screen === 'overview' && (
+          <>
+            <Card className="shadow-sm border-border/60">
+              <CardContent className="p-4 md:p-5">
+                <p className="font-semibold">You have no budget for {monthLabel} yet</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Choose a starting point. You'll see what it includes before anything is saved.
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {TEMPLATES.map((t) => {
+                const total = t.rows.reduce((s, r) => s + r.limit, 0);
+                return (
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => startFromTemplate(t.id)}
-                    className="rounded-xl border border-border/60 bg-card p-4 text-left shadow-sm hover:border-primary hover:bg-primary/5 transition-colors"
+                    onClick={() => openPreview(t)}
+                    className="rounded-2xl border border-border/60 bg-card p-4 text-left shadow-sm hover:border-primary hover:shadow-md transition-all"
                   >
-                    <p className="font-semibold">{t.label}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-semibold">{t.label}</p>
+                      {t.rows.length > 0 && (
+                        <span className="text-xs font-medium text-muted-foreground">{formatMoney(total)}</span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground mt-1">{t.description}</p>
+                    {t.rows.length > 0 && (
+                      <p className="text-xs text-muted-foreground mt-3">
+                        {t.rows.length} categories: {t.rows.map((r) => r.category).join(', ')}
+                      </p>
+                    )}
                   </button>
-                ))}
+                );
+              })}
+            </div>
+
+            <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
+              <Copy className="w-3.5 h-3.5" /> Copy last month instead
+            </Button>
+          </>
+        )}
+
+        {/* ---------- Preview: name it and see what is included ---------- */}
+        {!loading && screen === 'preview' && (
+          <Card className="shadow-sm border-border/60">
+            <CardContent className="p-4 md:p-5 space-y-5">
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={backToOverview} className="text-muted-foreground hover:text-foreground" aria-label="Back">
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <p className="text-sm text-muted-foreground">Starting from: <span className="font-semibold text-foreground">{previewTemplate?.label}</span></p>
               </div>
-              <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
-                <Copy className="w-3.5 h-3.5" /> Copy last month
-              </Button>
+
+              <div className="space-y-1.5">
+                <label htmlFor="budget-name" className="text-sm font-semibold">Name this budget</label>
+                <Input id="budget-name" value={previewName} onChange={(e) => setPreviewName(e.target.value)} placeholder="e.g. November budget" />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">What's included</p>
+                <div className="divide-y divide-border/60 rounded-xl border border-border/60">
+                  {rows.length === 0 && (
+                    <p className="p-4 text-sm text-muted-foreground">No categories yet. Customise to add some.</p>
+                  )}
+                  {rows.map((r, i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 p-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{r.category || 'Untitled'}</p>
+                        {r.note && <p className="text-xs text-muted-foreground truncate">{r.note}</p>}
+                      </div>
+                      <p className="text-sm font-semibold whitespace-nowrap">{formatMoney(Number(r.limit) || 0)}</p>
+                    </div>
+                  ))}
+                  {rows.length > 0 && (
+                    <div className="flex items-center justify-between p-3 bg-muted/40 rounded-b-xl">
+                      <p className="text-sm font-semibold">Total</p>
+                      <p className="text-sm font-bold">{formatMoney(rowTotal)}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-1">
+                <Button variant="outline" onClick={openCustomise} className="gap-1.5">
+                  <Pencil className="w-3.5 h-3.5" /> Customise
+                </Button>
+                <Button
+                  onClick={saveBudget}
+                  disabled={saving || rows.length === 0}
+                  className="bg-primary text-primary-foreground hover:bg-primary-dark"
+                >
+                  {saving ? 'Saving...' : 'Create budget'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Builder */}
-        {!loading && creating && (
+        {/* ---------- Builder: one category per card ---------- */}
+        {!loading && screen === 'builder' && (
           <Card className="shadow-sm border-border/60">
             <CardContent className="p-4 md:p-5 space-y-4">
-              <div>
-                <p className="font-semibold">{budgetId ? 'Edit your budget' : 'Build your budget'}</p>
-                <p className="text-sm text-muted-foreground">Name each category and say briefly what it is for.</p>
-              </div>
-
-              {!budgetId && (
-                <div className="flex flex-wrap gap-2">
-                  {TEMPLATES.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => startFromTemplate(t.id)}
-                      className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${activeTemplate === t.id
-                          ? 'bg-primary text-primary-foreground border-primary font-semibold'
-                          : 'bg-card border-border text-foreground hover:bg-muted'
-                        }`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={copyLastMonth} className="gap-1.5">
-                    <Copy className="w-3.5 h-3.5" /> Copy last month
-                  </Button>
-                </div>
-              )}
-
-              <div className="hidden md:grid grid-cols-[1fr_1.5fr_160px_36px] gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <span>Category</span>
-                <span>What is it for?</span>
-                <span>Limit (GH₵)</span>
-                <span />
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Name each category and say briefly what it is for. The limit is the most you plan to spend.
+              </p>
 
               <div className="space-y-3">
                 {rows.map((row, index) => {
                   const suggested = suggestions.get(normalise(row.category));
                   return (
-                    <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_160px_36px] gap-2 items-start">
-                      <Input
-                        value={row.category}
-                        placeholder="e.g. Transport"
-                        aria-label="Category name"
-                        onChange={(e) => updateRow(index, { category: e.target.value })}
-                      />
-                      <Input
-                        value={row.note}
-                        placeholder="What is this for?"
-                        aria-label="What it is for"
-                        onChange={(e) => updateRow(index, { note: e.target.value })}
-                      />
-                      <div>
+                    <div key={index} className="rounded-xl border border-border/60 p-3 space-y-2.5 bg-card">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Category {index + 1}</p>
+                        <Button variant="ghost" size="sm" onClick={() => removeRow(index)} aria-label="Remove category" className="h-7 px-2 text-expense gap-1">
+                          <Trash2 className="w-3.5 h-3.5" /> Remove
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                         <Input
-                          type="number"
-                          min={0}
-                          value={row.limit}
-                          aria-label="Monthly limit"
-                          onChange={(e) => updateRow(index, { limit: Number(e.target.value) })}
+                          value={row.category}
+                          placeholder="Category name, e.g. Transport"
+                          aria-label="Category name"
+                          onChange={(e) => updateRow(index, { category: e.target.value })}
                         />
+                        <Input
+                          value={row.note}
+                          placeholder="What is it for?"
+                          aria-label="What it is for"
+                          onChange={(e) => updateRow(index, { note: e.target.value })}
+                        />
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative w-40">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">GH₵</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={row.limit}
+                            aria-label="Monthly limit"
+                            className="pl-11"
+                            onChange={(e) => updateRow(index, { limit: Number(e.target.value) })}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground">per month</span>
                         {suggested !== undefined && suggested !== row.limit && (
                           <button
                             type="button"
                             onClick={() => updateRow(index, { limit: suggested })}
-                            className="mt-1 text-xs text-primary hover:underline"
+                            className="ml-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                           >
-                            Suggested: {formatMoney(suggested)} (3-month average)
+                            Use {formatMoney(suggested)} (your 3-month average)
                           </button>
                         )}
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeRow(index)} aria-label="Remove category" className="text-expense">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   );
                 })}
@@ -541,17 +609,15 @@ const Budget = () => {
                 <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
                   <Plus className="w-3.5 h-3.5" /> Add category
                 </Button>
-                <p className="text-sm font-semibold">
-                  Total: {formatMoney(rows.reduce((s, r) => s + (Number(r.limit) || 0), 0))}
-                </p>
+                <p className="text-sm font-semibold">Total: {formatMoney(rowTotal)}</p>
               </div>
 
-              <div className="flex gap-2 pt-1">
-                <Button onClick={saveBudget} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary-dark">
-                  {saving ? 'Saving...' : 'Save budget'}
-                </Button>
-                <Button variant="outline" onClick={cancelBuilder} disabled={saving}>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+                <Button variant="outline" onClick={() => setScreen(budgetId ? 'overview' : 'preview')} disabled={saving}>
                   Cancel
+                </Button>
+                <Button onClick={saveBudget} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary-dark">
+                  {saving ? 'Saving...' : budgetId ? 'Save changes' : 'Save budget'}
                 </Button>
               </div>
             </CardContent>
