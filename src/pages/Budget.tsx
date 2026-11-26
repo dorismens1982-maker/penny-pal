@@ -232,6 +232,19 @@ const Budget = () => {
     setScreen('builder');
   };
 
+  // Plus button: add a category to a saved budget, or start a blank one if there is none
+  const openAddCategory = () => {
+    if (budgetId) {
+      setRows([
+        ...savedCategories.map((c) => ({ category: c.category, note: c.note ?? '', limit: Number(c.limit) })),
+        { category: '', note: '', limit: 0 },
+      ]);
+      setScreen('builder');
+    } else {
+      openPreview(TEMPLATES[TEMPLATES.length - 1]);
+    }
+  };
+
   const copyLastMonth = async () => {
     if (!user) return;
     const { data: last, error } = await supabase
@@ -665,6 +678,18 @@ const Budget = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Plus button: floats above the mobile bottom bar */}
+        {!loading && screen === 'overview' && (
+          <button
+            type="button"
+            onClick={openAddCategory}
+            aria-label={budgetId ? 'Add category' : 'Start a budget'}
+            className="fixed right-4 bottom-20 md:bottom-8 z-40 w-14 h-14 rounded-full grid place-items-center bg-primary text-primary-foreground shadow-lg hover:bg-primary-dark active:scale-95 transition-transform"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
         )}
       </div>
     </Layout>
