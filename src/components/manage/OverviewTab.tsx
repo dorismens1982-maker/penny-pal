@@ -38,6 +38,16 @@ export const OverviewTab = ({
     onVoiceResult,
     currency,
 }: OverviewTabProps) => {
+    // Net balance resets each month: only this month's income and expenses count.
+    // The all-time balance is still shown underneath for reference.
+    const now = new Date();
+    const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const monthNet = transactions.reduce((sum, t) => {
+        if (!t.date?.startsWith(monthPrefix)) return sum;
+        return t.type === 'income' ? sum + Number(t.amount) : sum - Number(t.amount);
+    }, 0);
+    const monthLabel = now.toLocaleString('en-GB', { month: 'long' });
+
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3" id="tour-balance">
@@ -78,10 +88,13 @@ export const OverviewTab = ({
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-full grid place-items-center bg-muted shrink-0">
                             <Wallet className="w-4 h-4 md:w-5 md:h-5" />
                         </div>
-                        <div>
-                            <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground">Net Balance</p>
-                            <p className={`text-base md:text-xl font-merriweather font-bold ${balance >= 0 ? 'text-income' : 'text-expense'}`}>
-                                {formatCurrency(balance, currency)}
+                        <div className="overflow-hidden">
+                            <p className="text-[10px] md:text-xs uppercase tracking-wide text-muted-foreground truncate">Net, {monthLabel}</p>
+                            <p className={`text-base md:text-xl font-merriweather font-bold truncate ${monthNet >= 0 ? 'text-income' : 'text-expense'}`}>
+                                {formatCurrency(monthNet, currency)}
+                            </p>
+                            <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+                                All time: {formatCurrency(balance, currency)}
                             </p>
                         </div>
                     </CardContent>
